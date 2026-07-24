@@ -1,0 +1,16 @@
+// D:\\Mani\\Code with Zosh\\Backup\\source code\\backend\\src\\routers\\wishlistRoutes.js
+const express = require("express");
+const router = express.Router();
+const wishlistController = require("../controllers/wishlistController");
+const authMiddleware = require("../middlewares/userAuthMiddleware");
+
+router.get("/", authMiddleware,  
+  wishlistController.getWishlistByUserId);
+
+router.post("/add-product/:productId", authMiddleware,  
+  wishlistController.addProductToWishlist);
+
+router.delete("/remove-product/:productId", authMiddleware,
+  wishlistController.removeProductFromWishlist);
+
+module.exports = router;

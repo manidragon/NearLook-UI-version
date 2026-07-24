@@ -1,0 +1,69 @@
+:root {
+  --clr-checkbox-bg: transparent;
+  --clr-stroke-inactive: #878787;
+  --clr-stroke-active: #FF5A00;
+  --clr-text-active: #FF5A00;
+  --clr-glow-shadow: 0 0 4px rgba(255, 90, 0, 0.4),
+    0 0 8px rgba(255, 90, 0, 0.2);
+  --clr-glow-filter: drop-shadow(0 0 2px rgba(255, 90, 0, 0.6))
+    drop-shadow(0 0 4px rgba(255, 90, 0, 0.4));
+  --clr-text-shadow-glow: 0 0 2px rgba(255, 90, 0, 0.5),
+    0 0 4px rgba(255, 90, 0, 0.2);
+}
+
+.custom-checkbox {
+  display: flex;
+  flex-direction: column;
+  margin: 4px 0;
+}
+
+.custom-checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.custom-checkbox label span {
+  transition: 0.3s ease-in;
+  font-weight: 400;
+  font-size: 14px;
+  color: #212121;
+}
+
+.custom-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.custom-checkbox svg {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background-color: var(--clr-checkbox-bg);
+  /* Optional: keeping the shadow to make it match the design intent */
+  /* box-shadow: 0 0 2px rgba(0,0,0,0.1); */
+}
+
+.custom-checkbox svg path:nth-of-type(2) {
+  stroke-dasharray: 14;
+  stroke-dashoffset: 14;
+  transition: stroke-dashoffset 0.3s ease-in;
+}
+
+.custom-checkbox svg path:nth-of-type(3) {
+  stroke: var(--clr-stroke-inactive);
+  transition: stroke 0.3s ease-in;
+}
+
+.custom-checkbox input:checked + label svg path:nth-of-type(2),
+.custom-checkbox input:checked + label svg path:nth-of-type(3) {
+  stroke-dashoffset: 0;
+  stroke: var(--clr-stroke-active);
+  filter: var(--clr-glow-filter);
+}
+
+.custom-checkbox input:checked + label span {
+  color: var(--clr-text-active);
+  text-shadow: var(--clr-text-shadow-glow);
+  font-weight: 500;
+}

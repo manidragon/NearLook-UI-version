@@ -1,0 +1,152 @@
+const Review = require("../models/Review");
+const Product = require("../models/Product");
+const createError = require("http-errors");
+const ProductService = require("./ProductService");
+
+class ReviewService {
+
+  // ✅ CREATE REVIEW
+  async createReview(reqBody, user, productId) {
+
+    const product =
+      await ProductService.findProductById(
+        productId
+      );
+
+    const existingReviewQuery = {
+        product: product._id,
+        user: user._id,
+    };
+    if (reqBody.orderItemId) {
+        existingReviewQuery.orderItem = reqBody.orderItemId;
+    }
+
+    const existingReview =
+      await Review.findOne(existingReviewQuery);
+
+    if (existingReview) {
+      throw new Error(
+        "You have already reviewed this product for this order"
+      );
+    }
+
+    const review = new Review({
+
+      user: user._id,
+
+      product: product._id,
+
+      orderItem: reqBody.orderItemId || null,
+
+      rating: reqBody.rating,
+
+      reviewText: reqBody.reviewText,
+
+      // ✅ SAVE REVIEW IMAGES
+      productImages:
+        reqBody.productImages || [],
+
+    });
+
+    const savedReview =
+      await review.save();
+
+    return Review.findById(
+      savedReview._id
+    )
+      .populate("user")
+      .populate("product");
+  }
+
+  // ✅ GET REVIEWS BY PRODUCT
+  async getReviewsByProductId(productId) {
+
+    const reviews =
+  await Review.find({
+    product: productId,
+  })
+    .populate("user")
+    .populate("product");
+
+    return reviews;
+  }
+
+  // ✅ GET ALL REVIEWS FOR ADMIN
+  async getAllReviews() {
+    return await Review.find()
+      .populate("user")
+      .populate("product")
+      .sort({ createdAt: -1 });
+  }
+
+  // ✅ UPDATE REVIEW
+  async updateReview(
+    reviewId,
+    reviewText,
+    rating,
+    userId
+  ) {
+
+    const review =
+      await Review.findById(reviewId);
+
+    if (!review) {
+      throw createError.NotFound(
+        "Review not found"
+      );
+    }
+
+    if (
+      review.user.toString() !==
+      userId.toString()
+    ) {
+      throw createError.Unauthorized(
+        "You are not authorized to update this review"
+      );
+    }
+
+    review.reviewText = reviewText;
+
+    review.rating = rating;
+
+    await review.save();
+
+    return review;
+  }
+
+  // ✅ DELETE REVIEW
+  async deleteReview(
+    reviewId,
+    userId
+  ) {
+
+    const review =
+      await Review.findById(reviewId);
+
+    if (!review) {
+      throw createError.NotFound(
+        "Review not found"
+      );
+    }
+
+    if (
+      review.user.toString() !==
+      userId.toString()
+    ) {
+      throw createError.Unauthorized(
+        "You are not authorized to delete this review"
+      );
+    }
+
+    await review.deleteOne();
+  }
+}
+
+
+
+
+
+
+
+module.exports =
+  new ReviewService();

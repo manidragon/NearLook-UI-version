@@ -1,0 +1,196 @@
+.logo{
+    font-family: "Pacifico", cursive;
+    font-weight: 400;
+    font-style: normal;
+}
+.category{
+    font-weight: 400;
+}
+
+
+.blur-bg {
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(10px); /* For Safari */
+}
+
+/* Custom Tooltip */
+.tooltip-container {
+  position: relative;
+  background-color: #FF5A00;
+  background-image: linear-gradient(
+    225deg,
+    #FF7E33 0%,
+    #FF5A00 50%,
+    #E65100 100%
+  );
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+  margin-left: 0;
+  margin-right: 0;
+  font-size: 15px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  fill: #fff;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+.tooltip-container .borde-back {
+  width: 48px;
+  height: 48px;
+  background-color: #e8e8e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  box-shadow: none;
+}
+
+.tooltip-container .icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  background-color: #FF5A00;
+  background-image: linear-gradient(
+    225deg,
+    #FF7E33 0%,
+    #FF5A00 50%,
+    #E65100 100%
+  );
+  cursor: pointer;
+}
+
+.tooltip {
+  position: absolute;
+  top: 0px;
+  left: 20px; /* Start from behind the middle of the icon */
+  transform: translateX(-15px); /* Tucked in slightly when hidden */
+  width: 120px;
+  height: 40px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border-radius: 40px;
+  background-color: #FF5A00;
+  background-image: linear-gradient(
+    225deg,
+    #FF7E33 0%,
+    #FF5A00 50%,
+    #E65100 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 20px; /* Offset text to the right of the icon */
+  color: #fff;
+  font-size: 15px;
+  font-family: sans-serif;
+  font-weight: 700;
+  z-index: -1;
+}
+
+.tooltip-container:hover .tooltip {
+  transform: translateX(0); /* Slide fully out */
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.tooltip-container:hover {
+  margin-right: 100px; /* Make precise room for the 120px pill that starts halfway */
+  z-index: 100;
+}
+
+/* Search Box Custom Styles */
+.searchBox {
+  display: flex;
+  width: 48px; /* Collapsed state */
+  height: 48px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5), 0 4px 15px rgba(0, 0, 0, 0.05);
+  border-radius: 50px;
+  position: relative;
+  transition: width 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+  overflow: hidden;
+}
+
+/* Expand on hover or when clicking into the input */
+.searchBox:hover, .searchBox:focus-within {
+  width: 320px; /* Expanded state */
+  border: 1px solid #FF5A00;
+}
+
+.searchButton {
+  color: white;
+  position: absolute;
+  right: 4px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--gradient-2, linear-gradient(225deg, #FF7E33 0%, #FF5A00 50%, #E65100 100%));
+  border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+  cursor: pointer;
+  z-index: 10;
+}
+
+.searchButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+.searchButton:hover {
+  color: #fff;
+  background-color: #1A1A1A;
+  box-shadow: rgba(0, 0, 0, 0.5) 0 10px 20px;
+  transform: translateY(-3px);
+}
+
+.searchButton:active {
+  box-shadow: none;
+  transform: translateY(0);
+}
+
+.searchInput {
+  border: none;
+  background: none;
+  outline: none;
+  color: #333;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 0 48px 0 20px; /* Leave space for button on right */
+  width: 100%;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.searchInput::placeholder {
+  color: #666;
+}
+
+.searchBox:hover .searchInput, .searchBox:focus-within .searchInput {
+  opacity: 1;
+}
+
+/* Hide scrollbar for horizontal scroll containers */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}

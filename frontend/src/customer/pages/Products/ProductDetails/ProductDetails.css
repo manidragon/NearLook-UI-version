@@ -1,0 +1,63 @@
+/* From Uiverse.io by srinivasaiml - Modified for Light Theme */ 
+.pill-radio-container {
+  --main-color: #ff6ec4;
+  --secondary-color: #7873f5;
+  --text-color: #666;
+  --pill-bg: #f3f4f6;
+  --total-options: 3.5;
+
+  display: flex;
+  position: relative;
+  background: var(--pill-bg);
+  border-radius: 3rem;
+  padding: 0.5rem;
+  gap: 1rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05) inset;
+  width: fit-content;
+}
+
+.pill-radio-container input {
+  display: none;
+}
+
+.pill-radio-container label {
+  position: relative;
+  padding: 0.6rem 1.5rem;
+  border-radius: 3rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-color);
+  transition: color 0.3s ease-in-out;
+  z-index: 2;
+  white-space: nowrap;
+}
+
+.pill-radio-container input:checked + label {
+  color: #111827;
+}
+
+.pill-radio-container label:hover {
+  color: var(--secondary-color);
+}
+
+.pill-radio-container input:checked + label::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 10%;
+  width: 80%;
+  height: 4px;
+  background: linear-gradient(
+    to right,
+    var(--main-color),
+    var(--secondary-color)
+  );
+  border-radius: 2px;
+  z-index: 1;
+}
+
+/* Linear continuous scrolling for product benefits */
+.swiper-free-mode > .swiper-wrapper {
+  transition-timing-function: linear;
+  margin: 0 auto;
+}

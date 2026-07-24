@@ -1,0 +1,70 @@
+/* Modern UI Alert Styling */
+.MuiAlert-root {
+  border-radius: 16px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+  padding: 12px 20px !important;
+  align-items: center !important;
+  font-family: inherit !important;
+  font-weight: 500 !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  backdrop-filter: blur(12px) !important;
+  animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  transform-origin: bottom center;
+}
+
+.MuiAlert-standardSuccess {
+  background: linear-gradient(135deg, #e6f4ea 0%, #cce8d6 100%) !important;
+  color: #0d532a !important;
+}
+
+.MuiAlert-standardError {
+  background: linear-gradient(135deg, #fce8e6 0%, #fad2cf 100%) !important;
+  color: #a50e0e !important;
+}
+
+.MuiAlert-standardWarning {
+  background: linear-gradient(135deg, #fef7e0 0%, #fdecc8 100%) !important;
+  color: #8f5902 !important;
+}
+
+.MuiAlert-standardInfo {
+  background: linear-gradient(135deg, #e8f0fe 0%, #d2e3fc 100%) !important;
+  color: #174ea6 !important;
+}
+
+.MuiAlert-icon {
+  font-size: 24px !important;
+  opacity: 0.85 !important;
+}
+
+.MuiAlert-message {
+  font-size: 0.95rem !important;
+  padding: 4px 0 !important;
+  letter-spacing: 0.2px !important;
+}
+
+.MuiAlert-action {
+  padding-top: 0 !important;
+  margin-right: -8px !important;
+}
+
+.MuiAlert-action button {
+  color: inherit !important;
+  opacity: 0.7 !important;
+  transition: opacity 0.2s ease !important;
+}
+.MuiAlert-action button:hover {
+  opacity: 1 !important;
+  background-color: rgba(0,0,0,0.05) !important;
+}
+
+@keyframes slideUpFade {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
