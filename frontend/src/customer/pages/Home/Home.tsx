@@ -73,14 +73,14 @@ const Home = () => {
                     )}
 
                     {/* Deals Slider */}
-                    {homePage.homePageData?.deals && (
+                    {/* {homePage.homePageData?.deals && (
                         <section className="bg-white p-4 shadow-sm rounded-sm">
                             <div className="pb-4 border-b border-gray-100 mb-4">
                                 <h2 className='text-xl font-semibold text-gray-800'>Best of Deals</h2>
                             </div>
                             <DealSlider />
                         </section>
-                    )}
+                    )} */}
 
                     {/* Products Near You */}
                     {products.productsNearYou && products.productsNearYou.length > 0 && (

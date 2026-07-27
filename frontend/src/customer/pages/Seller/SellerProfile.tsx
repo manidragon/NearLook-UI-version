@@ -79,7 +79,7 @@ export default function SellerProfile() {
     );
   }
 
-  const themeColor = seller?.storefront?.themeColor || "#f0913a";
+  const themeColor = "#FF5A00";
   const themeStyles = {
     "--sp-accent": themeColor,
     "--sp-accent-light": `color-mix(in srgb, ${themeColor} 80%, white)`,

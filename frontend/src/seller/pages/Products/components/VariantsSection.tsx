@@ -4,7 +4,7 @@ import {
   Box, Typography, Button, Tabs, Tab, Paper, Grid,
   Chip, IconButton, Tooltip, Alert, FormControl, FormHelperText,
   InputLabel, Select, MenuItem, FormControlLabel, Checkbox,
-  Switch,
+  Switch, Autocomplete
 } from '@mui/material';
 import { FastTextField as TextField } from './FastTextField';
 import type { SelectChangeEvent } from '@mui/material';
@@ -121,92 +121,40 @@ const renderAttributeField = (
   const label = `${attr.label}${attr.required ? ' *' : ''}`;
 
   switch (attr.type) {
-case 'select': {
-  const OTHERS_VALUE = "__others__";
+    case 'select': {
+      const rawValue = value == null ? '' : String(value);
+      const options: string[] = attr.options || [];
 
-  const rawValue = value == null ? '' : String(value);
-
-  const options: string[] = attr.options || [];
-
-  const isCustom =
-    rawValue !== '' &&
-    rawValue !== '__custom__' &&
-    !options.includes(rawValue);
-
-  const selectValue =
-    isCustom || rawValue === '__custom__'
-      ? OTHERS_VALUE
-      : rawValue;
-
-  return (
-    <Box>
-      {/* ✅ DROPDOWN */}
-      <FormControl fullWidth required={attr.required}>
-        <InputLabel>
-          {label}
-          {disabled && (
-            <Lock
-              fontSize="small"
-              sx={{ ml: 0.5, color: 'text.disabled' }}
-            />
-          )}
-        </InputLabel>
-
-        <Select
-          value={selectValue}
-          label={label}
-          onChange={(e: SelectChangeEvent<unknown>) => {
-            const val = String(e.target.value);
-
-            if (val === OTHERS_VALUE) {
-              onChange('__custom__');
-            } else {
-              onChange(val);
+      return (
+        <Autocomplete
+          freeSolo
+          options={options}
+          value={rawValue}
+          disabled={disabled}
+          onChange={(_event, newValue) => {
+            onChange(newValue || '');
+          }}
+          onInputChange={(_event, newInputValue, reason) => {
+            if (reason === 'input') {
+              onChange(newInputValue);
             }
           }}
-          disabled={disabled}
-        >
-          <MenuItem value="">
-            <em>Select {attr.label}</em>
-          </MenuItem>
-
-          {options.map((opt: string) => (
-            <MenuItem key={opt} value={opt}>
-              {opt}
-            </MenuItem>
-          ))}
-
-          <MenuItem disabled divider>
-            ──────────
-          </MenuItem>
-
-          <MenuItem value={OTHERS_VALUE}>
-            ✏️ Others (Enter manually)
-          </MenuItem>
-        </Select>
-      </FormControl>
-
-      {/* ✅ CUSTOM INPUT */}
-      {(selectValue === OTHERS_VALUE ||
-        rawValue === '__custom__') && (
-        <TextField
-          fullWidth
-          autoFocus
-          sx={{ mt: 1 }}
-          placeholder={`Enter ${attr.label}`}
-          value={
-            rawValue === '__custom__'
-              ? ''
-              : rawValue
-          }
-          onChange={(e) => {
-            onChange(e.target.value);
-          }}
+          renderInput={(params) => (
+            <TextField 
+              {...params} 
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  {label}
+                  {disabled && <Lock fontSize="small" sx={{ color: 'text.disabled' }} />}
+                </Box>
+              }
+              placeholder={`Select or type ${attr.label}`} 
+              required={attr.required}
+            />
+          )}
         />
-      )}
-    </Box>
-  );
-}
+      );
+    }
 
     case 'boolean':
       return (

@@ -10,6 +10,8 @@ export interface Transaction {
   seller: Seller;
   date: string;
   isOffline?: boolean;
+  customerName?: string;
+  customerPhone?: string;
   
   // ✅ ADD THESE PAYMENT FIELDS:
   amount: number;                    // Order total selling price

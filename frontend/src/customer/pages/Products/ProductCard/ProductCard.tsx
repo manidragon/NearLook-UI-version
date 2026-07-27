@@ -229,31 +229,33 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId })
           )}
 
           <div className="mt-auto flex justify-between items-end">
-            <div className="flex flex-col">
-              <span className="text-base sm:text-lg font-extrabold text-gray-900 leading-none">
-                ₹{item.variants?.[0]?.sellingPrice ?? item.minPrice ?? item.sellingPrice ?? 'N/A'}
-              </span>
-              {(item.variants?.[0]?.mrpPrice || item.mrpPrice) && (
-                <div className="flex items-center gap-1.5 mt-1">
-                  <span className="text-[10px] sm:text-xs text-gray-400 line-through font-medium">
-                    ₹{item.variants?.[0]?.mrpPrice || item.mrpPrice}
+            <div className="flex flex-col gap-1">
+              <div className="flex items-end gap-1.5">
+                <span className="text-base sm:text-lg font-extrabold text-gray-900 leading-none">
+                  ₹{item.variants?.[0]?.offers?.[0]?.sellingPrice ?? item.variants?.[0]?.sellingPrice ?? item.minPrice ?? item.sellingPrice ?? 'N/A'}
+                </span>
+                {(item.variants?.[0]?.offers?.[0]?.mrpPrice || item.variants?.[0]?.mrpPrice || item.mrpPrice) && (
+                  <span className="text-[12px] sm:text-xs text-gray-400 line-through font-medium leading-none mb-[2px]">
+                    ₹{item.variants?.[0]?.offers?.[0]?.mrpPrice || item.variants?.[0]?.mrpPrice || item.mrpPrice}
                   </span>
-                  {(() => {
-                    const sellingPrice = item.variants?.[0]?.sellingPrice || item.minPrice || item.sellingPrice;
-                    const mrpPrice = item.variants?.[0]?.mrpPrice || item.mrpPrice;
+                )}
+              </div>
+              {(() => {
+                const sellingPrice = item.variants?.[0]?.offers?.[0]?.sellingPrice || item.variants?.[0]?.sellingPrice || item.minPrice || item.sellingPrice;
+                const mrpPrice = item.variants?.[0]?.offers?.[0]?.mrpPrice || item.variants?.[0]?.mrpPrice || item.mrpPrice;
 
-                    if (sellingPrice && mrpPrice && mrpPrice > sellingPrice) {
-                      const discount = Math.round(((mrpPrice - sellingPrice) / mrpPrice) * 100);
-                      return (
-                        <span className="text-[10px] sm:text-xs font-bold text-green-600 bg-green-50 px-1 rounded">
-                          {discount}% off
-                        </span>
-                      );
-                    }
-                    return null;
-                  })()}
-                </div>
-              )}
+                if (sellingPrice && mrpPrice && mrpPrice > sellingPrice) {
+                  const discount = Math.round(((mrpPrice - sellingPrice) / mrpPrice) * 100);
+                  return (
+                    <div>
+                      <span className="text-[10px] sm:text-xs font-bold text-green-600 bg-green-50 px-1 rounded">
+                        {discount}% off
+                      </span>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
             </div>
 
             <div 

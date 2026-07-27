@@ -292,13 +292,7 @@ const Profile = () => {
                     <Typography variant="body2" color="text.secondary">No banner uploaded</Typography>
                   )}
                 </div>
-                <ProfileFildCard keys={"Theme Color"} value={
-                  <div className="flex items-center gap-2">
-                    <div style={{width: 20, height: 20, borderRadius: '50%', backgroundColor: sellers.profile?.storefront?.themeColor || '#1976d2'}} />
-                    <span>{sellers.profile?.storefront?.themeColor || '#1976d2'}</span>
-                  </div>
-                } />
-                <ProfileFildCard keys={"Holiday Mode"} value={sellers.profile?.storefront?.holidayMode ? "Active 🏖️" : "Disabled"} />
+
                 
                 <div className="p-3 sm:p-4 my-2 flex flex-col xl:flex-row xl:items-center bg-[#f8fafc] border border-slate-100 rounded-xl">
                   <p className="text-xs sm:text-sm text-gray-500 font-medium xl:w-36 mb-1 xl:mb-0 xl:pr-4 uppercase tracking-wider">Store Desc</p>

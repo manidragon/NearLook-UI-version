@@ -105,7 +105,9 @@ const checkout = async (req, res) => {
             netAmount: finalAmount,
             paymentStatus: 'COMPLETED',
             paymentMethod: 'CASH_ON_DELIVERY',
-            isOffline: true
+            isOffline: true,
+            customerName: billing?.customerName || "Walk-in Customer",
+            customerPhone: billing?.customerPhone || ""
         });
         await transaction.save({ session });
 

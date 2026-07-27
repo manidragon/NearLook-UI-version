@@ -11,6 +11,14 @@ const transactionSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    customerName: {
+        type: String,
+        trim: true
+    },
+    customerPhone: {
+        type: String,
+        trim: true
+    },
     order: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Order',  

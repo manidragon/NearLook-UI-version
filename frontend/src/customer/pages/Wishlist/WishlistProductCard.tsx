@@ -100,7 +100,10 @@ const WishlistProductCard: React.FC<ProductCardProps> = ({ item }) => {
   return (
     <>
       <div
-        onClick={() => navigate(`/product-details/${item.category?.categoryId || 'all'}/${item.title}/${item._id}`)}
+        onClick={() => {
+          const categoryId = typeof item.category === 'object' && item.category !== null ? item.category.categoryId : item.category;
+          navigate(`/product-details/${categoryId || 'all'}/${item.title}/${item._id}`);
+        }}
         className="product-card cursor-pointer relative group"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -148,10 +151,24 @@ const WishlistProductCard: React.FC<ProductCardProps> = ({ item }) => {
           )}
 
           <div className="pc-footer">
-            <div className="pc-price-container">
-              <span className="pc-price">
-                ₹{sellingPrice || 'N/A'}
-              </span>
+            <div className="pc-price-container flex flex-col gap-1">
+              <div className="flex items-end gap-1.5">
+                <span className="pc-price font-extrabold text-gray-900">
+                  ₹{sellingPrice || 'N/A'}
+                </span>
+                {mrpPrice !== undefined && sellingPrice !== undefined && mrpPrice > sellingPrice && (
+                  <span className="text-[12px] sm:text-xs text-gray-400 line-through font-medium leading-none mb-[2px]">
+                    ₹{mrpPrice}
+                  </span>
+                )}
+              </div>
+              {mrpPrice !== undefined && sellingPrice !== undefined && mrpPrice > sellingPrice && (
+                <div>
+                  <span className="text-[10px] sm:text-xs font-bold text-green-600 bg-green-50 px-1 rounded">
+                    {Math.round(((mrpPrice - sellingPrice) / mrpPrice) * 100)}% off
+                  </span>
+                </div>
+              )}
             </div>
 
             <div 

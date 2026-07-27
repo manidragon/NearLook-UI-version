@@ -534,6 +534,7 @@ const OfflineSale: React.FC = () => {
     customerPhone: "",
     discount: "",
   });
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (!products || products.length === 0) {
@@ -564,8 +565,17 @@ const OfflineSale: React.FC = () => {
       }
       map[fv.productId].variants.push(fv);
     });
-    return Object.values(map);
-  }, [flatVariants, products]);
+    
+    let result = Object.values(map);
+    if (searchQuery.trim()) {
+      const lowerQuery = searchQuery.toLowerCase();
+      result = result.filter(({ product }) => 
+        product?.title?.toLowerCase().includes(lowerQuery)
+      );
+    }
+    
+    return result;
+  }, [flatVariants, products, searchQuery]);
 
   // Group variants by color within a product
   const groupByColor = (variants: FlatVariant[]) => {
@@ -691,6 +701,17 @@ const OfflineSale: React.FC = () => {
             sx={{ fontWeight: 700, px: 1 }}
           />
         </Badge>
+      </Box>
+
+      <Box sx={{ mb: 3 }}>
+        <TextField
+          fullWidth
+          size="small"
+          placeholder="Search products..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{ bgcolor: 'white' }}
+        />
       </Box>
 
       <Box sx={{ display: "flex", gap: 3, alignItems: "flex-start", flexWrap: { xs: "wrap", lg: "nowrap" } }}>
@@ -1024,8 +1045,12 @@ const OfflineSale: React.FC = () => {
                       size="small"
                       label="Phone Number"
                       value={billing.customerPhone}
-                      onChange={(e) => setBilling((b) => ({ ...b, customerPhone: e.target.value }))}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        setBilling((b) => ({ ...b, customerPhone: val }));
+                      }}
                       InputProps={{ startAdornment: <PhoneIcon sx={{ mr: 1, fontSize: 18, color: "grey.400" }} /> }}
+                      inputProps={{ maxLength: 10 }}
                       fullWidth
                     />
                     <TextField

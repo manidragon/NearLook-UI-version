@@ -1000,10 +1000,10 @@ const ProductDetails = () => {
           sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
         >
           <MemoryIcon fontSize="small" color="primary" />
-          Variant:{' '}
+          Subvariant:{' '}
           {currentVariant
             ? `${currentVariant.specifications?.[variantAttributes[0]?.name]} + ${currentVariant.specifications?.[variantAttributes[1]?.name]}`
-            : 'Select variant'}
+            : 'Select subvariant'}
         </Typography>
 
         <Grid container spacing={2}>
@@ -1417,30 +1417,32 @@ const ProductDetails = () => {
                   <h1 className="text-[18px] sm:text-[22px] font-[600] mb-2">
                     {product.title}
                   </h1>
-                  <div className="flex items-start sm:items-center flex-col sm:flex-row md:flex-row lg:flex-row gap-3 justify-start">
+                  {(review?.reviews?.length || 0) > 0 && (
+                    <div className="flex items-start sm:items-center flex-col sm:flex-row md:flex-row lg:flex-row gap-3 justify-start">
 
-                    {(() => {
-                      const totalReviews = review?.reviews?.length || 0;
-                      const totalStars = review?.reviews?.reduce((sum: number, item: any) => sum + (item.rating || 0), 0) || 0;
-                      const averageRating = totalReviews > 0 ? totalStars / totalReviews : 0;
-                      return <Rating value={averageRating} size="small" readOnly precision={0.5} />;
-                    })()}
-                    <span className="text-[13px] cursor-pointer text-orange-600" onClick={() => setActiveTab(2)}>
-                      Review({review?.reviews?.length || 0})
-                    </span>
-                  </div>
+                      {(() => {
+                        const totalReviews = review?.reviews?.length || 0;
+                        const totalStars = review?.reviews?.reduce((sum: number, item: any) => sum + (item.rating || 0), 0) || 0;
+                        const averageRating = totalReviews > 0 ? totalStars / totalReviews : 0;
+                        return <Rating value={averageRating} size="small" readOnly precision={0.5} />;
+                      })()}
+                      <span className="text-[13px] cursor-pointer text-orange-600" onClick={() => setActiveTab(2)}>
+                        Review({review?.reviews?.length})
+                      </span>
+                    </div>
+                  )}
 
                   {/* COLOR VARIANTS */}
                   {colorsWithImages.length > 0 && (
                     <div className="mt-5">
                       <h4 className="text-sm font-bold mb-3 flex items-center gap-1 text-[#212121]">
-                        Selected Color: <span className="font-normal text-[#5c5c5c]">{selectedColor}</span>
+                        Selected Variant: <span className="font-normal text-[#5c5c5c]">{selectedColor}</span>
                       </h4>
                       <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
                         {colorsWithImages.map((colorObj: any, index: number) => {
                           const isSelected = selectedColor === colorObj.color;
                           return (
-                            <Tooltip key={index} title={colorObj.color} placement="top" arrow>
+                            <div key={index} className="flex flex-col items-center gap-1.5">
                               <div
                                 className={`group relative w-[70px] h-[70px] lg:h-[90px] lg:w-[90px] border rounded-xl p-1 cursor-pointer flex-shrink-0 ${isSelected ? "border-orange-600 border-2" : "border-gray-200 hover:border-gray-400"}`}
                                 onClick={() => handleColorSelect(colorObj.color)}
@@ -1452,7 +1454,10 @@ const ProductDetails = () => {
                                   onError={(e) => handleImageError(e, '50')}
                                 />
                               </div>
-                            </Tooltip>
+                              <span className={`text-[10px] sm:text-xs text-center leading-tight w-[70px] lg:w-[90px] truncate ${isSelected ? "font-bold text-gray-900" : "font-medium text-gray-500"}`} title={colorObj.color}>
+                                {colorObj.color}
+                              </span>
+                            </div>
                           );
                         })}
                       </div>
@@ -1464,7 +1469,7 @@ const ProductDetails = () => {
                     <div className="mt-5">
                       <div className="flex items-center gap-3 mb-3">
                         <h4 className="text-sm font-bold flex items-center gap-1 text-[#212121]">
-                          Variant: <span className="font-normal text-[#5c5c5c]">{selectedSize || 'Select Variant'}</span>
+                          Subvariant: <span className="font-normal text-[#5c5c5c]">{selectedSize || 'Select Subvariant'}</span>
                         </h4>
                       </div>
                       <div className="flex gap-3 flex-wrap">

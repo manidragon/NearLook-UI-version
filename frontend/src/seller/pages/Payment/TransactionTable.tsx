@@ -121,29 +121,23 @@ function MobileTransactionCard({ transaction }: { transaction: Transaction }) {
       </Typography>
       <Typography variant="body2" sx={{ mb: 0.5 }}>
         {transaction.isOffline ? (
-          <><Chip label="Offline" size="small" sx={{ mr: 1, height: 18, fontSize: '0.65rem' }} color="info" /> {transaction.order?.billingInfo?.customerName || 'Walk-in Customer'}</>
+          <><Chip label="Offline" size="small" sx={{ mr: 1, height: 18, fontSize: '0.65rem' }} color="info" /> {transaction.customerName || transaction.order?.billingInfo?.customerName || 'Walk-in Customer'}</>
         ) : (
           transaction.customer?.fullName || 'N/A'
         )}
       </Typography>
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-        {transaction.isOffline ? transaction.order?.billingInfo?.customerPhone || '' : transaction.customer?.email}
+        {transaction.isOffline ? transaction.customerPhone || transaction.order?.billingInfo?.customerPhone || '' : transaction.customer?.email}
       </Typography>
       
       {isCancelled && <Typography variant="caption" color="error.main" sx={{ display: 'block', mb: 1 }}>Order Cancelled - Transaction Voided</Typography>}
       {refundedAmount > 0 && !isCancelled && <Typography variant="caption" color="warning.main" sx={{ display: 'block', mb: 1 }}>Includes Refund: {formatCurrency(refundedAmount)}</Typography>}
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, mb: 1 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1, mb: 1 }}>
         <Box>
           <Typography variant="caption" color="text.secondary">Total Paid</Typography>
           <Typography variant="body2" fontWeight="bold" sx={{ textDecoration: isCancelled ? 'line-through' : 'none' }}>
             {formatCurrency(displayAmount)}
-          </Typography>
-        </Box>
-        <Box>
-          <Typography variant="caption" color="text.secondary">Platform Fee</Typography>
-          <Typography variant="body2" sx={{ textDecoration: isCancelled ? 'line-through' : 'none' }}>
-            {formatCurrency(displayFee)}
           </Typography>
         </Box>
         <Box>
@@ -197,7 +191,7 @@ function DesktopTransactionRow({ transaction }: { transaction: Transaction }) {
         <TableCell sx={{ py: 1, px: 1.5 }}>
           <Typography component="div" variant="body2" fontWeight="medium" sx={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center' }}>
             {transaction.isOffline ? (
-              <><Chip label="Offline" size="small" sx={{ mr: 0.5, height: 16, fontSize: '0.6rem' }} color="info" /> {transaction.order?.billingInfo?.customerName || 'Walk-in Customer'}</>
+              <><Chip label="Offline" size="small" sx={{ mr: 0.5, height: 16, fontSize: '0.6rem' }} color="info" /> {transaction.customerName || transaction.order?.billingInfo?.customerName || 'Walk-in Customer'}</>
             ) : (
               transaction.customer?.fullName || 'N/A'
             )}
@@ -208,7 +202,7 @@ function DesktopTransactionRow({ transaction }: { transaction: Transaction }) {
         </TableCell>
         <TableCell sx={{ py: 1, px: 1.5 }}>
           <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
-            {transaction.isOffline ? transaction.order?.billingInfo?.customerPhone || 'N/A' : transaction.customer?.mobile || 'N/A'}
+            {transaction.isOffline ? transaction.customerPhone || transaction.order?.billingInfo?.customerPhone || 'N/A' : transaction.customer?.mobile || 'N/A'}
           </Typography>
         </TableCell>
         <TableCell sx={{ py: 1, px: 1.5 }}>
@@ -222,11 +216,6 @@ function DesktopTransactionRow({ transaction }: { transaction: Transaction }) {
         <TableCell align="right" sx={{ py: 1, px: 1.5 }}>
           <Typography variant="body2" fontWeight="bold" sx={{ fontSize: '0.85rem', textDecoration: isCancelled ? 'line-through' : 'none' }}>
             {formatCurrency(displayAmount)}
-          </Typography>
-        </TableCell>
-        <TableCell align="right" sx={{ py: 1, px: 1.5 }}>
-          <Typography variant="body2" sx={{ fontSize: '0.8rem', textDecoration: isCancelled ? 'line-through' : 'none' }}>
-            {formatCurrency(displayFee)}
           </Typography>
         </TableCell>
         <TableCell align="right" sx={{ py: 1, px: 1.5 }}>
@@ -334,7 +323,7 @@ export default function TransactionTable() {
     }
     if (appliedFilters.customerPhone) {
       result = result.filter(t => {
-        const phone = t.isOffline ? t.order?.billingInfo?.customerPhone : t.customer?.mobile;
+        const phone = t.isOffline ? t.customerPhone || t.order?.billingInfo?.customerPhone : t.customer?.mobile;
         return phone?.includes(appliedFilters.customerPhone);
       });
     }
@@ -414,8 +403,8 @@ export default function TransactionTable() {
           </Box>
         </AccordionSummary>
         <AccordionDetails sx={{ p: 2 }}>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 2 }}>
-            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(20% - 8px)' } }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', sm: 'repeat(2, minmax(0, 1fr))', md: 'repeat(3, minmax(0, 1fr))', lg: 'repeat(6, minmax(0, 1fr))' }, gap: 2, mb: 2, alignItems: 'center' }}>
+            <Box>
               <FormControl fullWidth size="small">
                 <InputLabel>Payment Method</InputLabel>
                 <Select value={tempFilters.paymentMethod} label="Payment Method" onChange={(e) => setTempFilters({ ...tempFilters, paymentMethod: e.target.value })} startAdornment={<InputAdornment position="start">💳</InputAdornment>}>
@@ -426,7 +415,7 @@ export default function TransactionTable() {
               </FormControl>
             </Box>
 
-            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(20% - 8px)' } }}>
+            <Box>
               <FormControl fullWidth size="small">
                 <InputLabel>Payment Status</InputLabel>
                 <Select value={tempFilters.paymentStatus} label="Payment Status" onChange={(e) => setTempFilters({ ...tempFilters, paymentStatus: e.target.value })} startAdornment={<InputAdornment position="start">✅</InputAdornment>}>
@@ -439,19 +428,19 @@ export default function TransactionTable() {
               </FormControl>
             </Box>
 
-            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(20% - 8px)' } }}>
+            <Box>
               <TextField fullWidth size="small" label="Mobile Number" value={tempFilters.customerPhone} onChange={(e) => setTempFilters({ ...tempFilters, customerPhone: e.target.value })} placeholder="Search by mobile..." />
             </Box>
 
-            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(20% - 8px)' } }}>
+            <Box>
               <TextField fullWidth size="small" type="date" label="From Date" value={tempFilters.dateFrom} onChange={(e) => setTempFilters({ ...tempFilters, dateFrom: e.target.value })} InputLabelProps={{ shrink: true }} InputProps={{ startAdornment: <InputAdornment position="start"><CalendarTodayIcon fontSize="small" /></InputAdornment> }} />
             </Box>
 
-            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(20% - 8px)' } }}>
+            <Box>
               <TextField fullWidth size="small" type="date" label="To Date" value={tempFilters.dateTo} onChange={(e) => setTempFilters({ ...tempFilters, dateTo: e.target.value })} InputLabelProps={{ shrink: true }} InputProps={{ startAdornment: <InputAdornment position="start"><CalendarTodayIcon fontSize="small" /></InputAdornment> }} />
             </Box>
 
-            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(20% - 8px)' } }}>
+            <Box>
               <Button fullWidth variant="contained" color="primary" onClick={handleApplyFilters} startIcon={<CheckIcon />} sx={{ height: '40px', bgcolor: hasUnappliedChanges ? 'success.main' : 'primary.main', '&:hover': { bgcolor: hasUnappliedChanges ? 'success.dark' : 'primary.dark' } }}>
                 Apply Filter
               </Button>
@@ -501,7 +490,6 @@ export default function TransactionTable() {
                 <TableCell sx={{ minWidth: 130 }}>Mobile Number</TableCell>
                 <TableCell sx={{ minWidth: 120 }}>Order</TableCell>
                 <TableCell align="right" sx={{ minWidth: 100 }}>Total Paid</TableCell>
-                <TableCell align="right" sx={{ minWidth: 90 }}>Platform Fee</TableCell>
                 <TableCell align="right" sx={{ minWidth: 100 }}>Seller Earnings</TableCell>
                 <TableCell sx={{ minWidth: 100 }}>Status</TableCell>
                 <TableCell sx={{ minWidth: 110 }}>Method</TableCell>
@@ -571,7 +559,7 @@ export default function TransactionTable() {
       const netAfterReturns = totalNet - totalRefunded;
 
       return (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(5, 1fr)' }, gap: 2 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)' }, gap: 2 }}>
           <Box>
             <Typography variant="caption" color="text.secondary">Total Transactions</Typography>
             <Typography variant="h6" fontWeight="bold">{completedTransactions.length}</Typography>
@@ -586,12 +574,6 @@ export default function TransactionTable() {
             </Typography>
             <Typography variant="caption" color="text.secondary">
               (COMPLETED only)
-            </Typography>
-          </Box>
-          <Box>
-            <Typography variant="caption" color="text.secondary">Platform Fees</Typography>
-            <Typography variant="h6" fontWeight="bold" color="warning.main">
-              {formatCurrency(totalFees)}
             </Typography>
           </Box>
           <Box>

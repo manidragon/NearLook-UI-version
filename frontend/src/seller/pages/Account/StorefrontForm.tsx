@@ -16,7 +16,7 @@ const StorefrontForm = ({ onClose }: StorefrontFormProps) => {
     initialValues: {
       description: profile?.storefront?.description || "",
       themeColor: profile?.storefront?.themeColor || "#1976d2",
-      holidayMode: profile?.storefront?.holidayMode || false,
+
       facebook: profile?.storefront?.socialLinks?.facebook || "",
       instagram: profile?.storefront?.socialLinks?.instagram || "",
       twitter: profile?.storefront?.socialLinks?.twitter || "",
@@ -28,7 +28,7 @@ const StorefrontForm = ({ onClose }: StorefrontFormProps) => {
         storefront: {
           description: values.description,
           themeColor: values.themeColor,
-          holidayMode: values.holidayMode,
+
           promotions: values.promotions.split("\n").filter(p => p.trim() !== ""),
           socialLinks: {
             facebook: values.facebook,
@@ -69,18 +69,6 @@ const StorefrontForm = ({ onClose }: StorefrontFormProps) => {
         placeholder="e.g. Use code SAKTHI10 for 10% off!"
       />
 
-      <div className="flex items-center gap-4">
-        <label className="text-sm text-gray-600 font-semibold">Theme Color:</label>
-        <input
-          type="color"
-          name="themeColor"
-          value={formik.values.themeColor}
-          onChange={formik.handleChange}
-          className="w-10 h-10 border-0 p-0 cursor-pointer"
-        />
-        <span className="text-sm font-mono">{formik.values.themeColor}</span>
-      </div>
-
       <div className="border p-4 rounded-md border-gray-300">
         <h3 className="text-md font-semibold text-gray-700 mb-3">Social Links</h3>
         <div className="space-y-4">
@@ -91,17 +79,7 @@ const StorefrontForm = ({ onClose }: StorefrontFormProps) => {
         </div>
       </div>
 
-      <FormControlLabel
-        control={
-          <Switch
-            name="holidayMode"
-            checked={formik.values.holidayMode}
-            onChange={formik.handleChange}
-            color="warning"
-          />
-        }
-        label="Enable Holiday Mode (Alerts customers of shipping delays)"
-      />
+
 
       <Button fullWidth type="submit" variant="contained" sx={{ py: "14px" }}>
         Save Storefront Settings

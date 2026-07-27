@@ -15,7 +15,8 @@ import {
   FormHelperText,
   FormControlLabel,
   Checkbox,
-  CircularProgress
+  CircularProgress,
+  Autocomplete
 } from '@mui/material';
 import { FastTextField as TextField } from './FastTextField';
 import LockIcon from '@mui/icons-material/Lock';
@@ -124,73 +125,43 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
     const label = `${attr.label}${attr.required ? ' *' : ''}`;
 
     switch (attr.type) {
-  case 'select': {
-  const OTHERS_VALUE = "__others__";
+      case 'select': {
+        const rawValue = value == null ? '' : String(value);
+        const options: string[] = attr.options || [];
 
-  const rawValue = value == null ? '' : String(value);
-
-  const options: string[] = attr.options || [];
-
-  const isCustom =
-    rawValue !== '' &&
-    !options.includes(rawValue);
-
-  const selectValue = isCustom ? OTHERS_VALUE : rawValue;
-
-  return (
-    <Box>
-      {/* ✅ DROPDOWN */}
-      <TextField
-        fullWidth
-        select
-        label={label}
-        value={selectValue}
-        onChange={(e) => {
-          const val = e.target.value;
-
-          if (val === OTHERS_VALUE) {
-            onChange('__custom__');
-          } else {
-            onChange(val);
-          }
-        }}
-        disabled={disabled}
-      >
-        <MenuItem value="">
-          <em>Select {attr.label}</em>
-        </MenuItem>
-
-        {options.map((opt) => (
-          <MenuItem key={opt} value={opt}>
-            {opt}
-          </MenuItem>
-        ))}
-
-        <MenuItem disabled divider>
-          ──────────
-        </MenuItem>
-
-        <MenuItem value={OTHERS_VALUE}>
-          ✏️ Others (Enter manually)
-        </MenuItem>
-      </TextField>
-
-      {/* ✅ CUSTOM INPUT */}
-      {(selectValue === OTHERS_VALUE || rawValue === '__custom__') && (
-        <TextField
-          fullWidth
-          autoFocus
-          sx={{ mt: 1 }}
-          placeholder={`Enter ${attr.label}`}
-          value={rawValue === '__custom__' ? '' : rawValue}
-          onChange={(e) => {
-            onChange(e.target.value);
-          }}
-        />
-      )}
-    </Box>
-  );
-}
+        return (
+          <Autocomplete
+            freeSolo
+            options={options}
+            value={rawValue}
+            disabled={disabled}
+            onChange={(_event, newValue) => {
+              onChange(newValue || '');
+            }}
+            onInputChange={(_event, newInputValue, reason) => {
+              if (reason === 'input') {
+                onChange(newInputValue);
+              }
+            }}
+            renderInput={(params) => (
+              <TextField 
+                {...params} 
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    {label}
+                    {disabled && (
+                      <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                        <Lock style={{ fontSize: '14px', color: '#9e9e9e' }} />
+                      </span>
+                    )}
+                  </Box>
+                }
+                placeholder={`Select or type ${attr.label}`} 
+              />
+            )}
+          />
+        );
+      }
       case 'boolean':
         return (
           <FormControlLabel
