@@ -21,6 +21,7 @@ import {
 import { FastTextField as TextField } from './FastTextField';
 import LockIcon from '@mui/icons-material/Lock';
 import EditIcon from '@mui/icons-material/Edit';
+import StyleIcon from '@mui/icons-material/Style';
 import type { FormikProps } from 'formik';
 import type {
   ProductFormValues,
@@ -127,7 +128,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
     switch (attr.type) {
       case 'select': {
         const rawValue = value == null ? '' : String(value);
-        const options: string[] = attr.options || [];
+        const options: string[] = [...(attr.options || [])].sort((a, b) => a.localeCompare(b));
 
         return (
           <Autocomplete
@@ -576,8 +577,9 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
       <Grid size={{ xs: 12 }}>
         <Divider sx={{ my: 2 }} />
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <StyleIcon color="primary" />
           <Typography variant="subtitle1" fontWeight="bold">
-            🎨 Color Variants & Pricing
+            Product Variants & Pricing
           </Typography>
           {isCatalogMode && (
             <Chip
@@ -592,8 +594,8 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
           {isCatalogMode && !isOwner
             ? "Add your price and stock for each variant. Colors and images are inherited from the catalog."
             : isCatalogMode && isOwner
-              ? "Edit variant details, prices, and stock. Changes to colors/images affect the master catalog."
-              : "Add color variants with images, specifications, prices, and stock."}
+              ? "Edit variant details, prices, and stock. Changes to images affect the master catalog."
+              : "Add product variants with images, specifications, prices, and stock."}
         </Typography>
       </Grid>
     </Grid>

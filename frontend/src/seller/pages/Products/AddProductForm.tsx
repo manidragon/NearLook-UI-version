@@ -645,13 +645,7 @@ const AddProductForm: React.FC<{
     formik.setFieldValue('variants', newVariants);
     setActiveColorTab(newVariants.length - 1);
 
-    console.log('✅ [Add Color Variant] Added:', {
-      colorIndex: newVariants.length - 1,
-      color: templateData?.color || 'Custom',
-      isFromCatalog: false,
-      sellerId: currentSeller?._id,
-      hasTemplateSpecs: !!templateData?.specifications
-    });
+
   }, [formik.values.variants, formik.setFieldValue]);
 
   const handleRemoveColorVariant = useCallback((index: number) => {

@@ -2,7 +2,7 @@ import React from "react";
 import { useFormik } from "formik";
 import { Box, Button, TextField as MuiTextField, Switch, FormControlLabel } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
-import { updateSeller } from "../../../redux/Seller/SellerSlice";
+import { updateSeller } from "../../../redux/Seller/sellerSlice";
 
 interface StorefrontFormProps {
   onClose: () => void;

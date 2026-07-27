@@ -291,7 +291,6 @@ const ProductDetails = () => {
                 offer.variants?.some(
                   (v: any) =>
                     v._id === selectedVariantId &&
-                    (v.stock ?? 0) > 0 &&
                     v.isActive !== false
                 )
             );
@@ -324,7 +323,7 @@ const ProductDetails = () => {
 
           if (variant?.offers && variant.offers.length > 0) {
             let activeOffers = variant.offers.filter(
-              (o: any) => o.isActive !== false && (o.stock ?? 0) > 0
+              (o: any) => o.isActive !== false
             );
 
             if (locationFilter?.type === 'district' && locationFilter.district) {
@@ -602,14 +601,9 @@ const ProductDetails = () => {
         })
       );
     } else {
-      // ✅ Hide colors if none of their variants have an active offer with stock
+      // ✅ Show colors even if out of stock, so users can still see product images & details
       colorsArray = colorsArray.filter((colorData) =>
-        colorData.variants.some((variant) => {
-          const hasActiveOffer = variant.offers?.some(
-            (o: any) => o.isActive !== false && (o.stock ?? 0) > 0
-          );
-          return hasActiveOffer || ((variant.stock ?? 0) > 0);
-        })
+        colorData.variants.some((variant) => variant.isActive !== false)
       );
     }
 
@@ -749,7 +743,7 @@ const ProductDetails = () => {
       // we haven't already locked in a selection for this product+seller combo.
       if (sellerProfileVariantSelectedRef.current) return;
 
-      const firstAvailable = availableVariantsForColor.find((v: any) =>
+      let firstAvailable = availableVariantsForColor.find((v: any) =>
         v.isActive !== false &&
         v.offers?.some(
           (o: any) =>
@@ -759,6 +753,17 @@ const ProductDetails = () => {
         )
       );
 
+      if (!firstAvailable) {
+        firstAvailable = availableVariantsForColor.find((v: any) =>
+          v.isActive !== false &&
+          v.offers?.some(
+            (o: any) =>
+              String(o.seller?._id || o.seller) === String(sellerIdFromProfile) &&
+              o.isActive !== false
+          )
+        );
+      }
+
       if (firstAvailable) {
         sellerProfileVariantSelectedRef.current = true; // lock so user can change freely after
         setSelectedVariantId(firstAvailable._id || '');
@@ -767,11 +772,11 @@ const ProductDetails = () => {
           const variantLabels = variantAttributes
             .map((attr) => firstAvailable.specifications?.[attr.name])
             .filter(Boolean);
+          const fallbackSpecs = [firstAvailable.specifications?.ram || firstAvailable.specifications?.RAM, firstAvailable.specifications?.storage || firstAvailable.specifications?.Storage].filter(Boolean).join(' + ');
           const combinedLabel =
             variantLabels.length > 0
               ? variantLabels.join(' + ')
-              : `${firstAvailable.specifications?.storage || ''} + ${firstAvailable.specifications?.ram || ''}`.trim() ||
-              'Default';
+              : fallbackSpecs || Object.values(firstAvailable.specifications || {}).filter(Boolean).join(' + ') || 'Standard';
           setSelectedSize(combinedLabel);
         }
         setSelectedImage(0);
@@ -781,13 +786,19 @@ const ProductDetails = () => {
       // Only auto-select when no variant is chosen yet (preserve manual selection)
       if (selectedVariantId) return;
 
-      const firstAvailable = availableVariantsForColor.find(
+      let firstAvailable = availableVariantsForColor.find(
         (v: any) =>
           v.isActive !== false &&
           v.offers?.some(
             (o: any) => o.isActive !== false && (o.stock ?? 0) > 0
           )
       );
+
+      if (!firstAvailable) {
+        firstAvailable = availableVariantsForColor.find(
+          (v: any) => v.isActive !== false
+        );
+      }
 
       if (firstAvailable) {
         setSelectedVariantId(firstAvailable._id || '');
@@ -796,11 +807,11 @@ const ProductDetails = () => {
           const variantLabels = variantAttributes
             .map((attr) => firstAvailable.specifications?.[attr.name])
             .filter(Boolean);
+          const fallbackSpecs = [firstAvailable.specifications?.ram || firstAvailable.specifications?.RAM, firstAvailable.specifications?.storage || firstAvailable.specifications?.Storage].filter(Boolean).join(' + ');
           const combinedLabel =
             variantLabels.length > 0
               ? variantLabels.join(' + ')
-              : `${firstAvailable.specifications?.storage || ''} + ${firstAvailable.specifications?.ram || ''}`.trim() ||
-              'Default';
+              : fallbackSpecs || Object.values(firstAvailable.specifications || {}).filter(Boolean).join(' + ') || 'Standard';
           setSelectedSize(combinedLabel);
         }
         setSelectedImage(0);
@@ -1465,48 +1476,68 @@ const ProductDetails = () => {
                   )}
 
                   {/* SIZE VARIANTS */}
-                  {availableVariantsForColor.length > 0 && (
-                    <div className="mt-5">
-                      <div className="flex items-center gap-3 mb-3">
-                        <h4 className="text-sm font-bold flex items-center gap-1 text-[#212121]">
-                          Subvariant: <span className="font-normal text-[#5c5c5c]">{selectedSize || 'Select Subvariant'}</span>
-                        </h4>
-                      </div>
-                      <div className="flex gap-3 flex-wrap">
-                        {availableVariantsForColor.map((v: any) => {
-                          const isSelected = selectedVariantId === v._id;
-                          const variantLabels = variantAttributes.map((attr: any) => v.specifications?.[attr.name]).filter(Boolean);
-                          const fallbackSpecs = [v.specifications?.ram || v.specifications?.RAM, v.specifications?.storage || v.specifications?.Storage].filter(Boolean).join(' + ');
-                          const sizeLabel = variantLabels.length > 0
-                            ? variantLabels.join(' + ')
-                            : (fallbackSpecs || v.specifications?.Size || v.specifications?.Capacity || v.specifications?.Weight || v.specifications?.Volume || v.specifications?.Length || 'Standard');
-                          
-                          const activeOffer = v.offers?.find(
-                            (o: any) => o.isActive !== false && (o.stock ?? 0) > 0
-                          );
-                          const hasActiveOffer = !!activeOffer || ((v.stock ?? 0) > 0);
+                  {(() => {
+                    const isSubvariantSectionRedundant = selectedColor && availableVariantsForColor.length > 0 && availableVariantsForColor.every((v: any) => {
+                      const variantLabels = variantAttributes.map((attr: any) => v.specifications?.[attr.name]).filter(Boolean);
+                      const fallbackSpecs = [v.specifications?.ram || v.specifications?.RAM, v.specifications?.storage || v.specifications?.Storage].filter(Boolean).join(' + ');
+                      const sizeLabel = variantLabels.length > 0
+                        ? variantLabels.join(' + ')
+                        : (fallbackSpecs || Object.values(v.specifications || {}).filter(Boolean).join(' + ') || 'Standard');
+                        
+                      if (!sizeLabel || sizeLabel === 'Standard') return false;
+                      
+                      const cleanVariantColor = selectedColor.toLowerCase().replace(/\s/g, '');
+                      const cleanSizeLabel = sizeLabel.toLowerCase().replace(/\s/g, '');
+                      
+                      return cleanVariantColor.includes(cleanSizeLabel) || cleanSizeLabel.includes(cleanVariantColor);
+                    });
 
-                          if (!hasActiveOffer) return null;
+                    if (isSubvariantSectionRedundant || availableVariantsForColor.length === 0) return null;
 
-                          return (
-                            <button
-                              key={v._id}
-                              onClick={() => handleVariantSelect(v)}
-                              className={`p-3 text-center border rounded-xl transition-all min-w-[120px] ${isSelected ? "border-orange-600 border-2 bg-orange-50" : "border-gray-200 text-[#5c5c5c] hover:border-gray-400 bg-white"}`}
-                            >
-                              <div className={`text-sm ${isSelected ? 'font-bold text-orange-600' : 'font-medium text-[#5c5c5c]'}`}>
-                                {sizeLabel}
-                              </div>
-                            </button>
-                          );
-                        })}
+                    return (
+                      <div className="mt-5">
+                        <div className="flex items-center gap-3 mb-3">
+                          <h4 className="text-sm font-bold flex items-center gap-1 text-[#212121]">
+                            Subvariant: <span className="font-normal text-[#5c5c5c]">{selectedSize || 'Select Subvariant'}</span>
+                          </h4>
+                        </div>
+                        <div className="flex gap-3 flex-wrap">
+                          {availableVariantsForColor.map((v: any) => {
+                            const isSelected = selectedVariantId === v._id;
+                            const variantLabels = variantAttributes.map((attr: any) => v.specifications?.[attr.name]).filter(Boolean);
+                            const fallbackSpecs = [v.specifications?.ram || v.specifications?.RAM, v.specifications?.storage || v.specifications?.Storage].filter(Boolean).join(' + ');
+                            const sizeLabel = variantLabels.length > 0
+                              ? variantLabels.join(' + ')
+                              : (fallbackSpecs || Object.values(v.specifications || {}).filter(Boolean).join(' + ') || 'Standard');
+                            
+                            const activeOffer = v.offers?.find(
+                              (o: any) => o.isActive !== false && (o.stock ?? 0) > 0
+                            );
+                            const hasActiveOffer = !!activeOffer || ((v.stock ?? 0) > 0);
+
+                            // We want to still render the subvariant button even if there's no active offer with stock,
+                            // so the user can select it and see that it is out of stock.
+                            // if (!hasActiveOffer) return null;
+
+                            return (
+                              <button
+                                key={v._id}
+                                onClick={() => handleVariantSelect(v)}
+                                className={`p-3 text-center border rounded-xl transition-all min-w-[120px] ${isSelected ? "border-orange-600 border-2 bg-orange-50" : "border-gray-200 text-[#5c5c5c] hover:border-gray-400 bg-white"}`}
+                              >
+                                <div className={`text-sm ${isSelected ? 'font-bold text-orange-600' : 'font-medium text-[#5c5c5c]'}`}>
+                                  {sizeLabel}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   {/* PRICE */}
                   {(() => {
-                    const currentVariant = product.variants?.find((v: any) => v._id === selectedVariantId);
                     if (!currentVariant) return null;
 
                     const sellingPrice = selectedSellerOffer ?

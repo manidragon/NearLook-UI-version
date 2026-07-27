@@ -17,7 +17,7 @@ import type { FormikProps } from 'formik';
 import type { ProductVariantForm, CategoryAttribute, ProductSubVariantForm, ProductOfferForm } from '../types/productFormTypes';
 import type { ProductFormValues } from '../types/productFormTypes';
 import { useAppSelector } from '../../../../redux/Store';
-import PaletteIcon from '@mui/icons-material/Palette';
+import StyleIcon from '@mui/icons-material/Style';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 
 
@@ -245,45 +245,9 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
   // ✅ Get category attributes from Redux
   const attributeState = useAppSelector((state: any) => state.categoryAttribute);
   const currentColorVariant = variants[activeColorTab];
-  const editPermissionsLogged = useRef(false);
-  const variantAttributesLogged = useRef(false);
-  const variantOwnershipLogged = useRef(false);
-  const isColorFromCatalog = currentColorVariant?.isFromCatalog === true;
-  const currentSellerId = getCurrentSellerFromJWT()?._id;
-  const isVariantOwner = currentColorVariant?.variantOwner === currentSellerId;
-
-  const canEditStructure = !isCatalogProduct ||
-    isOwner ||
-    isVariantOwner ||
-    !isColorFromCatalog;
-  const canEditImages = !isCatalogProduct ||
-    isOwner ||
-    isVariantOwner ||
-    !currentColorVariant?.isFromCatalog;
-
-  if (!variantOwnershipLogged.current && currentColorVariant) {
-    console.log('🔍 [Variant Ownership Check]', {
-      currentSellerId,
-      variantOwner: currentColorVariant?.variantOwner,
-      isVariantOwner,
-      colorName: currentColorVariant?.color
-    });
-    variantOwnershipLogged.current = true;  // ✅ Mark as logged
-  }
-
-  if (!editPermissionsLogged.current && currentColorVariant) {
-    console.log('🔍 [Edit Permissions]', {
-      isCatalogProduct,
-      isOwner,
-      isVariantOwner,
-      isColorFromCatalog,
-      canEditStructure,
-      canEditImages,
-      colorVariantId: currentColorVariant?._id,
-      colorName: currentColorVariant?.color
-    });
-    editPermissionsLogged.current = true;  // ✅ Mark as logged
-  }
+  
+  const isColorFromCatalog = !!currentColorVariant?.isFromCatalog;
+  const canEditImages = !isCatalogProduct || isOwner || !isColorFromCatalog;
 
   // ✅ Filter variant attributes (admin-configured fields where isVariantField: true)
   const variantAttributes = useMemo(() => {
@@ -291,17 +255,7 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
       .filter((attr: CategoryAttribute) => attr.isVariantField && attr.isActive)
       .sort((a: CategoryAttribute, b: CategoryAttribute) => a.sortOrder - b.sortOrder);
 
-    // ✅ Debug log
-    if (!variantAttributesLogged.current && attrs.length > 0) {
-      console.log('🔍 [VariantsSection] Variant Attributes:', {
-        totalAttributes: attributeState.attributes?.length || 0,
-        variantAttributesCount: attrs.length,
-        variantAttributeNames: attrs.map((a: CategoryAttribute) => a.name),
-        activeColorTab,
-        subVariantsCount: variants[activeColorTab]?.subVariants?.length
-      });
-      variantAttributesLogged.current = true;  // ✅ Mark as logged
-    }
+
 
     return attrs;
   }, [attributeState.attributes, activeColorTab, variants]);
@@ -323,7 +277,8 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
         mb: 2 
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-          <Typography variant="h6">🎨 Color Variants with Storage Options</Typography>
+          <StyleIcon color="primary" />
+          <Typography variant="h6">Product Variants</Typography>
           {isCatalogProduct && (
             <Chip
               label={isOwner ? "👑 Catalog Owner" : "🔒 Shared Catalog"}
@@ -359,11 +314,11 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                 size="small"
                 sx={{ fontSize: '0.75rem' }}
               >
-                Add Color Variant
+                Add Variant
               </Button>
             </Tooltip>
           )}
-          {!isCatalogProduct && canEditStructure && (
+          {!isCatalogProduct && (
             <Button
               startIcon={<AddCircle />}
               onClick={(e) => {
@@ -374,7 +329,7 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
               variant="outlined"
               size="small"
             >
-              Add Color
+              Add Variant
             </Button>
           )}
         </Box>
@@ -385,7 +340,7 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
         <Alert severity="info" variant="outlined" sx={{ mb: 2 }} icon={<Info />}>
           <Typography variant="body2">
             <strong>Shared Catalog Product:</strong> Catalog variants (marked with 🔒) are read-only.
-            You can set your <strong>price and stock</strong> for catalog variants, or add <strong>NEW color variants</strong> (marked with ✅)
+            You can set your <strong>price and stock</strong> for catalog variants, or add <strong>NEW product variants</strong> (marked with ✅)
             which you fully own and can edit.
           </Typography>
         </Alert>
@@ -395,7 +350,7 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
       {isCatalogProduct && !isOwner && currentColorVariant && !currentColorVariant.isFromCatalog && (
         <Alert severity="success" variant="outlined" sx={{ mb: 2 }} icon={<CheckCircle />}>
           <Typography variant="body2">
-            <strong>🆕 New Color Variant:</strong> You're adding a new color. You can upload your own images, set specifications,
+            <strong>🆕 New Variant:</strong> You're adding a new variant. You can upload your own images, set specifications,
             and add your price/stock offers.
           </Typography>
         </Alert>
@@ -404,9 +359,9 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
       {variants.length === 0 ? (
         <Paper sx={{ p: 3, textAlign: 'center', bgcolor: 'amber.50' }}>
           <Typography>
-            {isCatalogProduct
-              ? "No variants selected from catalog. Please go back and select variants."
-              : "No color variants added yet."}
+            {isCatalogProduct && !isOwner 
+              ? "No catalog variants found. Add a new variant to start selling." 
+              : "No product variants added yet."}
           </Typography>
         </Paper>
       ) : (
@@ -451,9 +406,9 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                 key={colorIndex}
                 label={
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <PaletteIcon fontSize="small" sx={{ color: activeColorTab === colorIndex ? 'white' : 'inherit' }} />
+                    <StyleIcon fontSize="small" sx={{ color: activeColorTab === colorIndex ? 'white' : 'inherit' }} />
                     <Typography variant="body2" fontWeight="inherit">
-                      {colorVariant.color || `Color ${colorIndex + 1}`}
+                      {colorVariant.color || `Variant ${colorIndex + 1}`}
                     </Typography>
                     {isCatalogProduct && !colorVariant.isFromCatalog && (
                       <Chip label="NEW" size="small" sx={{ height: 20, fontSize: '0.65rem', bgcolor: 'rgba(255,255,255,0.2)', color: 'inherit' }} />
@@ -479,7 +434,7 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                     fullWidth
                     label={
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        Color *
+                        Variant Name *
                         {isCatalogProduct && !isOwner && isColorFromCatalog && (
                           <Tooltip title="Inherited from catalog - contact owner to change">
                             <Lock fontSize="small" sx={{ color: 'text.disabled' }} />
@@ -507,8 +462,8 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                         (formik.errors.variants as Partial<Record<keyof ProductVariantForm, string>>[] | undefined)?.[activeColorTab]?.color
                         ? (formik.errors.variants as Partial<Record<keyof ProductVariantForm, string>>[] | undefined)?.[activeColorTab]?.color
                         : isCatalogProduct && !isOwner && isColorFromCatalog
-                          ? "This color is managed by the catalog owner"
-                          : "Enter your custom color name"
+                          ? "This variant name is managed by the catalog owner"
+                          : "Enter variant name (e.g., Red, 50g, XL)"
                     }
                     InputProps={
                       isCatalogProduct && !isOwner && isColorFromCatalog
@@ -527,7 +482,7 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                 <Grid size={{ xs: 12 }} sx={{ mb: 3 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                     <Typography variant="subtitle2">
-                      Images for {variants[activeColorTab].color || 'this color'} *
+                      Images for {variants[activeColorTab].color || 'this variant'} *
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                       Upload at least 1 image (max 5)
@@ -706,34 +661,10 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                   {/* ✅ Render sub-variants for ACTIVE color tab ONLY */}
                   {variants[activeColorTab].subVariants.map((subVar, subIndex) => {
                     const isFromCatalog = subVar.isFromCatalog === true;
-                    const isReadOnly = !isVariantOwner && isFromCatalog;
+                    const isReadOnly = !isOwner && isFromCatalog;
                     const catalogTemplateSpecs = catalogSearch?.selectedCatalog?.variantTemplate?.[subIndex]?.specifications;
 
-                    {/* ✅✅✅ ADD THIS DEBUG BLOCK HERE (using correct variable name: subVar) */ }
-                    {
-                      (() => {
-                        console.log('🔍 [VariantsSection] SubVariant Render Debug:', {
-                          color: formik.values.variants[activeColorTab]?.color,
-                          subIndex,
-                          subVariantId: subVar._id,
-                          specifications: subVar.specifications,
-                          specsType: typeof subVar.specifications,
-                          specsIsMap: subVar.specifications instanceof Map,
-                          specsKeys: subVar.specifications ? Object.keys(subVar.specifications) : [],
-                          hasRam: subVar.specifications?.ram,
-                          hasStorage: subVar.specifications?.storage,
-                          // ✅ FIXED: Add type annotation (a: CategoryAttribute)
-                          variantAttributes: variantAttributes.map((a: CategoryAttribute) => ({
-                            name: a.name,
-                            isVariantField: a.isVariantField,
-                            label: a.label
-                          })),
-                          isReadOnly,
-                          isFromCatalog: subVar.isFromCatalog
-                        });
-                        return null;
-                      })()
-                    }
+
 
                     return (
                       <Paper
@@ -749,13 +680,8 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Typography variant="subtitle2" fontWeight="bold" color="primary">
-                              Storage Variant {subIndex + 1}
+                              Subvariant {subIndex + 1}
                             </Typography>
-                            {isFromCatalog ? (
-                              <Chip label="From Catalog" size="small" color="info" variant="outlined" />
-                            ) : (
-                              <Chip label="New Variant" size="small" color="success" variant="outlined" />
-                            )}
                           </Box>
                           {variants[activeColorTab].subVariants.length > 1 && !isReadOnly && (
                             <Button
@@ -812,12 +738,6 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                             <Typography variant="subtitle2" fontWeight="bold" color="primary">
                               🏪 Seller Offers for this Variant
                             </Typography>
-                            <Chip
-                              label={`${subVar.offers?.filter(o => !o.toBeDeleted)?.length || 0} offer(s)`}
-                              size="small"
-                              color="info"
-                              variant="outlined"
-                            />
                           </Box>
 
                           {/* ✅ List existing offers */}
@@ -835,7 +755,6 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
 
                             return activeOffers.map((offer: ProductOfferForm, offerIndex: number) => {
                               const isCurrentSellerOffer = offer.sellerId === (currentSeller?._id || '');
-                              const isReadOnly = isCatalogProduct && !isOwner && !isVariantOwner && subVar.isFromCatalog === true;
 
                               return (
                                 <Paper
@@ -857,22 +776,11 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                                   }}
                                 >
                                   {/* ✅ Offer Header */}
-                                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                                    <Typography variant="body2" fontWeight="bold">
-                                      {isCurrentSellerOffer ? '🟢 Your Offer' : '🔵 Other Seller'}
-                                    </Typography>
-                                    {(isCurrentSellerOffer || isOwner) && !isReadOnly && (
-                                      <Button
-                                        size="small"
-                                        color="error"
-                                        variant="outlined"
-                                        onClick={() => onRemoveOffer?.(activeColorTab, subIndex, offerIndex)}
-                                        startIcon={<RemoveCircle fontSize="small" />}
-                                      >
-                                        Remove
-                                      </Button>
-                                    )}
-                                  </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                                      <Typography variant="body2" fontWeight="bold">
+                                        {isCurrentSellerOffer ? '🟢 Your Offer' : '🔵 Other Seller'}
+                                      </Typography>
+                                    </Box>
 
                                   {/* ✅ Read-only display (only show for other sellers' offers) */}
                                   {!isCurrentSellerOffer && (
@@ -1109,7 +1017,7 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                       variant="outlined"
                       size="small"
                     >
-                      {isCatalogProduct ? '+ Add New Variant' : '+ Add Storage Variant'}
+                      {isCatalogProduct ? '+ Add New Variant' : '+ Add Subvariant'}
                     </Button>
                     {isCatalogProduct && (
                       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>

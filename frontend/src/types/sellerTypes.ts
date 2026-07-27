@@ -35,6 +35,7 @@ export interface Storefront {
     socialLinks?: SocialLinks;
     themeColor?: string;
     holidayMode?: boolean;
+    promotions?: string[];
 }
 
 export interface PerformanceMetrics {

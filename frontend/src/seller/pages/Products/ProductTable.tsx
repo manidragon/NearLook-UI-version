@@ -177,18 +177,32 @@ function Row({ row, onEdit, onDelete, getCategoryName, isCatalogOffer = false }:
     };
   }, [row.variants, row.minPrice, row.maxPrice]);
 
-  // ✅✅✅ FIXED: Get total stock
+  // ✅ Get current seller ID for filtering
+  const currentSellerId = React.useMemo(() => {
+    try {
+      const jwt = localStorage.getItem('jwt');
+      if (!jwt) return '';
+      const payload = JSON.parse(atob(jwt.split('.')[1]));
+      return payload._id || payload.userId || payload.id || payload.sellerId || '';
+    } catch (e) {
+      return '';
+    }
+  }, []);
+
+  // ✅✅✅ FIXED: Get total stock ONLY for current seller
   const totalStock = React.useMemo(() => {
     if (!row.variants || !Array.isArray(row.variants)) return 0;
     return row.variants.reduce((sum: number, variant: any) => {
       if (variant.offers && Array.isArray(variant.offers)) {
-        return sum + variant.offers.reduce((offerSum: number, offer: any) =>
-          offerSum + (Number(offer?.stock) || 0), 0
-        );
+        return sum + variant.offers.reduce((offerSum: number, offer: any) => {
+          const offerSellerId = typeof offer.seller === 'string' ? offer.seller : offer.seller?._id || offer.seller?.$oid;
+          if (offerSellerId !== currentSellerId) return offerSum;
+          return offerSum + (Number(offer?.stock) || 0);
+        }, 0);
       }
       return sum + (Number(variant?.stock) || 0);
     }, 0);
-  }, [row.variants]);
+  }, [row.variants, currentSellerId]);
 
   // ✅✅✅ FIXED: Get best offer
   const getBestOffer = (variant: any) => {

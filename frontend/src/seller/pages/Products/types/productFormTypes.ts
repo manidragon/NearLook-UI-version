@@ -74,6 +74,7 @@ export interface ProductSubVariantForm {
   isActive: boolean;
   isFromCatalog?: boolean;
   toBeDeleted?: boolean;
+  hasOtherSellerOffers?: boolean;
 }
 
 // ✅ UPDATE SUB-VARIANT: Extends with optional legacy fields
@@ -94,6 +95,7 @@ export interface ProductVariantForm {
   isFromCatalog?: boolean;
   variantOwner?: string;
   toBeDeleted?: boolean;
+  hasOtherSellerOffers?: boolean;
 }
 
 // ✅✅✅ FIXED: Update variant form - use Omit to cleanly override subVariants type

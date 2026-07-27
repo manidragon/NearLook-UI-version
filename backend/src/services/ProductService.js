@@ -162,6 +162,52 @@ class ProductService {
         }
       }
 
+      // ✅ Dynamically add manual entries to Category Attributes 'select' options
+      try {
+        const attributesToUpdate = new Map();
+        
+        const checkAndAddOption = (key, value) => {
+          if (value === undefined || value === null || value === '') return;
+          const strValue = String(value).trim();
+          if (!strValue) return;
+          
+          const keyLower = key.toLowerCase();
+          const attr = categoryAttrs.find(a => a.name === keyLower && a.type === 'select');
+          
+          if (attr) {
+            const exists = attr.options.some(opt => opt.toLowerCase() === strValue.toLowerCase());
+            if (!exists) {
+              if (!attributesToUpdate.has(keyLower)) {
+                attributesToUpdate.set(keyLower, { doc: attr, newOptions: new Set() });
+              }
+              attributesToUpdate.get(keyLower).newOptions.add(strValue);
+            }
+          }
+        };
+
+        if (req.highlights && typeof req.highlights === 'object') {
+          Object.entries(req.highlights).forEach(([key, value]) => checkAndAddOption(key, value));
+        }
+
+        if (req.variants && Array.isArray(req.variants)) {
+          req.variants.forEach(variant => {
+            if (variant.specifications && typeof variant.specifications === 'object') {
+              Object.entries(variant.specifications).forEach(([key, value]) => checkAndAddOption(key, value));
+            }
+          });
+        }
+
+        for (const { doc, newOptions } of attributesToUpdate.values()) {
+          const addedOptions = Array.from(newOptions);
+          if (addedOptions.length > 0) {
+            doc.options.push(...addedOptions);
+            await doc.save();
+          }
+        }
+      } catch (attrError) {
+        console.error("⚠️ Failed to update category attribute options dynamically:", attrError.message);
+      }
+
       const product = new Product({
 
         title:

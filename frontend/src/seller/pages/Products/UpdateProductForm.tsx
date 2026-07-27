@@ -12,7 +12,7 @@ import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import CloseIcon from "@mui/icons-material/Close";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
-import PaletteIcon from "@mui/icons-material/Palette";
+import StyleIcon from "@mui/icons-material/Style";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import StorageIcon from "@mui/icons-material/Storage";
 import Lock from "@mui/icons-material/Lock";
@@ -128,6 +128,10 @@ return {
   specifications: specs,
   // ✅ ADD THIS: Store the parent variant's unique ID from backend
   variantId: colorVariant._id,  // ✅ This is the unique variant ID from backend
+  hasOtherSellerOffers: (subVariant.offers || []).some((offer: any) => {
+    const offerSellerId = typeof offer.seller === 'string' ? offer.seller : offer.seller?._id || offer.seller?.$oid || '';
+    return offerSellerId && offerSellerId !== currentSellerId && offer.isActive !== false;
+  }),
   offers: (subVariant.offers || [])
   .filter((offer: any) => {
     const offerSellerId = typeof offer.seller === 'string'
@@ -165,6 +169,11 @@ return {
             }
 
             const backendOffers = colorVariant.offers || [];
+            
+            const hasOtherSellerOffersLegacy = backendOffers.some((offer: any) => {
+              const offerSellerId = typeof offer.seller === 'string' ? offer.seller : offer.seller?._id || offer.seller?.$oid || '';
+              return offerSellerId && offerSellerId !== currentSellerId && offer.isActive !== false;
+            });
             if (backendOffers.length > 0) {
               const sellerOffers = backendOffers.filter((offer: any) => {
   const offerSellerId = typeof offer.seller === 'string'
@@ -204,6 +213,7 @@ return {
                   }],
                   isActive: colorVariant?.isActive !== false,
                   isFromCatalog: colorVariant?.isFromCatalog || false,
+                  hasOtherSellerOffers: hasOtherSellerOffersLegacy,
                 };
               });
             }
@@ -229,12 +239,17 @@ return {
               }],
               isActive: colorVariant?.isActive !== false,
               isFromCatalog: colorVariant?.isFromCatalog || false,
+              hasOtherSellerOffers: hasOtherSellerOffersLegacy,
             }];
           })(),
 
           images: colorVariant.images || [],
         } as ProductVariantForm;
       })
+      .map((cv: ProductVariantForm) => ({
+        ...cv,
+        hasOtherSellerOffers: cv.subVariants?.some((sv) => sv.hasOtherSellerOffers) || false,
+      }))
       .filter((v: ProductVariantForm) => v.subVariants && v.subVariants.length > 0),
   };
 };
@@ -262,12 +277,15 @@ const renderAttributeField = (
   const label = `${attr.label}${attr.required ? ' *' : ''}`;
   switch (attr.type) {
     case 'select':
+      const stringValue = value == null || value === '' ? '' : String(value);
+      const isCustomValue = stringValue && !attr.options?.includes(stringValue);
       return (
         <FormControl fullWidth required={attr.required}>
           <InputLabel>{label}</InputLabel>
-          <Select value={value == null || value === '' ? '' : String(value)} label={label} onChange={(e) => { if (!disabled) onChange(e.target.value); }} disabled={disabled}>
+          <Select value={stringValue} label={label} onChange={(e) => { if (!disabled) onChange(e.target.value); }} disabled={disabled}>
             <MenuItem value=""><em>Select {attr.label}</em></MenuItem>
-            {attr.options?.map((opt: string) => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+            {[...(attr.options || [])].sort((a, b) => a.localeCompare(b)).map((opt: string) => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+            {isCustomValue && <MenuItem key={stringValue} value={stringValue}>{stringValue} (Custom)</MenuItem>}
           </Select>
         </FormControl>
       );
@@ -416,19 +434,13 @@ const formVariants = useMemo(() => {
 
   useEffect(() => {
     const category3Id = normalizedInitialValues.category3;
-    if (category3Id && (!attributeState || attributeState.length === 0)) {
-      if (categoryState.categories.length === 0) return;
+    if (category3Id && categoryState.categories.length > 0) {
       const level3Category = categoryState.categories.find((cat: Category) => cat._id === category3Id);
-      if (level3Category?.categoryId) dispatch(fetchCategoryAttributes({ categoryId: level3Category.categoryId, includeInactive: false }));
+      if (level3Category?.categoryId) {
+        dispatch(fetchCategoryAttributes({ categoryId: level3Category.categoryId, includeInactive: false }));
+      }
     }
-  }, [normalizedInitialValues.category3, dispatch, categoryState.categories, attributeState?.length, normalizedInitialValues._id]);
-
-  useEffect(() => {
-    if (categoryState.categories.length > 0 && (!attributeState || attributeState.length === 0) && initialValues.category3) {
-      const level3Category = categoryState.categories.find((cat: Category) => cat._id === initialValues.category3);
-      if (level3Category?.categoryId) dispatch(fetchCategoryAttributes({ categoryId: level3Category.categoryId, includeInactive: false }));
-    }
-  }, [categoryState.categories, attributeState?.length, initialValues.category3, dispatch]);
+  }, [normalizedInitialValues.category3, dispatch, categoryState.categories]);
 
 
   useEffect(() => {
@@ -655,47 +667,31 @@ const formVariants = useMemo(() => {
     );
   }, [formik.values.title, formik.values.description, formik.values.variants, isProductOwner]);
 
-  // ✅ Add this debug effect
-  useEffect(() => {
-    console.log('📊 FORM STATE CHANGED:', {
-      title: formik.values.title,
-      description: formik.values.description?.substring(0, 30),
-      variantsCount: formik.values.variants.length,
-      firstVariant: formik.values.variants[0] ? {
-        color: formik.values.variants[0].color,
-        imagesCount: formik.values.variants[0].images?.length,
-        subVariantsCount: formik.values.variants[0].subVariants?.length,
-        firstSubVariant: formik.values.variants[0].subVariants[0] ? {
-          offersCount: formik.values.variants[0].subVariants[0].offers?.length,
-          firstOffer: formik.values.variants[0].subVariants[0].offers[0]
-        } : null
-      } : null,
-      formikIsValid: formik.isValid,
-      formikErrors: formik.errors
-    });
-  }, [formik.values, formik.isValid, formik.errors]);
 
   const renderVariantsSection = () => {
     const currentSeller = getCurrentSellerFromJWT();
     return (
       <Box sx={{ mt: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6">🎨 Color Variants with Storage Options</Typography>
-          <Button startIcon={<AddCircleIcon />} onClick={handleAddColorVariant} variant="outlined" size="small">Add Color</Button>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <StyleIcon color="primary" />
+            <Typography variant="h6">Product Variants</Typography>
+          </Box>
+          <Button startIcon={<AddCircleIcon />} onClick={handleAddColorVariant} variant="outlined" size="small">Add Variant</Button>
         </Box>
 
         {formik.values.variants.length === 0 ? (
-          <Paper sx={{ p: { xs: 1.5, sm: 3 }, textAlign: 'center', bgcolor: 'amber.50' }}><Typography>No color variants found.</Typography></Paper>
+          <Paper sx={{ p: { xs: 1.5, sm: 3 }, textAlign: 'center', bgcolor: 'amber.50' }}><Typography>No product variants found.</Typography></Paper>
         ) : (
           <>
             <Tabs value={activeColorTab} onChange={(_, val) => setActiveColorTab(val)} variant="scrollable" scrollButtons="auto" sx={{ mb: 2, boxShadow: { xs: 'none', sm: 1 }, border: { xs: 'none', sm: 'auto' }, '&:before': { display: 'none' } }}>
               {formik.values.variants.map((colorVariant, colorIndex) => (
                 <Tab key={colorIndex} label={
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <PaletteIcon fontSize="small" /><Typography variant="body2">{colorVariant.color || `Color ${colorIndex + 1}`}</Typography>
+                    <StyleIcon fontSize="small" /><Typography variant="body2">{colorVariant.color || `Variant ${colorIndex + 1}`}</Typography>
                     {colorVariant.variantOwner && colorVariant.variantOwner !== currentSeller?._id && <Tooltip title="This variant is managed by another seller"><Lock fontSize="small" sx={{ color: 'text.disabled' }} /></Tooltip>}
                   </Box>}
-                  icon={formik.values.variants.length > 1 ? <Tooltip title="Remove color variant"><Box component="span" onClick={(e) => { e.stopPropagation(); handleRemoveColorVariant(colorIndex); }} sx={{ ml: 1, cursor: 'pointer', color: 'error.main' }}><RemoveCircleIcon fontSize="small" /></Box></Tooltip> : undefined}
+                  icon={formik.values.variants.length > 1 && !colorVariant.hasOtherSellerOffers ? <Tooltip title="Remove product variant"><Box component="span" onClick={(e) => { e.stopPropagation(); handleRemoveColorVariant(colorIndex); }} sx={{ ml: 1, cursor: 'pointer', color: 'error.main' }}><RemoveCircleIcon fontSize="small" /></Box></Tooltip> : undefined}
                   iconPosition="end" />
               ))}
             </Tabs>
@@ -710,7 +706,7 @@ const formVariants = useMemo(() => {
                       {isVariantOwner ? (
                         <Grid container spacing={2} sx={{ mb: 3 }}>
                           <Grid size={{ xs: 12, sm: 6 }}>
-                            <Autocomplete freeSolo options={colorSuggestions} value={formik.values.variants[activeColorTab].color} onChange={(_, val) => handleColorVariantChange(activeColorTab, 'color', val || '')} renderInput={(params) => <TextField {...params} label="Color *" error={Boolean(formik.touched.variants?.[activeColorTab]?.color && (formik.errors.variants as any)?.[activeColorTab]?.color)} helperText={formik.touched.variants?.[activeColorTab]?.color && ((formik.errors.variants as any)?.[activeColorTab]?.color as string)} required />} />
+                            <Autocomplete freeSolo options={colorSuggestions} value={formik.values.variants[activeColorTab].color} onChange={(_, val) => handleColorVariantChange(activeColorTab, 'color', val || '')} renderInput={(params) => <TextField {...params} label="Variant Name *" error={Boolean(formik.touched.variants?.[activeColorTab]?.color && (formik.errors.variants as any)?.[activeColorTab]?.color)} helperText={formik.touched.variants?.[activeColorTab]?.color && ((formik.errors.variants as any)?.[activeColorTab]?.color as string)} required />} />
                           </Grid>
                         </Grid>
                       ) : (
@@ -723,7 +719,7 @@ const formVariants = useMemo(() => {
 
                       {isVariantOwner && (
                         <Grid size={{ xs: 12 }} sx={{ mb: 3 }}>
-                          <Typography variant="subtitle2" gutterBottom>Images for {formik.values.variants[activeColorTab].color || 'this color'} *</Typography>
+                          <Typography variant="subtitle2" gutterBottom>Images for {formik.values.variants[activeColorTab].color || 'this variant'} *</Typography>
                           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
                             <input type="file" accept="image/*" multiple id={`color-images-${activeColorTab}`} style={{ display: 'none' }} onChange={(e) => handleColorVariantImageUpload(activeColorTab, e.target.files)} />
                             <label htmlFor={`color-images-${activeColorTab}`}><Button component="span" variant="outlined" startIcon={<AddPhotoAlternateIcon />} disabled={uploadingImage}>{uploadingImage ? <CircularProgress size={20} /> : 'Upload Images'}</Button></label>
@@ -760,12 +756,12 @@ const formVariants = useMemo(() => {
                           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
                               <StorageIcon color="primary" />
-                              <Typography variant="subtitle2" fontWeight="bold">{subVariant.specifications?.storage || `Storage Variant ${subIndex + 1}`}{subVariant.specifications?.ram && ` • ${subVariant.specifications.ram}`}</Typography>
+                              <Typography variant="subtitle2" fontWeight="bold">{subVariant.specifications?.storage || `Subvariant ${subIndex + 1}`}{subVariant.specifications?.ram && ` • ${subVariant.specifications.ram}`}</Typography>
                               {subVariant.offers?.length > 0 && <Chip label={`₹${Math.min(...subVariant.offers.filter(o => o.sellingPrice).map(o => Number(o.sellingPrice))) || '0'}`} size="small" color="success" variant="outlined" />}
                               {!subVariant.isActive && <Chip label="Inactive" size="small" color="default" />}
                               {!isVariantOwner && <Chip label="Read-Only" size="small" color="info" variant="outlined" />}
                             </Box>
-                            {formik.values.variants[activeColorTab].subVariants.length > 1 && isVariantOwner && <Box component="span" onClick={(e) => { e.stopPropagation(); handleRemoveSubVariant(activeColorTab, subIndex); }} sx={{ cursor: 'pointer', color: 'error.main', ml: 1 }}><RemoveCircleIcon fontSize="small" /></Box>}
+                            {formik.values.variants[activeColorTab].subVariants.length > 1 && isVariantOwner && !subVariant.hasOtherSellerOffers && <Box component="span" onClick={(e) => { e.stopPropagation(); handleRemoveSubVariant(activeColorTab, subIndex); }} sx={{ cursor: 'pointer', color: 'error.main', ml: 1 }}><RemoveCircleIcon fontSize="small" /></Box>}
                           </AccordionSummary>
 
                           <AccordionDetails sx={{ p: { xs: 1, sm: 2 } }}>
@@ -792,7 +788,7 @@ const formVariants = useMemo(() => {
                                                       disabled
                                                     >
                                                       <MenuItem value=""><em>Select {attr.label}</em></MenuItem>
-                                                      {attr.options?.map((opt: string) => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+                                                      {[...(attr.options || [])].sort((a, b) => a.localeCompare(b)).map((opt: string) => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
                                                     </Select>
                                                   </FormControl>
                                                 ) : (
@@ -842,20 +838,18 @@ const formVariants = useMemo(() => {
                                 <Box sx={{ p: { xs: 1, sm: 2 }, bgcolor: 'info.50', borderRadius: 2, border: { xs: 'none', sm: '1px solid' }, borderColor: 'info.light', mb: 2 }}>
                                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                                     <Typography variant="subtitle2" fontWeight="bold" color="info.main">🏪 Seller Offers ({(subVariant.offers || []).filter(o => !o.toBeDeleted).length || 0})</Typography>
-                                    <Button startIcon={<AddCircleIcon />} onClick={() => handleAddOffer(activeColorTab, subIndex)} variant="outlined" size="small" color="info">Add Offer</Button>
                                   </Box>
 
                                   {(subVariant.offers || []).filter(o => !o.toBeDeleted).length === 0 ? (
-                                    <Alert severity="info">No offers yet. Click "Add Offer" to create one.</Alert>
+                                    <Alert severity="info">No offers found.</Alert>
                                   ) : (
                                     (subVariant.offers || []).filter(o => !o.toBeDeleted).map((offer, offerIndex) => {
                                       const isCurrentSellerOffer = offer.sellerId === (currentSeller?._id || '');
                                       return (
-                                        <Paper key={offerIndex} sx={{ p: { xs: 1, sm: 2 }, mb: 1, bgcolor: isCurrentSellerOffer ? 'success.50' : 'grey.50', border: { xs: 'none', sm: '1px solid' }, borderColor: isCurrentSellerOffer ? 'success.300' : 'grey.300' }}>
-                                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                                            <Typography variant="caption" fontWeight="bold">{isCurrentSellerOffer ? '🟢 Your Offer' : '🔵 Other Seller'} #{offerIndex + 1}</Typography>
-                                            {isCurrentSellerOffer && (subVariant.offers || []).filter(o => !o.toBeDeleted).length > 1 && <IconButton size="small" color="error" onClick={() => handleRemoveOffer(activeColorTab, subIndex, offerIndex)}><RemoveCircleIcon fontSize="small" /></IconButton>}
-                                          </Box>
+                                        <Box key={offerIndex} sx={{ pt: 0 }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+                                      {isCurrentSellerOffer && (subVariant.offers || []).filter(o => !o.toBeDeleted).length > 1 && <IconButton size="small" color="error" onClick={() => handleRemoveOffer(activeColorTab, subIndex, offerIndex)}><RemoveCircleIcon fontSize="small" /></IconButton>}
+                                    </Box>
                                           <Grid container spacing={2}>
                                             <Grid size={{ xs: 12, sm: 6 }}>
                                               <TextField fullWidth label="MRP Price (₹) *" type="number" value={String(offer.mrpPrice ?? '')} onChange={(e) => isCurrentSellerOffer && handleOfferChange(activeColorTab, subIndex, offerIndex, 'mrpPrice', e.target.value)} error={Boolean(formik.touched.variants?.[activeColorTab]?.subVariants?.[subIndex]?.offers?.[offerIndex]?.mrpPrice && (formik.errors.variants as any)?.[activeColorTab]?.subVariants?.[subIndex]?.offers?.[offerIndex]?.mrpPrice)} helperText={formik.touched.variants?.[activeColorTab]?.subVariants?.[subIndex]?.offers?.[offerIndex]?.mrpPrice && ((formik.errors.variants as any)?.[activeColorTab]?.subVariants?.[subIndex]?.offers?.[offerIndex]?.mrpPrice as string)} InputProps={{ inputProps: { min: 0, step: "0.01" }, readOnly: !isCurrentSellerOffer }} required />
@@ -899,7 +893,7 @@ const formVariants = useMemo(() => {
                                               <FormControlLabel control={<Switch checked={offer.isActive !== false} onChange={(e) => isCurrentSellerOffer && handleOfferChange(activeColorTab, subIndex, offerIndex, 'isActive', e.target.checked)} disabled={!isCurrentSellerOffer} />} label="Active (visible to customers)" />
                                             </Grid>
                                           </Grid>
-                                        </Paper>
+                                        </Box>
                                       );
                                     })
                                   )}
@@ -969,7 +963,6 @@ const formVariants = useMemo(() => {
                 <Paper elevation={0} sx={{ p: { xs: 2, md: 4 }, borderRadius: 3, border: { xs: 'none', sm: '1px solid' }, borderColor: 'grey.200', boxShadow: { xs: 'none', sm: '0 4px 20px rgba(0,0,0,0.03)' }, bgcolor: 'white' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
                     <Typography variant="h6" fontWeight="700" color="success.main">✨ Product Highlights</Typography>
-                    <Chip label={`${highlightAttributes.length} Admin Fields`} size="small" color="success" variant="outlined" sx={{ fontWeight: 600 }} />
                   </Box>
                   <Grid container spacing={3}>
                     {highlightAttributes.map((attr: CategoryAttribute) => {
