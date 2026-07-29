@@ -12,7 +12,8 @@ import { fetchUserCart as fetchCart } from './redux/Customer/CartSlice';
 import { getWishlistByUserId as fetchWishlist } from './redux/Customer/WishlistSlice';
 import { createHomeCategories } from './redux/Customer/Customer/AsyncThunk';
 import { homeCategories } from './data/homeCategories';
-import { CircularProgress, Box } from '@mui/material';
+import { Box } from '@mui/material';
+import CustomLoader from "./components/CustomLoader";
 
 // Lazy-load major route sections to drastically reduce initial bundle size
 const CustomerRoutes = React.lazy(() => import('./routes/CustomerRoutes'));
@@ -92,7 +93,7 @@ function App() {
         <ScrollToTop />
         <Suspense fallback={
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-            <CircularProgress sx={{ color: '#FF5A00' }} />
+            <CustomLoader sx={{ color: '#FF5A00' }} />
           </Box>
         }>
           <Routes>

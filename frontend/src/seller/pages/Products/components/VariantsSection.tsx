@@ -143,13 +143,14 @@ const renderAttributeField = (
             <TextField 
               {...params} 
               label={
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                   {label}
                   {disabled && <Lock fontSize="small" sx={{ color: 'text.disabled' }} />}
                 </Box>
               }
               placeholder={`Select or type ${attr.label}`} 
               required={attr.required}
+              InputLabelProps={{ required: false }}
             />
           )}
         />
@@ -432,8 +433,9 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
                     fullWidth
+                    InputLabelProps={{ required: false }}
                     label={
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                         Variant Name *
                         {isCatalogProduct && !isOwner && isColorFromCatalog && (
                           <Tooltip title="Inherited from catalog - contact owner to change">
@@ -485,7 +487,7 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                       Images for {variants[activeColorTab].color || 'this variant'} *
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      Upload at least 1 image (max 5)
+                      Upload at least 1 image (max 7)
                     </Typography>
                   </Box>
                   <Box sx={{
@@ -653,7 +655,7 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                 <Box sx={{ mb: 3 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                     <Typography variant="subtitle1" fontWeight="bold">
-                      🔧 Variant Specifications (Admin-Configured)
+                      🔧 Variant Specifications
                     </Typography>
                     <Chip label={`${variantAttributes.length} Fields`} size="small" color="info" variant="outlined" />
                   </Box>

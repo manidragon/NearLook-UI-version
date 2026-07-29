@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, CircularProgress, Grid } from '@mui/material';
+import { Box, Typography, Grid } from '@mui/material';
 import { api } from '../../../Config/Api';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
@@ -9,6 +9,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import PeopleIcon from '@mui/icons-material/People';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import CustomLoader from "../../../components/CustomLoader";
 
 interface AnalyticsData {
   summary: {
@@ -54,7 +55,7 @@ const AnalyticsDashboard = () => {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="60vh">
-        <CircularProgress sx={{ color: '#FF5A00' }} />
+        <CustomLoader sx={{ color: '#FF5A00' }} />
       </Box>
     );
   }

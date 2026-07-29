@@ -1,9 +1,6 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\pages\Account\ReturnHistory.tsx
 import React, { useEffect } from 'react';
-import { 
-  Box, Typography, Card, CardContent, Chip, CircularProgress, Alert, 
-  Stack, Avatar, LinearProgress, Button, Divider 
-} from '@mui/material';
+import { Box, Typography, Card, CardContent, Chip, Alert, Stack, Avatar, LinearProgress, Button, Divider } from '@mui/material';
 import { 
   CheckCircle, Pending, LocalShipping, Cancel, Replay, 
   AccountBalanceWallet, CalendarToday 
@@ -13,6 +10,7 @@ import { fetchUserReturns } from '../../../redux/Customer/ReturnSlice';
 import type { ReturnRequest, ReturnStatus } from '../../../types/orderTypes';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
+import CustomLoader from "../../../components/CustomLoader";
 
 // 🔹 Helper: Get status configuration
 const getStatusConfig = (status: ReturnStatus) => {
@@ -173,7 +171,7 @@ const ReturnHistory: React.FC = () => {
   if (loading) {
     return (
       <Box sx={{ textAlign: 'center', py: 10 }}>
-        <CircularProgress />
+        <CustomLoader />
         <Typography sx={{ mt: 2 }}>Loading return history...</Typography>
       </Box>
     );

@@ -2,22 +2,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import ProductCard from "./ProductCard/ProductCard";
 import FilterSection from "./FilterSection";
-import {
-  Box,
-  Divider,
-  FormControl,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Pagination,
-  Select,
-  type SelectChangeEvent,
-  useMediaQuery,
-  useTheme,
-  CircularProgress,
-  Typography,
-  Drawer as MuiDrawer,
-} from "@mui/material";
+import { Box, Divider, FormControl, IconButton, InputLabel, MenuItem, Pagination, Select, type SelectChangeEvent, useMediaQuery, useTheme, Typography, Drawer as MuiDrawer } from '@mui/material';
 
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -31,6 +16,7 @@ import { fetchCategories } from "../../../redux/Admin/CategorySlice";
 import type { Category } from "../../../types/categoryTypes";
 import { getAllProducts, selectLocationFilter } from "../../../redux/Customer/ProductSlice";
 import "./Products.css";
+import CustomLoader from "../../../components/CustomLoader";
 
 const Products = () => {
   const [sort, setSort] = React.useState("");
@@ -292,7 +278,7 @@ useEffect(() => {
             
             {products.loading ? (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, justifyContent: 'center', alignItems: 'center', py: 20 }}>
-                <CircularProgress sx={{ color: '#f97316' }} />
+                <CustomLoader sx={{ color: '#f97316' }} />
                 <Typography className="text-gray-500 font-medium text-sm animate-pulse">Loading products...</Typography>
               </Box>
             ) : productsToRender.length > 0 ? (

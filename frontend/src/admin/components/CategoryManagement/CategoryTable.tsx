@@ -14,6 +14,8 @@ import {
   Typography,
   Chip,
   Avatar,
+  Autocomplete,
+  TextField,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import EditIcon from "@mui/icons-material/Edit";
@@ -72,28 +74,50 @@ const CategoryTable: React.FC<CategoryTableProps> = ({
     });
   }, [categories]);
 
+  const [parentFilter, setParentFilter] = React.useState<Category | null>(null);
+
+  const filteredCategories = React.useMemo(() => {
+    let result = uniqueCategories;
+    if (parentFilter) {
+      result = result.filter(c => c.parentCategory === parentFilter._id);
+    }
+    return result;
+  }, [uniqueCategories, parentFilter]);
+
   return (
+    <Box>
+      {level > 1 && parentCategories.length > 0 && (
+        <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
+          <Autocomplete
+            options={parentCategories}
+            getOptionLabel={(option) => option.name || "Unnamed"}
+            value={parentFilter}
+            onChange={(event, newValue) => setParentFilter(newValue)}
+            renderInput={(params) => <TextField {...params} label="Filter by Parent Category" size="small" />}
+            sx={{ width: 300 }}
+          />
+        </Box>
+      )}
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 700 }} aria-label="customized table">
         <TableHead>
           <TableRow>
-            <StyledTableCell>No</StyledTableCell>
             {/* ✅ NEW: Show Order column for Level 1 & 2 */}
             {level <= 2 && <StyledTableCell>Order</StyledTableCell>}
             {/* ✅ Show Image column for Level 1 */}
             {level === 1 && <StyledTableCell>Image</StyledTableCell>}
             <StyledTableCell>Name</StyledTableCell>
-            <StyledTableCell>Category ID</StyledTableCell>
+
             <StyledTableCell>Level</StyledTableCell>
             <StyledTableCell>Parent Category</StyledTableCell>
             <StyledTableCell align="right">Actions</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {uniqueCategories.length === 0 ? (
+          {filteredCategories.length === 0 ? (
             <StyledTableRow>
               <StyledTableCell 
-                colSpan={level === 1 ? 8 : level <= 2 ? 7 : 6} 
+                colSpan={level === 1 ? 7 : level <= 2 ? 6 : 5} 
                 align="center"
               >
                 <Typography variant="body1" color="text.secondary">
@@ -102,12 +126,8 @@ const CategoryTable: React.FC<CategoryTableProps> = ({
               </StyledTableCell>
             </StyledTableRow>
           ) : (
-            uniqueCategories.map((category, index) => (
+            filteredCategories.map((category, index) => (
               <StyledTableRow key={category._id}>
-                <StyledTableCell component="th" scope="row">
-                  {index + 1}
-                </StyledTableCell>
-                
                 {/* ✅ NEW: Show Order Number for Level 1 & 2 */}
                 {level <= 2 && (
                   <StyledTableCell>
@@ -145,28 +165,9 @@ const CategoryTable: React.FC<CategoryTableProps> = ({
                 )}
 
                 <StyledTableCell>
-                  <Box display="flex" alignItems="center" gap={1}>
-                    {category.name}
-                    <Chip
-                      label={`Level ${category.level}`}
-                      size="small"
-                      color={category.level === 1 ? "primary" : category.level === 2 ? "secondary" : "default"}
-                    />
-                  </Box>
+                  {category.name}
                 </StyledTableCell>
-                <StyledTableCell>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      bgcolor: "grey.100",
-                      p: 0.5,
-                      borderRadius: 1,
-                      fontFamily: "monospace",
-                    }}
-                  >
-                    {category.categoryId}
-                  </Typography>
-                </StyledTableCell>
+
                 <StyledTableCell>
                   <Chip label={category.level} color="info" size="small" />
                 </StyledTableCell>
@@ -197,6 +198,7 @@ const CategoryTable: React.FC<CategoryTableProps> = ({
         </TableBody>
       </Table>
     </TableContainer>
+    </Box>
   );
 };
 

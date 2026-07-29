@@ -6,6 +6,7 @@ import { Box, Typography } from "@mui/material";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { updateSeller } from "../../../redux/Seller/sellerSlice";
+import { validateImageSize } from "../../../util/fileValidator";
 
 // ✅ Cloudinary Upload Function
 const uploadToCloudinary = async (file: File) => {
@@ -50,17 +51,12 @@ const LogoUploadForm = ({ onClose }: LogoUploadFormProps) => {
   }, [sellers.profile]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+    const validFiles = validateImageSize(event.target.files);
+    const file = validFiles[0];
     if (file) {
       // Validate file type
       if (!file.type.startsWith('image/')) {
         setError('Please select an image file (JPG, PNG, GIF)');
-        return;
-      }
-
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setError('File size must be less than 5MB');
         return;
       }
 

@@ -1,7 +1,7 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\pages\Checkout\AddressPage.tsx
 import React, { useState, useEffect } from 'react';
 import PricingCard from '../Cart/PricingCard';
-import { Box, Button, FormControlLabel, Modal, Radio, RadioGroup, Alert, Snackbar, CircularProgress, Typography } from '@mui/material';
+import { Box, Button, FormControlLabel, Modal, Radio, RadioGroup, Alert, Snackbar, Typography } from '@mui/material';
 import AddressForm from './AddresssForm';
 import AddressCard from './AddressCard';
 import AddIcon from '@mui/icons-material/Add';
@@ -23,6 +23,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import dayjs, { Dayjs } from 'dayjs';
 import axios from 'axios';
+import CustomLoader from "../../../components/CustomLoader";
 
 const style = {
     position: 'absolute',
@@ -641,7 +642,7 @@ if (result && typeof result === 'object' && 'success' in result && !result.succe
                                     }
                                 >
                                     {checkoutLoading ? (
-                                        <CircularProgress size={24} sx={{ color: 'white' }} />
+                                        <CustomLoader size={24} sx={{ color: 'white' }} />
                                     ) : (
                                         'Proceed to Checkout'
                                     )}

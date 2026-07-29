@@ -389,7 +389,7 @@ class ProductService {
       const product = await Product.findByIdAndUpdate(
         productId,
         { approvalStatus, rejectReason },
-        { new: true, runValidators: true }
+        { new: true }
       ).populate('seller', 'sellerName businessDetails.businessName email');
       
       if (!product) {
@@ -505,7 +505,7 @@ class ProductService {
       offer.rejectReason = rejectReason;
       
       product.markModified('variants');
-      await product.save(); // Triggers hooks to recalculate prices
+      await product.save({ validateBeforeSave: false }); // Triggers hooks to recalculate prices
       
       // We need to populate the seller to send email
       const populatedProduct = await Product.findById(productId)

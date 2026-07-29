@@ -1,14 +1,7 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\admin\pages\HomePage\ElectronicCategoryForm.tsx
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import {
-  Button,
-  TextField,
-  Typography,
-  Box,
-  CircularProgress,
-  DialogActions,
-} from "@mui/material";
+import { Button, TextField, Typography, Box, DialogActions } from '@mui/material';
 import { useAppDispatch } from "../../../redux/Store";
 import { 
   createElectronicCategory, 
@@ -17,6 +10,7 @@ import {
 import type { ElectronicCategory } from "../../../types/electronicCategoryTypes";
 import React from "react";
 import { uploadToCloudinary } from "../../../util/uploadToCloudnary";
+import CustomLoader from "../../../components/CustomLoader";
 
 const validationSchema = Yup.object({
   name: Yup.string().required("Name is required").max(50, "Name must be at most 50 characters"),
@@ -127,7 +121,7 @@ const ElectronicCategoryForm = ({
           }}
         >
           {uploading ? (
-            <CircularProgress size={24} />
+            <CustomLoader size={24} />
           ) : formik.values.image ? (
             '✅ Image Uploaded - Click to Change'
           ) : (
@@ -208,7 +202,7 @@ const ElectronicCategoryForm = ({
           }}
         >
           {formik.isSubmitting || uploading ? (
-            <CircularProgress size={24} color="inherit" />
+            <CustomLoader size={24} color="inherit" />
           ) : isCreateMode ? (
             'Create Category'
           ) : (

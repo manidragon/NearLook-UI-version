@@ -1,24 +1,5 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\components\Navbar\Navbar.tsx
-import {
-  Avatar,
-  Badge,
-  Box,
-  Button,
-  Drawer,
-  IconButton,
-  useMediaQuery,
-  useTheme,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  MenuItem,
-  Divider,
-  TextField,
-  CircularProgress,
-  Typography,
-  Tooltip,
-  Autocomplete,
-} from "@mui/material";
+import { Avatar, Badge, Box, Button, Drawer, IconButton, useMediaQuery, useTheme, Dialog, DialogTitle, DialogContent, MenuItem, Divider, TextField, Typography, Tooltip, Autocomplete } from '@mui/material';
 import React, { useEffect, useState } from "react";
 import "./Navbar.css";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
@@ -59,6 +40,7 @@ import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
+import CustomLoader from "../../../components/CustomLoader";
 
 const renderCategoryIcon = (name: string = '') => {
   const n = name.toLowerCase();
@@ -368,7 +350,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
                 }}
               >
                 {locationLoading ? (
-                  <CircularProgress size={24} sx={{ color: '#FF5A00' }} />
+                  <CustomLoader size={24} sx={{ color: '#FF5A00' }} />
                 ) : (
                   <GpsFixedIcon sx={{ color: '#FF5A00', fontSize: 26 }} />
                 )}

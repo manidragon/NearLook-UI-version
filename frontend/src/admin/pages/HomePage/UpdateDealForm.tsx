@@ -1,17 +1,11 @@
 import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import {
-    Typography,
-    FormControl,
-    Select,
-    MenuItem,
-    CircularProgress,
-    Box,
-} from "@mui/material";
+import { Typography, FormControl, Select, MenuItem, Box } from '@mui/material';
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { fetchHomeCategories } from "../../../redux/Admin/AdminSlice";
 import { updateDeal, getAllDeals } from "../../../redux/Admin/DealSlice";
+import CustomLoader from "../../../components/CustomLoader";
 
 const validationSchema = Yup.object({
     discount: Yup.number()
@@ -166,7 +160,7 @@ const UpdateDealForm = ({ deal, handleClose }: UpdateDealFormProps) => {
                             <div className="flex items-center justify-center gap-2">
                                 {dealState.loading ? (
                                     <>
-                                        <CircularProgress size={20} color="inherit" />
+                                        <CustomLoader size={20} color="inherit" />
                                         <span>Updating...</span>
                                     </>
                                 ) : (

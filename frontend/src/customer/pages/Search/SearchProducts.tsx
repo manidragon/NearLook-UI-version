@@ -3,17 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { searchProduct } from '../../../redux/Customer/ProductSlice';
 import { useAppDispatch, useAppSelector } from '../../../redux/Store';
 import ProductCard from '../Products/ProductCard/ProductCard';
-import { 
-  Box, 
-  CircularProgress, 
-  Typography, 
-  IconButton,
-} from '@mui/material';
+import { Box, Typography, IconButton } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SearchIcon from '@mui/icons-material/Search';
 import CallMadeIcon from '@mui/icons-material/CallMade';
 import type { Product } from '../../../types/productTypes';
 import './SearchProducts.css';
+import CustomLoader from "../../../components/CustomLoader";
 
 const POPULAR_SEARCHES = [
   'mobiles', 'shoes', 't shirts', 'laptops', 'watches', 'tv',
@@ -154,7 +150,7 @@ const SearchProducts = () => {
           {/* Loading Indicator in Header */}
           {products.loading && (
             <div className="pr-3">
-              <CircularProgress size={20} sx={{ color: '#FF5A00' }} />
+              <CustomLoader size={20} sx={{ color: '#FF5A00' }} />
             </div>
           )}
         </div>
@@ -187,7 +183,7 @@ const SearchProducts = () => {
           {/* Loading State */}
           {products.loading && !showSuggestions && !hasSearched && (
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
-              <CircularProgress sx={{ color: '#FF5A00' }} />
+              <CustomLoader sx={{ color: '#FF5A00' }} />
             </Box>
           )}
 

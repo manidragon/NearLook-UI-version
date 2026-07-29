@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, CircularProgress, Button } from "@mui/material";
+import { Box, Typography, Button } from '@mui/material';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { api } from "../../../Config/Api";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../../pages/Products/ProductCard/ProductCard";
+import CustomLoader from "../../../components/CustomLoader";
 
 // Fix for default marker icon in react-leaflet is not needed here 
 // since we use customMarkerIcon and userMarkerIcon explicitly.
@@ -153,7 +154,7 @@ export default function MapSearch() {
           </MapContainer>
         ) : (
           <div className="flex items-center justify-center h-full bg-gray-100">
-            <CircularProgress sx={{ color: '#FF5A00' }} />
+            <CustomLoader sx={{ color: '#FF5A00' }} />
           </div>
         )}
 
@@ -189,7 +190,7 @@ export default function MapSearch() {
 
         {loading ? (
           <div className="flex justify-center p-8">
-            <CircularProgress sx={{ color: '#FF5A00' }} />
+            <CustomLoader sx={{ color: '#FF5A00' }} />
           </div>
         ) : products.length > 0 ? (
           <div className="p-4 sm:p-5">

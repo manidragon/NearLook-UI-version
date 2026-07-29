@@ -1,14 +1,6 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import {
-  Button,
-  TextField,
-  Typography,
-  Box,
-  CircularProgress,
-  DialogActions,
-  Autocomplete,
-} from "@mui/material";
+import { Button, TextField, Typography, Box, DialogActions, Autocomplete } from '@mui/material';
 import {
   CloudUpload as CloudUploadIcon,
   AddPhotoAlternate as AddPhotoAlternateIcon,
@@ -21,6 +13,7 @@ import { getCategoriesByLevel } from "../../../redux/Admin/CategorySlice";
 import type { HomeCategory } from "../../../types/homeDataTypes";
 import React, { useState, useEffect } from "react";
 import { uploadToCloudinary } from "../../../util/uploadToCloudnary";
+import CustomLoader from "../../../components/CustomLoader";
 
 const validationSchema = Yup.object({
   image: Yup.string().required("Image is required"),
@@ -297,7 +290,7 @@ const UpdateHomeCategoryForm = ({
           }}
         >
           {formik.isSubmitting || uploading ? (
-            <CircularProgress size={24} color="inherit" />
+            <CustomLoader size={24} color="inherit" />
           ) : isCreateMode ? (
             'CREATE BANNER'
           ) : (

@@ -1,23 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-    Typography,
-    Divider,
-    TextField,
-    Box,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableRow,
-    CircularProgress,
-    Card,
-    IconButton,
-    Chip
-} from "@mui/material";
+import { DialogTitle, DialogContent, DialogActions, Button, Typography, Divider, TextField, Box, Table, TableBody, TableCell, TableHead, TableRow, Card, IconButton, Chip } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import PersonIcon from '@mui/icons-material/Person';
@@ -25,6 +7,7 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { fetchPayoutDetails, completePayout, clearSelectedPayout } from "../../../redux/Admin/AdminPayoutSlice";
+import CustomLoader from "../../../components/CustomLoader";
 
 interface Props {
     payoutId: string;
@@ -63,7 +46,7 @@ const PayoutDetails = ({ payoutId, onClose }: Props) => {
     if (loading || !selectedPayout) {
         return (
             <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" p={8}>
-                <CircularProgress size={48} className="text-[#FF5A00] mb-4" />
+                <CustomLoader size={48} className="text-[#FF5A00] mb-4" />
                 <Typography className="text-gray-500 font-medium animate-pulse">Loading details...</Typography>
             </Box>
         );
@@ -206,7 +189,7 @@ const PayoutDetails = ({ payoutId, onClose }: Props) => {
                         className="bg-gradient-to-r from-[#FF5A00] to-[#ff7a33] text-white shadow-md hover:shadow-lg disabled:opacity-70 px-6"
                         sx={{ borderRadius: '8px', textTransform: 'none', fontWeight: 600 }}
                     >
-                        {submitting ? <CircularProgress size={24} color="inherit" /> : "Confirm Settlement"}
+                        {submitting ? <CustomLoader size={24} color="inherit" /> : "Confirm Settlement"}
                     </Button>
                 )}
             </DialogActions>

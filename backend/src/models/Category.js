@@ -6,11 +6,6 @@ const categorySchema = new Schema({
     name: {
         type: String,
     },
-    categoryId: {
-        type: String,
-        unique: true, 
-        required: true, // Making categoryId required
-    },
     parentCategory: {
         type: Schema.Types.ObjectId, 
         ref: 'Category',

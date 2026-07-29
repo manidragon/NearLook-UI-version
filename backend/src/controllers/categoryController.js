@@ -72,11 +72,11 @@ class CategoryController {
   // Create new category
   async createCategory(req, res) {
     try {
-      const { name, categoryId, parentCategory, level, image, order } = req.body;
+      const { name, parentCategory, level, image, order } = req.body;
       
       // Validate required fields
-      if (!name || !categoryId || level === undefined) {
-        return res.status(400).json({ success: false, message: 'Name, categoryId, and level are required' });
+      if (!name || level === undefined) {
+        return res.status(400).json({ success: false, message: 'Name and level are required' });
       }
       
       // Validate level (1, 2, or 3)
@@ -89,12 +89,7 @@ class CategoryController {
         return res.status(400).json({ success: false, message: `Parent category is required for level ${level}` });
       }
       
-      // Check if categoryId already exists
-      const existingCategory = await Category.findOne({ categoryId });
-      if (existingCategory) {
-        return res.status(400).json({ success: false, message: 'Category ID already exists' });
-      }
-      
+
       // ✅ Auto-assign order if not provided (for Level 1 & 2)
       let finalOrder = order;
       if (level <= 2 && order === undefined) {
@@ -105,7 +100,6 @@ class CategoryController {
       // Create new category with optional image
       const category = await Category.create({
         name,
-        categoryId,
         parentCategory: parentCategory || null,
         level,
         image: image || null,
@@ -117,9 +111,6 @@ class CategoryController {
         category
       });
     } catch (error) {
-      if (error.code === 11000) {
-        return res.status(400).json({ success: false, message: 'Category ID already exists' });
-      }
       res.status(500).json({ success: false, message: error.message });
     }
   }
@@ -128,7 +119,7 @@ class CategoryController {
   async updateCategory(req, res) {
     try {
       const { id } = req.params;
-      const { name, categoryId, parentCategory, level, image, order } = req.body;
+      const { name, parentCategory, level, image, order } = req.body;
       
       // Find category
       const category = await Category.findById(id);
@@ -139,7 +130,6 @@ class CategoryController {
       
       // Update fields
       if (name !== undefined) category.name = name;
-      if (categoryId !== undefined) category.categoryId = categoryId;
       if (parentCategory !== undefined) category.parentCategory = parentCategory;
       if (level !== undefined) category.level = level;
       if (image !== undefined) category.image = image;
@@ -152,9 +142,6 @@ class CategoryController {
         category
       });
     } catch (error) {
-      if (error.code === 11000) {
-        return res.status(400).json({ success: false, message: 'Category ID already exists' });
-      }
       res.status(500).json({ success: false, message: error.message });
     }
   }

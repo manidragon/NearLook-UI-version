@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { Modal, Box, CircularProgress, Rating } from '@mui/material';
+import { Modal, Box, Rating } from '@mui/material';
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import { uploadToCloudinary } from '../../../util/uploadToCloudnary';
 import { useAppDispatch } from '../../../redux/Store';
@@ -9,6 +9,7 @@ import { createReview, fetchReviewsByProductId } from '../../../redux/Customer/R
 import { createSellerReview, fetchSellerReviews } from '../../../redux/Customer/SellerReviewSlice';
 import { useNavigate } from 'react-router-dom';
 import './SupaviewModal.css';
+import CustomLoader from "../../../components/CustomLoader";
 
 interface SupaviewModalProps {
     open: boolean;

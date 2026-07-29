@@ -1,10 +1,5 @@
 import React, { useEffect } from "react";
-import {
-    Box,
-    Typography,
-    Divider,
-    CircularProgress
-} from "@mui/material";
+import { Box, Typography, Divider } from '@mui/material';
 
 import { useParams } from "react-router-dom";
 
@@ -16,6 +11,7 @@ import {
 } from "../../../redux/Customer/ReviewSlice";
 
 import ProductReviewCard
+import CustomLoader from "../../../components/CustomLoader";
 from "./ProductReviewCard";
 
 const ReviewPage = () => {
@@ -46,7 +42,7 @@ const ReviewPage = () => {
 
         return (
             <Box className="flex justify-center mt-20">
-                <CircularProgress />
+                <CustomLoader />
             </Box>
         );
 

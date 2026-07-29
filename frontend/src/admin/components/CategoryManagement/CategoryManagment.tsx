@@ -106,7 +106,6 @@ const CategoryManagement = () => {
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
-    dispatch(getCategoriesByLevel(newValue + 1));
   };
 
   const handleEdit = (category: Category) => {

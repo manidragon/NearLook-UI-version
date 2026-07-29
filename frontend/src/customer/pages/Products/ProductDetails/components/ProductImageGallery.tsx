@@ -83,9 +83,12 @@ const lumenCss = `
 .lumen-zoomBtn:active { transform: translateY(0) scale(.98); }
 
 .lumen-thumbs {
-  margin-top: 12px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+  margin-top: 8px; display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 10px; padding: 4px 4px 8px 4px;
 }
+.lumen-thumbs::-webkit-scrollbar { display: none; }
+.lumen-thumbs { -ms-overflow-style: none; scrollbar-width: none; }
 .lumen-thumb {
+  flex: 0 0 calc(25% - 7.5px);
   border: 1px solid rgba(18,36,66,.12);
   background: linear-gradient(180deg, rgba(18,36,66,.06), transparent);
   border-radius: 16px; cursor: pointer; padding: 8px;
@@ -202,8 +205,34 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
   onToggleWishlist
 }) => {
   const viewerRef = React.useRef<HTMLDivElement>(null);
+  const thumbsRef = React.useRef<HTMLDivElement>(null);
   const [zoomTransform, setZoomTransform] = React.useState('');
   const [isZooming, setIsZooming] = React.useState(false);
+  const [isHoveringThumbs, setIsHoveringThumbs] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!thumbsRef.current || isHoveringThumbs || displayImages.length <= 4) return;
+    let animationFrameId: number;
+    let accum = 0;
+    let direction = 1;
+    const scrollThumbs = () => {
+      if (thumbsRef.current) {
+        accum += 0.4;
+        if (accum >= 1) {
+          thumbsRef.current.scrollLeft += direction * Math.floor(accum);
+          accum -= Math.floor(accum);
+        }
+        if (thumbsRef.current.scrollLeft + thumbsRef.current.clientWidth >= thumbsRef.current.scrollWidth - 1) {
+          direction = -1;
+        } else if (thumbsRef.current.scrollLeft <= 0) {
+          direction = 1;
+        }
+      }
+      animationFrameId = requestAnimationFrame(scrollThumbs);
+    };
+    animationFrameId = requestAnimationFrame(scrollThumbs);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [isHoveringThumbs, displayImages.length]);
 
   const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
 
@@ -306,7 +335,16 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
             </div>
           </div>
 
-          <div className="lumen-thumbs" id="thumbs" aria-label="Product thumbnails">
+          <div 
+            className="lumen-thumbs" 
+            id="thumbs" 
+            aria-label="Product thumbnails"
+            ref={thumbsRef}
+            onMouseEnter={() => setIsHoveringThumbs(true)}
+            onMouseLeave={() => setIsHoveringThumbs(false)}
+            onTouchStart={() => setIsHoveringThumbs(true)}
+            onTouchEnd={() => setIsHoveringThumbs(false)}
+          >
             {displayImages.length > 0 ? (
               displayImages.map((item: string, index: number) => (
                 <button 

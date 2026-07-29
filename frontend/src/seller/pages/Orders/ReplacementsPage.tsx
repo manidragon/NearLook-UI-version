@@ -4,7 +4,7 @@ import {
   Box, Typography, Paper, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Chip, Button,
   IconButton, Dialog, DialogTitle, DialogContent,
-  DialogActions, TextField, CircularProgress, Alert,
+  DialogActions, TextField, Alert,
   Tab, Tabs, Badge, Grid, Divider
 } from '@mui/material';
 import {
@@ -13,6 +13,7 @@ import {
 } from '@mui/icons-material';
 
 // ✅ CORRECTED IMPORTS: Added all new workflow thunks
+import CustomLoader from "../../../components/CustomLoader";
 import { useAppDispatch, useAppSelector } from '../../../redux/Store';
 import {
   fetchSellerReplacements,
@@ -185,7 +186,7 @@ const ReplacementsPage: React.FC = () => {
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
-        <CircularProgress />
+        <CustomLoader />
       </Box>
     );
   }

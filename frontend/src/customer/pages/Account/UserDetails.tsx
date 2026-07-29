@@ -1,16 +1,5 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\pages\Account\UserDetails.tsx
-import {
-  Divider,
-  Button,
-  TextField,
-  Box,
-  Avatar,
-  IconButton,
-  Modal,
-  CircularProgress,
-  Alert,
-  Snackbar,
-} from "@mui/material";
+import { Divider, Button, TextField, Box, Avatar, IconButton, Modal, Alert, Snackbar } from '@mui/material';
 import { useState, useEffect } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
@@ -22,6 +11,7 @@ import ProfileFildCard from "../../../seller/pages/Account/ProfileFildCard";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { updateUserProfile, updateProfilePicture } from "../../../redux/Customer/UserSlice";
 import { uploadToCloudinary } from "../../../util/uploadToCloudnary";
+import CustomLoader from "../../../components/CustomLoader";
 
 const style = {
   position: 'absolute',

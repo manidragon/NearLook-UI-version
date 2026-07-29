@@ -18,6 +18,7 @@ import { fetchCategories } from '../../../redux/Admin/CategorySlice';
 import type { ProductFormValues, ProductVariantPayload, ProductCreatePayload, ProductUpdatePayload, ProductVariantForm, ProductSubVariantForm, ProductOfferForm } from './types/productFormTypes';
 import type { Category } from '../../../types/categoryTypes';
 import { uploadToCloudinary } from '../../../util/uploadToCloudnary';
+import { validateImageSize } from '../../../util/fileValidator';
 
 
 import type { CategoryAttribute } from './types/productFormTypes';
@@ -717,12 +718,7 @@ const AddProductForm: React.FC<{
     // ✅ Expand the newly added sub-variant for editing
     setExpandedSubVariant(newVariants[colorIndex].subVariants.length - 1);
 
-    console.log('✅ [Add Sub-Variant] Added:', {
-      colorIndex,
-      hasTemplateSpecs: !!templateSpecs,
-      specs: templateSpecs || {},
-      sellerId: currentSeller?._id
-    });
+
   }, [formik.values.variants, formik.setFieldValue]);
 
   const handleRemoveSubVariant = useCallback((colorIndex: number, subVariantIndex: number) => {
@@ -865,16 +861,22 @@ const AddProductForm: React.FC<{
 
   const handleColorVariantImageUpload = useCallback(
     (colorIndex: number, files: FileList | null) => {
-      if (!files || files.length === 0) return;
-
-      const newFiles = Array.from(files);
+      let validFiles = validateImageSize(files);
+      if (validFiles.length === 0) return;
 
       formik.setFieldValue('variants', (prevVariants: ProductVariantForm[]) => {
         const newVariants = [...prevVariants];
         const existingImages = newVariants[colorIndex]?.images || [];
+        
+        if (existingImages.length + validFiles.length > 7) {
+          alert('You can only upload a maximum of 7 images per variant. Extra images will be ignored.');
+          const remainingSlots = 7 - existingImages.length;
+          validFiles = validFiles.slice(0, remainingSlots > 0 ? remainingSlots : 0);
+        }
+
         newVariants[colorIndex] = {
           ...newVariants[colorIndex],
-          images: [...existingImages, ...newFiles]
+          images: [...existingImages, ...validFiles]
         };
         return newVariants;
       });
@@ -1295,8 +1297,11 @@ const AddProductForm: React.FC<{
                   };
                 }}
               >
-                {sellerProduct.loading ? (
-                  <CustomLoader size={24} />
+                {sellerProduct.loading || uploadingImage ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CustomLoader size={20} color="inherit" />
+                    <span>{uploadingImage ? "Uploading Images..." : "Creating Product..."}</span>
+                  </Box>
                 ) : sellerProduct.productCreated ? (
                   "✅ Redirecting..."
                 ) : mode === "edit" ? "✅ Update Product" :

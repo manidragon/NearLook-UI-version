@@ -2,18 +2,11 @@
 import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import {
-  Box,
-  Button,
-  TextField,
-  Grid,
-  CircularProgress,
-  Alert,
-  Snackbar,
-} from '@mui/material';
+import { Box, Button, TextField, Grid, Alert, Snackbar } from '@mui/material';
 import { useAppDispatch } from '../../../redux/Store';
 import { addAddress } from '../../../redux/Customer/UserSlice'; // ✅ Changed to addAddress
 import type { Address } from '../../../types/addressTypes';
+import CustomLoader from "../../../components/CustomLoader";
 
 // Validation schema
 const ContactSchema = Yup.object().shape({
@@ -92,7 +85,7 @@ const AddressForm: React.FC<AddressFormProp> = ({ handleClose, onSuccess }) => {
       
       {loading && (
         <Box className='flex justify-center mb-4'>
-          <CircularProgress />
+          <CustomLoader />
         </Box>
       )}
 

@@ -7,22 +7,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import {
-  Button,
-  IconButton,
-  styled,
-  Chip,
-  Tooltip,
-  Collapse,
-  Box,
-  Typography,
-  Divider,
-  Alert,
-  CircularProgress,
-  Snackbar,
-  Tabs,
-  Tab
-} from '@mui/material';
+import { Button, IconButton, styled, Chip, Tooltip, Collapse, Box, Typography, Divider, Alert, Snackbar, Tabs, Tab } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
@@ -42,6 +27,7 @@ import Dialog from '@mui/material/Dialog';
 import UpdateProductForm from './UpdateProductForm';
 import { type Product, type ProductVariant } from '../../../types/productTypes';
 import type { Category } from '../../../types/categoryTypes';
+import CustomLoader from "../../../components/CustomLoader";
 
 // ============================================
 // ✅ Styled Components
@@ -730,7 +716,7 @@ export default function ProductTable() {
 
       {sellerProduct.loading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
-          <CircularProgress />
+          <CustomLoader />
         </Box>
       )}
 

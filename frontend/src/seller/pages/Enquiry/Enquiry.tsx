@@ -1,25 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Typography,
-  Box,
-  CircularProgress,
-  Chip,
-  Card,
-  CardContent,
-  Divider,
-  Stack,
-  Avatar
-} from "@mui/material";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Box, Chip, Card, CardContent, Divider, Stack, Avatar } from '@mui/material';
 import EmailIcon from '@mui/icons-material/Email';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import CustomLoader from "../../../components/CustomLoader";
 
 interface Enquiry {
   _id: string;
@@ -71,7 +55,7 @@ export default function Enquiry() {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="50vh">
-        <CircularProgress />
+        <CustomLoader />
       </Box>
     );
   }

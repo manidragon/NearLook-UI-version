@@ -50,15 +50,15 @@ export const CategoryStep: React.FC<CategoryStepProps> = ({
 
   // ? Filter categories by level
   const allLevelOne = useMemo(() => 
-    allCategories.filter((c: Category) => c.level === 1), 
+    allCategories.filter((c: Category) => c.level === 1).sort((a: Category, b: Category) => a.name.localeCompare(b.name)), 
   [allCategories]);
   
   const allLevelTwo = useMemo(() => 
-    allCategories.filter((c: Category) => c.level === 2), 
+    allCategories.filter((c: Category) => c.level === 2).sort((a: Category, b: Category) => a.name.localeCompare(b.name)), 
   [allCategories]);
   
   const allLevelThree = useMemo(() => 
-    allCategories.filter((c: Category) => c.level === 3), 
+    allCategories.filter((c: Category) => c.level === 3).sort((a: Category, b: Category) => a.name.localeCompare(b.name)), 
   [allCategories]);
 
   // ??? CRITICAL FIX: Filter Level 2 by selected Level 1 parent

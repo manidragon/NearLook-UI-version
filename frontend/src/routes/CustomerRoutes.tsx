@@ -3,10 +3,12 @@ import { Route, Routes, Navigate, useLocation } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../redux/Store'
 import { fetchUserCart } from '../redux/Customer/CartSlice'
 import { getWishlistByUserId } from '../redux/Customer/WishlistSlice'
+
 import GlobalBreadcrumbs from '../components/GlobalBreadcrumbs'
 import Navbar from '../customer/components/Navbar/Navbar'
 import Footer from '../customer/components/Footer/Footer'
-import { CircularProgress, Box } from '@mui/material'
+import { Box } from '@mui/material';
+import CustomLoader from "../components/CustomLoader";
 
 // Lazy loaded components for better performance
 const Home = React.lazy(() => import('../customer/pages/Home/Home'))
@@ -43,9 +45,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const CustomerRoutes = () => {
   const dispatch = useAppDispatch();
   const auth = useAppSelector(state => state.auth);
+  const location = useLocation();
 
   const chat = useAppSelector(state => state.chat);
   const isChatActive = location.pathname.includes('/account/chats') && chat?.currentChat !== null;
+  const isMobileCategoriesPage = location.pathname === '/mobile-categories';
 
   useEffect(() => {
     const jwt = auth.jwt || "";
@@ -61,7 +65,7 @@ const CustomerRoutes = () => {
       <GlobalBreadcrumbs />
       <Suspense fallback={
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
-          <CircularProgress sx={{ color: '#FF5A00' }} />
+          <CustomLoader sx={{ color: '#FF5A00' }} />
         </Box>
       }>
         <Routes>
@@ -89,7 +93,7 @@ const CustomerRoutes = () => {
           <Route path='*' element={<NotFound />} />
         </Routes>
       </Suspense>
-      <Footer />
+      {!isMobileCategoriesPage && <Footer />}
       {/* Spacer to prevent mobile bottom navigation from hiding final content */}
       {!isChatActive && (
         <div className="h-[65px] lg:hidden w-full" aria-hidden="true"></div>

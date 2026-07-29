@@ -1,15 +1,13 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\components\Wallet\WalletBalance.tsx
 import React, { useEffect, useState } from 'react';
-import {
-  Box, Typography, IconButton, Popover, List, ListItem,
-  ListItemIcon, ListItemText, Divider, Chip, CircularProgress, Alert
-} from '@mui/material';
+import { Box, Typography, IconButton, Popover, List, ListItem, ListItemIcon, ListItemText, Divider, Chip, Alert } from '@mui/material';
 import { AccountBalanceWallet, ArrowUpward, ArrowDownward } from '@mui/icons-material';
 import { useAppDispatch, useAppSelector } from '../../../redux/Store';
 import { fetchUserReturns } from '../../../redux/Customer/ReturnSlice';
 import { api } from '../../../Config/Api';
 import type { WalletTransaction } from '../../../types/orderTypes';
 import dayjs from 'dayjs';
+import CustomLoader from "../../../components/CustomLoader";
 
 interface WalletBalanceProps {
   compact?: boolean; // true = sidebar mode (popover), false = full page mode
@@ -115,7 +113,7 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({ compact = false }) => {
   if (loading && walletBalance === 0 && recentTransactions.length === 0) {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: compact ? 1.5 : 3 }}>
-        <CircularProgress size={compact ? 16 : 24} />
+        <CustomLoader size={compact ? 16 : 24} />
         <Typography variant={compact ? "caption" : "body1"}>Loading wallet...</Typography>
       </Box>
     );
@@ -263,7 +261,7 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({ compact = false }) => {
           Recent Transactions
         </Typography>
         {loading && recentTransactions.length > 0 && (
-          <CircularProgress size={20} />
+          <CustomLoader size={20} />
         )}
       </Box>
 

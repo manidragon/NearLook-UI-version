@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import {
-    Dialog, DialogTitle, DialogContent, DialogActions,
-    Button, TextField, MenuItem, Alert, CircularProgress, Box, Typography, Chip, IconButton
-} from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, Alert, Box, Typography, Chip, IconButton } from '@mui/material';
 import { Close, SwapHoriz, CloudUpload, Delete } from '@mui/icons-material';
 import { useAppDispatch, useAppSelector } from '../../../redux/Store';
 import { createReplacementRequest, clearReturnError } from '../../../redux/Customer/ReturnSlice';
 import { uploadMultipleToCloudinary } from '../../../util/uploadToCloudnary';
 import type { OrderItem } from '../../../types/orderTypes';
+import CustomLoader from "../../../components/CustomLoader";
 
 interface ReplacementRequestFormProps {
     open: boolean;
@@ -411,7 +409,7 @@ const ReplacementRequestForm: React.FC<ReplacementRequestFormProps> = ({
                             <Button
                                 variant="outlined"
                                 component="span"
-                                startIcon={uploadingImages ? <CircularProgress size={16} /> : <CloudUpload />}
+                                startIcon={uploadingImages ? <CustomLoader size={16} /> : <CloudUpload />}
                                 disabled={submitting || loading || uploadingImages || imageFiles.length >= 5}
                                 fullWidth
                                 onClick={(e) => e.stopPropagation()}
@@ -556,7 +554,7 @@ const ReplacementRequestForm: React.FC<ReplacementRequestFormProps> = ({
                         disabled={submitting || loading || uploadingImages || !reason}
                         startIcon={
                             submitting || uploadingImages
-                                ? <CircularProgress size={20} color="inherit" />
+                                ? <CustomLoader size={20} color="inherit" />
                                 : <SwapHoriz fontSize="small" />
                         }
                         sx={{ borderRadius: 2, px: 3, py: 1, fontWeight: 'bold', boxShadow: '0 4px 14px 0 rgba(255, 90, 0, 0.39)' }}

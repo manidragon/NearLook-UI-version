@@ -171,12 +171,37 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
         </Paper>
       </Grid>
 
+      {/* Product Highlights Summary */}
+      {!(isCatalogProduct && !isOwner) && formik.values.highlights && Object.keys(formik.values.highlights).filter(k => formik.values.highlights[k] !== undefined && formik.values.highlights[k] !== null && String(formik.values.highlights[k]).trim() !== '').length > 0 && (
+        <Grid size={{ xs: 12 }}>
+          <Paper elevation={0} sx={{ p: 4, borderRadius: 3, border: '1px solid', borderColor: 'grey.200', boxShadow: '0 2px 12px rgba(0,0,0,0.02)' }}>
+            <Typography variant="h6" fontWeight="bold" gutterBottom>
+              ✨ Product Highlights
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
+              {Object.entries(formik.values.highlights)
+                .filter(([_, val]) => val !== undefined && val !== null && String(val).trim() !== '')
+                .map(([key, value]) => (
+                  <Box key={key} sx={{ bgcolor: 'grey.50', p: 1.5, borderRadius: 2, border: '1px solid', borderColor: 'grey.200', minWidth: '150px' }}>
+                    <Typography variant="caption" color="text.secondary" display="block">
+                      {key}
+                    </Typography>
+                    <Typography variant="body2" fontWeight="500">
+                      {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value)}
+                    </Typography>
+                  </Box>
+                ))}
+            </Box>
+          </Paper>
+        </Grid>
+      )}
+
       {/* Color Variants Summary */}
       <Grid size={{ xs: 12 }}>
         <Paper elevation={0} sx={{ p: 4, borderRadius: 3, border: '1px solid', borderColor: 'grey.200', boxShadow: '0 2px 12px rgba(0,0,0,0.02)' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <Typography variant="h6" fontWeight="bold">
-              🎨 {isCatalogProduct ? 'Your Offer Details' : 'Color Variants'} ({formik.values.variants.length})
+              📦 {isCatalogProduct ? 'Your Offer Details' : 'Variants'} ({formik.values.variants.length})
             </Typography>
             {isCatalogProduct && !isOwner && (
               <Chip
@@ -206,13 +231,13 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                   <Typography variant="subtitle1" fontWeight="bold">
-                    {colorVariant.color || `Color ${colorIndex + 1}`}
+                    {colorVariant.color || `Variant ${colorIndex + 1}`}
                   </Typography>
                   {isCatalogProduct && !colorVariant.isFromCatalog && (
-                    <Chip label="NEW COLOR" size="small" color="success" variant="outlined" />
+                    <Chip label="NEW VARIANT" size="small" color="success" variant="outlined" />
                   )}
                   {isCatalogProduct && colorVariant.isFromCatalog && (
-                    <Chip label="CATALOG COLOR" size="small" color="info" variant="outlined" />
+                    <Chip label="CATALOG VARIANT" size="small" color="info" variant="outlined" />
                   )}
                   <Chip
                     label={`${colorVariant.images?.length || 0} Images`}

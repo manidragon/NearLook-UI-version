@@ -42,13 +42,7 @@ export const useProductForm = ({
   context: formikContext,
   
   onSubmit: async (values, formikHelpers) => {
-    console.log('🔍 [useProductForm] onSubmit triggered', {
-      mode,
-      title: values.title,
-      variantCount: values.variants?.length,
-      isCatalog: values.catalogMode?.isCatalogProduct
-    });
-    
+
     return onSubmit(values, formikHelpers);
   },
 } as FormikConfig<ProductFormValues> & { context?: { isCatalogProduct?: boolean; category3?: string } };

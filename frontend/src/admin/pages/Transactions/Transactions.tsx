@@ -25,13 +25,13 @@ const Transactions = () => {
     ];
 
     return (
-        <Box p={3}>
+        <Box p={3} sx={{ maxWidth: '100%', overflowX: 'hidden' }}>
             <Typography variant="h4" fontWeight="bold" color="primary" mb={4}>Transactions & Revenue</Typography>
 
             {/* KPI Cards */}
             <Grid container spacing={3} mb={4}>
                 {kpiData.map((kpi, index) => (
-                    <Grid size={{ xs: 12, md: 4 }} key={index}>
+                    <Grid size={{ xs: 12, sm: 12, md: 6, xl: 4 }} key={index}>
                         <Card sx={{ p: 3, borderRadius: 3, boxShadow: 2, display: 'flex', alignItems: 'center', gap: 3 }}>
                             <Box sx={{ backgroundColor: kpi.bg, color: kpi.color, p: 2, borderRadius: 2 }}>
                                 {kpi.icon}

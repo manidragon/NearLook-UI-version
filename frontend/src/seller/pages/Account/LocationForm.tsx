@@ -1,14 +1,11 @@
 // 📄 File: D:\Mani\Code with Zosh\Backup\source code\frontend\src\seller\pages\Account\LocationForm.tsx
 import React, { useState } from 'react';
-import {
-  Box, Button, TextField, FormControl, InputLabel, Select,
-  MenuItem, FormHelperText, CircularProgress, Alert, Snackbar,
-  Typography  // ✅ FIX 1: Added Typography import
-} from '@mui/material';
+import { Box, Button, TextField, FormControl, InputLabel, Select, MenuItem, FormHelperText, Alert, Snackbar, Typography } from '@mui/material'; // ✅ FIX 1: Added Typography import
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import { useAppDispatch } from '../../../redux/Store';
 // ✅ FIX 2: Correct casing + correct action name
 import { updateSeller } from '../../../redux/Seller/sellerSlice'; // ← lowercase 's', and updateSeller
+import CustomLoader from "../../../components/CustomLoader";
 
 // ✅ Tamil Nadu districts (same as backend)
 const TN_DISTRICTS = [
@@ -132,7 +129,7 @@ const LocationForm: React.FC<LocationFormProps> = ({ onClose }) => {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, my: 2 }}>
         <Button
           variant="outlined"
-          startIcon={loading ? <CircularProgress size={20} /> : <MyLocationIcon />}
+          startIcon={loading ? <CustomLoader size={20} /> : <MyLocationIcon />}
           onClick={handleGetCurrentLocation}
           disabled={loading}
         >

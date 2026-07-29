@@ -16,6 +16,7 @@ import {
   FormControl,
   Select,
   FormHelperText,
+  Autocomplete,
 } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { updateCategory } from "../../../redux/Admin/CategorySlice";
@@ -28,12 +29,6 @@ const validationSchema = Yup.object({
   name: Yup.string()
     .required("Name is required")
     .min(2, "Name must be at least 2 characters"),
-  categoryId: Yup.string()
-    .required("Category ID is required")
-    .matches(
-      /^[a-z0-9_]+$/,
-      "Category ID can only contain lowercase letters, numbers, and underscores"
-    ),
   level: Yup.number()
     .required("Level is required")
     .oneOf([1, 2, 3], "Level must be 1, 2, or 3"),
@@ -82,9 +77,13 @@ const UpdateCategoryForm: React.FC<UpdateCategoryFormProps> = ({
   const handleImageUpload = async (file: File) => {
     setUploading(true);
     try {
-      const url = await uploadToCloudinary(file);
-      setImageUrl(url);
-      formik.setFieldValue("image", url);
+      const result = await uploadToCloudinary(file);
+      if (result.success && result.url) {
+        setImageUrl(result.url);
+        formik.setFieldValue("image", result.url);
+      } else {
+        alert(result.error || "Failed to upload image. Please try again.");
+      }
     } catch (error) {
       console.error("Image upload failed:", error);
       alert("Failed to upload image. Please try again.");
@@ -137,7 +136,6 @@ const UpdateCategoryForm: React.FC<UpdateCategoryFormProps> = ({
   const formik = useFormik({
     initialValues: {
       name: category.name || "",
-      categoryId: category.categoryId || "",
       level: category.level,
       parentCategory: category.parentCategory || "",
       image: category.image || null,
@@ -151,7 +149,6 @@ const UpdateCategoryForm: React.FC<UpdateCategoryFormProps> = ({
             id: category._id,
             category: {
               name: values.name,
-              categoryId: values.categoryId,
               level: values.level,
               parentCategory: values.level > 1 ? values.parentCategory : null,
               image: values.image,
@@ -261,22 +258,7 @@ const UpdateCategoryForm: React.FC<UpdateCategoryFormProps> = ({
         }
       />
 
-      {/* Category ID Field */}
-      <TextField
-        fullWidth
-        id="categoryId"
-        name="categoryId"
-        label="Category ID"
-        value={formik.values.categoryId}
-        onChange={formik.handleChange}
-        onBlur={formik.handleBlur}
-        error={formik.touched.categoryId && Boolean(formik.errors.categoryId)}
-        helperText={
-          formik.touched.categoryId
-            ? String(formik.errors.categoryId || "")
-            : ""
-        }
-      />
+
 
       {/* Level Field */}
       <FormControl
@@ -330,37 +312,30 @@ const UpdateCategoryForm: React.FC<UpdateCategoryFormProps> = ({
 
       {/* Parent Category Field (conditional) */}
       {selectedLevel > 1 && (
-        <FormControl
-          fullWidth
-          error={
-            formik.touched.parentCategory && Boolean(formik.errors.parentCategory)
-          }
-        >
-          <InputLabel id="parentCategory-label">
-            Parent Category (Level {selectedLevel - 1})
-          </InputLabel>
-          <Select
-            labelId="parentCategory-label"
-            id="parentCategory"
-            name="parentCategory"
-            value={formik.values.parentCategory}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            label={`Parent Category (Level ${selectedLevel - 1})`}
-          >
-            <MenuItem value="">
-              <em>Select Parent Category</em>
-            </MenuItem>
-            {parentCategories.map((parent) => (
-              <MenuItem key={parent._id} value={parent._id}>
-                {parent.name} ({parent.categoryId})
-              </MenuItem>
-            ))}
-          </Select>
-          {formik.touched.parentCategory && formik.errors.parentCategory && (
-            <FormHelperText>{String(formik.errors.parentCategory)}</FormHelperText>
+        <Autocomplete
+          id="parentCategory"
+          options={parentCategories}
+          getOptionLabel={(option) => option.name || 'Unnamed'}
+          value={parentCategories.find(p => p._id === formik.values.parentCategory) || null}
+          onChange={(event, newValue) => {
+            formik.setFieldValue("parentCategory", newValue ? newValue._id : "");
+          }}
+          onBlur={() => formik.setFieldTouched("parentCategory", true)}
+          noOptionsText="No parent categories available"
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label={`Parent Category (Level ${selectedLevel - 1})`}
+              name="parentCategory"
+              error={formik.touched.parentCategory && Boolean(formik.errors.parentCategory)}
+              helperText={
+                formik.touched.parentCategory && formik.errors.parentCategory
+                  ? String(formik.errors.parentCategory)
+                  : ""
+              }
+            />
           )}
-        </FormControl>
+        />
       )}
 
       {/* Action Buttons */}

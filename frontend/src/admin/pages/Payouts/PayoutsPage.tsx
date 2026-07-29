@@ -1,34 +1,12 @@
 import React, { useEffect, useState, useMemo } from "react";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    Button,
-    Chip,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Typography,
-    Box,
-    Card,
-    useMediaQuery,
-    useTheme,
-    CircularProgress,
-    Tabs,
-    Tab,
-    Checkbox
-} from "@mui/material";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Chip, Dialog, DialogTitle, DialogContent, DialogActions, Typography, Box, Card, useMediaQuery, useTheme, Tabs, Tab, Checkbox } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { fetchAllTransactions, triggerPayouts } from "../../../redux/Admin/AdminPayoutSlice";
 // Removed PayoutDetails import since we are using inline TransactionGroupDetails
+import CustomLoader from "../../../components/CustomLoader";
 
 const PayoutsPage = () => {
     const dispatch = useAppDispatch();
@@ -171,7 +149,7 @@ const PayoutsPage = () => {
                                 py: 1
                             }}
                         >
-                            {triggerLoading ? <CircularProgress size={24} color="inherit" /> : "Generate Payouts"}
+                            {triggerLoading ? <CustomLoader size={24} color="inherit" /> : "Generate Payouts"}
                         </Button>
                     )}
                 </div>
@@ -211,7 +189,7 @@ const PayoutsPage = () => {
                             {loading && transactions.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={tabIndex === 0 ? 5 : 4} align="center" className="py-20">
-                                        <CircularProgress size={40} className="text-[#FF5A00]" />
+                                        <CustomLoader size={40} className="text-[#FF5A00]" />
                                     </TableCell>
                                 </TableRow>
                             ) : groupedTransactions.length === 0 ? (

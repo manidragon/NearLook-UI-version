@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Tabs, Tab, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip } from '@mui/material';
+import { Box, Typography, Tabs, Tab, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip } from '@mui/material';
 import { api } from '../../../Config/Api';
+import CustomLoader from "../../../components/CustomLoader";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -37,6 +38,7 @@ const Approvals = () => {
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [itemType, setItemType] = useState<'product' | 'offer'>('product');
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
 
   const fetchProducts = async () => {
     try {
@@ -45,6 +47,11 @@ const Approvals = () => {
       const res = await api.get('/admin/products');
       const allProducts = res.data.data || [];
       const filtered = allProducts.filter((p: any) => p.approvalStatus === 'PENDING' || p.approvalStatus === 'APPROVED' || p.approvalStatus === 'REJECTED');
+      filtered.sort((a: any, b: any) => {
+        if (a.approvalStatus === 'PENDING' && b.approvalStatus !== 'PENDING') return -1;
+        if (a.approvalStatus !== 'PENDING' && b.approvalStatus === 'PENDING') return 1;
+        return 0;
+      });
       setProducts(filtered);
     } catch (error) {
       console.error('Error fetching products', error);
@@ -60,6 +67,11 @@ const Approvals = () => {
       const res = await api.get('/admin/offers');
       const allOffers = res.data.data || [];
       const filtered = allOffers.filter((o: any) => o.offer.approvalStatus === 'PENDING' || o.offer.approvalStatus === 'APPROVED' || o.offer.approvalStatus === 'REJECTED');
+      filtered.sort((a: any, b: any) => {
+        if (a.offer.approvalStatus === 'PENDING' && b.offer.approvalStatus !== 'PENDING') return -1;
+        if (a.offer.approvalStatus !== 'PENDING' && b.offer.approvalStatus === 'PENDING') return 1;
+        return 0;
+      });
       setOffers(filtered);
     } catch (error) {
       console.error('Error fetching offers', error);
@@ -134,7 +146,7 @@ const Approvals = () => {
       </Box>
 
       {loading ? (
-        <Box display="flex" justifyContent="center" p={5}><CircularProgress /></Box>
+        <Box display="flex" justifyContent="center" p={5}><CustomLoader /></Box>
       ) : (
         <>
           <CustomTabPanel value={tabValue} index={0}>
@@ -261,7 +273,7 @@ const Approvals = () => {
                   )}
                   <Box display="flex" gap={1} mt={1}>
                     {v.images?.map((img: string, idx: number) => (
-                      <img key={idx} src={img} alt="variant" width={80} height={80} style={{ objectFit: 'contain', backgroundColor: '#f9fafb', borderRadius: '4px' }} />
+                      <img key={idx} src={img} alt="variant" width={80} height={80} style={{ objectFit: 'contain', backgroundColor: '#f9fafb', borderRadius: '4px', cursor: 'pointer' }} onClick={() => setFullScreenImage(img)} />
                     ))}
                   </Box>
                 </Box>
@@ -274,7 +286,7 @@ const Approvals = () => {
               <Typography variant="h6">{selectedItem.product.title}</Typography>
               <Box display="flex" gap={1} mt={1} mb={2}>
                 {selectedItem.product.images?.map((img: string, idx: number) => (
-                  <img key={idx} src={img} alt="product" width={80} height={80} style={{ objectFit: 'contain', backgroundColor: '#f9fafb', borderRadius: '4px' }} />
+                  <img key={idx} src={img} alt="product" width={80} height={80} style={{ objectFit: 'contain', backgroundColor: '#f9fafb', borderRadius: '4px', cursor: 'pointer' }} onClick={() => setFullScreenImage(img)} />
                 ))}
               </Box>
               <Typography><strong>Variant Color:</strong> {selectedItem.color}</Typography>
@@ -323,6 +335,12 @@ const Approvals = () => {
             Confirm Reject
           </Button>
         </DialogActions>
+      </Dialog>
+      {/* Full Screen Image Modal */}
+      <Dialog open={!!fullScreenImage} onClose={() => setFullScreenImage(null)} maxWidth="lg" PaperProps={{ sx: { bgcolor: 'transparent', boxShadow: 'none' } }}>
+        <DialogContent sx={{ p: 0, position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          {fullScreenImage && <img src={fullScreenImage} alt="Fullscreen view" style={{ maxWidth: '100%', maxHeight: '90vh', objectFit: 'contain' }} onClick={() => setFullScreenImage(null)} />}
+        </DialogContent>
       </Dialog>
     </Box>
   );

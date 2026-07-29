@@ -1,10 +1,6 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\seller\pages\Orders\SellerReturnsList.tsx
 import React, { useEffect, useState } from 'react';
-import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-  Button, Chip, Typography, Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, Alert, Box, IconButton, Collapse, Avatar, CircularProgress
-} from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Chip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Alert, Box, IconButton, Collapse, Avatar } from '@mui/material';
 import {
   CheckCircle, Cancel, LocalShipping, Replay, Check,
   KeyboardArrowDown, KeyboardArrowUp, LocationOn, Description,
@@ -20,6 +16,7 @@ import {
 } from '../../../redux/Customer/ReturnSlice';
 import type { ReturnRequest, ReturnStatus } from '../../../types/orderTypes';
 import dayjs from 'dayjs';
+import CustomLoader from "../../../components/CustomLoader";
 
 // ✅ Status Config
 const getStatusConfig = (status: ReturnStatus) => {
@@ -311,7 +308,7 @@ const SellerReturnsList: React.FC = () => {
           </TableHead>
           <TableBody>
             {loading ? (
-              <TableRow><TableCell colSpan={9} align="center" sx={{ py: 6 }}><CircularProgress /></TableCell></TableRow>
+              <TableRow><TableCell colSpan={9} align="center" sx={{ py: 6 }}><CustomLoader /></TableCell></TableRow>
             ) : !Array.isArray(returns) || returns.length === 0 ? (
               <TableRow><TableCell colSpan={9} align="center" sx={{ py: 6 }}><Typography color="text.secondary">No return requests found</Typography></TableCell></TableRow>
             ) : (

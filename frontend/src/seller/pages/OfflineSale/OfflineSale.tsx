@@ -3,11 +3,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { fetchSellerProducts } from "../../../redux/Seller/sellerProductSlice";
 import { api } from "../../../Config/Api";
-import {
-  Box, Typography, Paper, Chip, Button, CircularProgress,
-  Divider, TextField, Snackbar, Alert, Checkbox, Avatar,
-  IconButton, Tooltip, Badge,
-} from "@mui/material";
+import { Box, Typography, Paper, Chip, Button, Divider, TextField, Snackbar, Alert, Checkbox, Avatar, IconButton, Tooltip, Badge } from '@mui/material';
 import PaletteIcon from "@mui/icons-material/Palette";
 import StorageIcon from "@mui/icons-material/Storage";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -20,6 +16,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import PhoneIcon from "@mui/icons-material/Phone";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import CustomLoader from "../../../components/CustomLoader";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -657,7 +654,7 @@ const OfflineSale: React.FC = () => {
   if (loading && (!products || products.length === 0)) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "60vh" }}>
-        <CircularProgress />
+        <CustomLoader />
         <Typography sx={{ ml: 2 }}>Loading products…</Typography>
       </Box>
     );
@@ -1098,7 +1095,7 @@ const OfflineSale: React.FC = () => {
                     color="primary"
                     fullWidth
                     size="large"
-                    startIcon={isCheckingOut ? <CircularProgress size={20} color="inherit" /> : <ReceiptLongIcon />}
+                    startIcon={isCheckingOut ? <CustomLoader size={20} color="inherit" /> : <ReceiptLongIcon />}
                     onClick={handleCheckout}
                     disabled={isCheckingOut}
                     sx={{

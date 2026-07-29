@@ -1,14 +1,12 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\pages\Account\ReturnRequestForm.tsx
 import React, { useState, useEffect } from 'react';
-import {
-  Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, TextField, MenuItem, Alert, CircularProgress, Box, Typography, Chip, IconButton
-} from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, Alert, Box, Typography, Chip, IconButton } from '@mui/material';
 import { CloudUpload, Close, Delete, Replay } from '@mui/icons-material';
 import { useAppDispatch, useAppSelector } from '../../../redux/Store';
 import { createReturnRequest, clearReturnError } from '../../../redux/Customer/ReturnSlice';
 import type { ReturnReason } from '../../../types/orderTypes';
 import { uploadToCloudinary, uploadMultipleToCloudinary, type UploadResult } from '../../../util/uploadToCloudnary';
+import CustomLoader from "../../../components/CustomLoader";
 
 interface ReturnRequestFormProps {
   open: boolean;
@@ -429,7 +427,7 @@ const ReturnRequestForm: React.FC<ReturnRequestFormProps> = ({
               <Button
                 variant="outlined"
                 component="span"
-                startIcon={uploadingImages ? <CircularProgress size={16} /> : <CloudUpload />}
+                startIcon={uploadingImages ? <CustomLoader size={16} /> : <CloudUpload />}
                 disabled={submitting || loading || uploadingImages || imageFiles.length >= 5}
                 fullWidth
                 onClick={(e) => e.stopPropagation()}
@@ -572,7 +570,7 @@ const ReturnRequestForm: React.FC<ReturnRequestFormProps> = ({
             disabled={submitting || loading || uploadingImages || !reason}
             startIcon={
               submitting || uploadingImages
-                ? <CircularProgress size={20} color="inherit" />
+                ? <CustomLoader size={20} color="inherit" />
                 : <Replay fontSize="small" />
             }
             sx={{ borderRadius: 2, px: 3, py: 1, fontWeight: 'bold', boxShadow: '0 4px 14px 0 rgba(255, 90, 0, 0.39)' }}

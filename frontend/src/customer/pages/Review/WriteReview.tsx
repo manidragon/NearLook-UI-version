@@ -1,15 +1,4 @@
-import {
-  Avatar,
-  Box,
-  Button,
-  Card,
-  Divider,
-  IconButton,
-  Rating,
-  TextField,
-  Typography,
-  CircularProgress,
-} from "@mui/material";
+import { Avatar, Box, Button, Card, Divider, IconButton, Rating, TextField, Typography } from '@mui/material';
 
 import CloseIcon from "@mui/icons-material/Close";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
@@ -24,6 +13,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { uploadToCloudinary } from "../../../util/uploadToCloudnary";
 import { useAppDispatch } from "../../../redux/Store";
 import { createReview } from "../../../redux/Customer/ReviewSlice";
+import CustomLoader from "../../../components/CustomLoader";
 
 interface CreateReviewRequest {
   reviewText: string;
@@ -231,7 +221,7 @@ const WriteReview = () => {
                   {/* ✅ spinner overlay on the label, not inside the div */}
                   {uploadImage && (
                     <div className="absolute inset-0 flex items-center justify-center bg-white/70 rounded-xl">
-                      <CircularProgress size={28} />
+                      <CustomLoader size={28} />
                     </div>
                   )}
                 </label>
@@ -287,7 +277,7 @@ const WriteReview = () => {
                 }}
               >
                 {formik.isSubmitting ? (
-                  <CircularProgress size={20} sx={{ color: "white" }} />
+                  <CustomLoader size={20} sx={{ color: "white" }} />
                 ) : (
                   "Submit Review"
                 )}

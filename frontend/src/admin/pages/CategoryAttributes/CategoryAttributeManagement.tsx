@@ -25,7 +25,7 @@ import {
   Chip,
   Alert,
   Snackbar,
-  CircularProgress,
+
   Switch,
   FormControlLabel,
   Tooltip,
@@ -36,6 +36,7 @@ import {
   Autocomplete,
 } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select'; // ✅ FIXED: Type-only import
+import CustomLoader from "../../../components/CustomLoader";
 import {
   Edit as EditIcon,
   Delete as DeleteIcon,
@@ -578,7 +579,7 @@ const CategoryAttributeManagement: React.FC = () => {
 
         {loading ? (
           <Box sx={{ p: 5, textAlign: 'center' }}>
-            <CircularProgress />
+            <CustomLoader />
             <Typography sx={{ mt: 2 }}>Loading attributes...</Typography>
           </Box>
         ) : !selectedCategoryId ? (
@@ -1141,7 +1142,7 @@ const CategoryAttributeManagement: React.FC = () => {
             disabled={loading}
             sx={{ bgcolor: '#ff6600', '&:hover': { bgcolor: '#e65c00' }, fontWeight: 'bold', color: 'white' }}
           >
-            {loading ? <CircularProgress size={20} color="inherit" /> : editingAttribute ? 'UPDATE' : 'CREATE'}
+            {loading ? <CustomLoader size={20} color="inherit" /> : editingAttribute ? 'UPDATE' : 'CREATE'}
           </Button>
         </DialogActions>
       </Dialog>

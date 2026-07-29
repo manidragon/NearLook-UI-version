@@ -1,17 +1,7 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
-import {
-  Box,
-  Button,
-  CircularProgress,
-  IconButton,
-  Rating,
-  TextField,
-  Typography,
-  Card,
-  Alert,
-} from "@mui/material";
+import { Box, Button, IconButton, Rating, TextField, Typography, Card, Alert } from '@mui/material';
 
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -23,6 +13,7 @@ import StoreIcon from "@mui/icons-material/Store";
 import { uploadToCloudinary } from "../../../util/uploadToCloudnary";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { createSellerReview } from "../../../redux/Customer/SellerReviewSlice";
+import CustomLoader from "../../../components/CustomLoader";
 
 interface SellerReviewRequest {
   reviewText: string;
@@ -220,7 +211,7 @@ const SellerReviewForm = () => {
                       </div>
                       {uploadImage && (
                         <div className="absolute inset-0 flex items-center justify-center bg-white/70 rounded-md">
-                          <CircularProgress size={28} />
+                          <CustomLoader size={28} />
                         </div>
                       )}
                     </label>
@@ -265,7 +256,7 @@ const SellerReviewForm = () => {
                     }}
                   >
                     {formik.isSubmitting || sellerReviewState.loading ? (
-                      <CircularProgress size={20} sx={{ color: "white" }} />
+                      <CustomLoader size={20} sx={{ color: "white" }} />
                     ) : (
                       "SUBMIT REVIEW"
                     )}

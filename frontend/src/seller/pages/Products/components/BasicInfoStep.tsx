@@ -1,23 +1,6 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\seller\pages\Products\components\BasicInfoStep.tsx
 import React, { useMemo } from 'react';
-import {
-  Grid,
-  Paper,
-  Typography,
-  Alert,
-  Chip,
-  Divider,
-  Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormHelperText,
-  FormControlLabel,
-  Checkbox,
-  CircularProgress,
-  Autocomplete
-} from '@mui/material';
+import { Grid, Paper, Typography, Alert, Chip, Divider, Box, FormControl, InputLabel, Select, MenuItem, FormHelperText, FormControlLabel, Checkbox, Autocomplete } from '@mui/material';
 import { FastTextField as TextField } from './FastTextField';
 import LockIcon from '@mui/icons-material/Lock';
 import EditIcon from '@mui/icons-material/Edit';
@@ -31,6 +14,7 @@ import type {
 import type { Category } from '../../../../types/categoryTypes';
 import { useAppSelector } from '../../../../redux/Store';
 import { Lock } from '@mui/icons-material';
+import CustomLoader from "../../../../components/CustomLoader";
 
 // ✅ UPDATED: Props interface to match AddProductForm.tsx usage
 interface BasicInfoStepProps {
@@ -303,7 +287,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
                 fullWidth
                 id="title"
                 name="title"
-                label="Product Title *"
+                label="Product Title"
                 value={formik.values.title}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -343,7 +327,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
                 fullWidth
                 id="description"
                 name="description"
-                label="Description *"
+                label="Description"
                 value={formik.values.description}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -479,7 +463,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
     <Divider sx={{ my: 2 }} />
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
       <Typography variant="subtitle1" fontWeight="bold">
-        ✨ Product Highlights (Admin-Configured)
+        ✨ Product Highlights
       </Typography>
       {isCatalogMode && !isOwner && (
         <Chip label="Read-Only" size="small" color="info" variant="outlined" />
@@ -551,9 +535,9 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
     <Divider sx={{ my: 2 }} />
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
       <Typography variant="subtitle1" fontWeight="bold">
-        ✨ Product Highlights (Admin-Configured)
+        ✨ Product Highlights
       </Typography>
-      <CircularProgress size={16} />
+      <CustomLoader size={16} />
     </Box>
     <Alert severity="info" variant="outlined">
       <Typography variant="body2">Loading highlight attributes...</Typography>

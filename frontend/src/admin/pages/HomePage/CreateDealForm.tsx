@@ -1,9 +1,10 @@
-import { Box, FormControl, FormHelperText, InputLabel, MenuItem, Select, Typography, CircularProgress } from "@mui/material"
+import { Box, FormControl, FormHelperText, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import { useFormik } from 'formik';
 import React, { useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../../../redux/Store';
 import { createDeal, getAllDeals } from '../../../redux/Admin/DealSlice';
 import * as Yup from "yup";
+import CustomLoader from "../../../components/CustomLoader";
 
 const validationSchema = Yup.object({
   discount: Yup.number()
@@ -157,7 +158,7 @@ const CreateDealForm = () => {
             <div className="flex items-center justify-center gap-2">
               {dealState.loading ? (
                 <>
-                  <CircularProgress size={20} color="inherit" />
+                  <CustomLoader size={20} color="inherit" />
                   <span>Processing...</span>
                 </>
               ) : (

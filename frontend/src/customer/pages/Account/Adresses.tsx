@@ -10,8 +10,9 @@ import {
 } from '../../../redux/Customer/UserSlice';
 import UserAddressCard from './UserAddressCard';
 import AddressForm from './AddressForm';
-import { CircularProgress, Typography, Alert, Box, Button, Snackbar } from '@mui/material';
+import { Typography, Alert, Box, Button, Snackbar } from '@mui/material';
 import { type Address } from '../../../types/addressTypes';
+import CustomLoader from "../../../components/CustomLoader";
 
 const Addresses = () => {
   const dispatch = useAppDispatch();
@@ -115,7 +116,7 @@ const Addresses = () => {
   if (loading && addresses.length === 0) {
     return (
       <div className='flex justify-center items-center py-10'>
-        <CircularProgress />
+        <CustomLoader />
       </div>
     );
   }

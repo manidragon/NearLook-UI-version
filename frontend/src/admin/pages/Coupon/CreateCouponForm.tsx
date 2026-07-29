@@ -1,16 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import {
-  TextField,
-  Button,
-  Box,
-  
-  Alert,
-  Snackbar,
-  CircularProgress,
-  Grid,
-} from "@mui/material";
+import { TextField, Button, Box, Alert, Snackbar, Grid } from '@mui/material';
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -20,6 +11,7 @@ import  {
 } from "../../../redux/Store";
 import { createCoupon } from "../../../redux/Admin/AdminCouponSlice";
 import type { Dayjs } from "dayjs";
+import CustomLoader from "../../../components/CustomLoader";
 
 interface CouponFormValues {
   code: string;
@@ -189,7 +181,7 @@ const CouponForm: React.FC = () => {
                 disabled={adminCoupon.loading}
               >
                 {adminCoupon.loading ? (
-                  <CircularProgress
+                  <CustomLoader
                     size="small"
                     sx={{ width: "27px", height: "27px" }}
                   />

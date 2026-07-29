@@ -1,12 +1,7 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\seller\pages\Products\UpdateProductForm.tsx
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import {
-  TextField, Button, MenuItem, Select, InputLabel, FormControl, FormHelperText,
-  Grid, CircularProgress, IconButton, Snackbar, Alert, Typography, Paper, Box,
-  Tabs, Tab, Chip, Autocomplete, Divider, Switch, FormControlLabel, Tooltip,
-  Accordion, AccordionSummary, AccordionDetails, Checkbox,
-} from "@mui/material";
+import { TextField, Button, MenuItem, Select, InputLabel, FormControl, FormHelperText, Grid, IconButton, Snackbar, Alert, Typography, Paper, Box, Tabs, Tab, Chip, Autocomplete, Divider, Switch, FormControlLabel, Tooltip, Accordion, AccordionSummary, AccordionDetails, Checkbox } from '@mui/material';
 import "tailwindcss/tailwind.css";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import CloseIcon from "@mui/icons-material/Close";
@@ -20,7 +15,9 @@ import EditIcon from "@mui/icons-material/Edit";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { updateProduct } from "../../../redux/Seller/sellerProductSlice";
 import { uploadToCloudinary } from "../../../util/uploadToCloudnary";
+import { validateImageSize } from "../../../util/fileValidator";
 import { fetchCategories } from "../../../redux/Admin/CategorySlice";
+import CustomLoader from "../../../components/CustomLoader";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Category } from "../../../types/categoryTypes";
@@ -635,9 +632,21 @@ const formVariants = useMemo(() => {
   }, [formik.values.variants, formik]);
 
   const handleColorVariantImageUpload = useCallback((colorIndex: number, files: FileList | null) => {
-    if (!files?.length) return;
+    let validFiles = validateImageSize(files);
+    if (validFiles.length === 0) return;
     const newVariants = [...formik.values.variants];
-    newVariants[colorIndex] = { ...newVariants[colorIndex], images: [...(newVariants[colorIndex].images || []), ...Array.from(files)] };
+    const existingImages = newVariants[colorIndex].images || [];
+
+    if (existingImages.length + validFiles.length > 7) {
+      alert('You can only upload a maximum of 7 images per variant. Extra images will be ignored.');
+      const remainingSlots = 7 - existingImages.length;
+      validFiles = validFiles.slice(0, remainingSlots > 0 ? remainingSlots : 0);
+    }
+
+    newVariants[colorIndex] = {
+      ...newVariants[colorIndex],
+      images: [...existingImages, ...validFiles]
+    };
     formik.setFieldValue('variants', newVariants);
   }, [formik.values.variants, formik]);
 
@@ -706,7 +715,7 @@ const formVariants = useMemo(() => {
                       {isVariantOwner ? (
                         <Grid container spacing={2} sx={{ mb: 3 }}>
                           <Grid size={{ xs: 12, sm: 6 }}>
-                            <Autocomplete freeSolo options={colorSuggestions} value={formik.values.variants[activeColorTab].color} onChange={(_, val) => handleColorVariantChange(activeColorTab, 'color', val || '')} renderInput={(params) => <TextField {...params} label="Variant Name *" error={Boolean(formik.touched.variants?.[activeColorTab]?.color && (formik.errors.variants as any)?.[activeColorTab]?.color)} helperText={formik.touched.variants?.[activeColorTab]?.color && ((formik.errors.variants as any)?.[activeColorTab]?.color as string)} required />} />
+                            <Autocomplete freeSolo options={colorSuggestions} value={formik.values.variants[activeColorTab].color} onChange={(_, val) => handleColorVariantChange(activeColorTab, 'color', val || '')} renderInput={(params) => <TextField {...params} label="Variant Name" error={Boolean(formik.touched.variants?.[activeColorTab]?.color && (formik.errors.variants as any)?.[activeColorTab]?.color)} helperText={formik.touched.variants?.[activeColorTab]?.color && ((formik.errors.variants as any)?.[activeColorTab]?.color as string)} required />} />
                           </Grid>
                         </Grid>
                       ) : (
@@ -722,7 +731,7 @@ const formVariants = useMemo(() => {
                           <Typography variant="subtitle2" gutterBottom>Images for {formik.values.variants[activeColorTab].color || 'this variant'} *</Typography>
                           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
                             <input type="file" accept="image/*" multiple id={`color-images-${activeColorTab}`} style={{ display: 'none' }} onChange={(e) => handleColorVariantImageUpload(activeColorTab, e.target.files)} />
-                            <label htmlFor={`color-images-${activeColorTab}`}><Button component="span" variant="outlined" startIcon={<AddPhotoAlternateIcon />} disabled={uploadingImage}>{uploadingImage ? <CircularProgress size={20} /> : 'Upload Images'}</Button></label>
+                            <label htmlFor={`color-images-${activeColorTab}`}><Button component="span" variant="outlined" startIcon={<AddPhotoAlternateIcon />} disabled={uploadingImage}>{uploadingImage ? <CustomLoader size={20} /> : 'Upload Images'}</Button></label>
                           </Box>
                           <Box sx={{ display: 'flex', gap: 1, mt: 2, flexWrap: 'wrap' }}>
                             {formik.values.variants[activeColorTab].images?.map((img, idx) => (
@@ -767,7 +776,7 @@ const formVariants = useMemo(() => {
                           <AccordionDetails sx={{ p: { xs: 1, sm: 2 } }}>
                             <Grid container spacing={2}>
                               {isVariantOwner && attributesLoading ? (
-                                <Grid size={{ xs: 12 }}><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><CircularProgress size={20} /><Typography variant="body2">Loading specifications...</Typography></Box></Grid>
+                                <Grid size={{ xs: 12 }}><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><CustomLoader size={20} /><Typography variant="body2">Loading specifications...</Typography></Box></Grid>
                               ) : isVariantOwner && attributeState?.length > 0 ? (
                                 <>
                                   {variantAttributes?.length > 0 && (
@@ -948,10 +957,10 @@ const formVariants = useMemo(() => {
                 </Box>
                 <Grid container spacing={3}>
                   <Grid size={{ xs: 12 }}>
-                    <TextField fullWidth label="Product Title *" variant="outlined" value={formik.values.title} onChange={(e) => formik.setFieldValue('title', e.target.value)} onBlur={formik.handleBlur} error={formik.touched.title && Boolean(formik.errors.title)} helperText={formik.touched.title && formik.errors.title ? String(formik.errors.title) : ""} required disabled={!isProductOwner} sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
+                    <TextField fullWidth label="Product Title" variant="outlined" value={formik.values.title} onChange={(e) => formik.setFieldValue('title', e.target.value)} onBlur={formik.handleBlur} error={formik.touched.title && Boolean(formik.errors.title)} helperText={formik.touched.title && formik.errors.title ? String(formik.errors.title) : ""} required disabled={!isProductOwner} sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
                   </Grid>
                   <Grid size={{ xs: 12 }}>
-                    <TextField multiline rows={4} fullWidth label="Description *" variant="outlined" value={formik.values.description} onChange={(e) => formik.setFieldValue('description', e.target.value)} onBlur={formik.handleBlur} error={formik.touched.description && Boolean(formik.errors.description)} helperText={formik.touched.description && formik.errors.description ? String(formik.errors.description) : ""} required disabled={!isProductOwner} sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
+                    <TextField multiline rows={4} fullWidth label="Description" variant="outlined" value={formik.values.description} onChange={(e) => formik.setFieldValue('description', e.target.value)} onBlur={formik.handleBlur} error={formik.touched.description && Boolean(formik.errors.description)} helperText={formik.touched.description && formik.errors.description ? String(formik.errors.description) : ""} required disabled={!isProductOwner} sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
                   </Grid>
                 </Grid>
               </Paper>
@@ -1011,19 +1020,25 @@ const formVariants = useMemo(() => {
               <Divider sx={{ my: 2 }} />
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
             {onClose && (<Button type="button" onClick={onClose} variant="outlined" color="secondary">Cancel</Button>)}
-            <Button
+              <Button
                 sx={{ px: 4, py: 1.5, borderRadius: 2, fontWeight: 700 }}
                 color="primary"
                 variant="contained"
                 type="submit"
                 disabled={
                   sellerProduct.loading ||
+                  uploadingImage ||
                   !isFormValid ||
                   (isProductOwner && highlightAttributes.length > 0 && attributesLoading) ||
                   (!isProductOwner && formik.values.variants.length === 0)
                 }
               >
-                {sellerProduct.loading ? <CircularProgress size={24} color="inherit" /> : "Save Changes"}
+                {sellerProduct.loading || uploadingImage ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CustomLoader size={20} color="inherit" />
+                    <span>{uploadingImage ? "Uploading Images..." : "Saving Changes..."}</span>
+                  </Box>
+                ) : "Save Changes"}
               </Button>
             </Box>
           </Grid>

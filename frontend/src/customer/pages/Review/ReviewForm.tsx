@@ -1,15 +1,6 @@
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import {
-    TextField,
-    Button,
-    Box,
-    Rating,
-    InputLabel,
-    Typography,
-    IconButton,
-    CircularProgress,
-} from '@mui/material';
+import { TextField, Button, Box, Rating, InputLabel, Typography, IconButton } from '@mui/material';
 import CloseIcon from "@mui/icons-material/Close";
 import { uploadToCloudinary } from '../../../util/uploadToCloudnary';
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
@@ -17,6 +8,7 @@ import { useAppDispatch } from '../../../redux/Store';
 import { createReview } from '../../../redux/Customer/ReviewSlice';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState } from 'react';
+import CustomLoader from "../../../components/CustomLoader";
 
 interface CreateReviewRequest {
     reviewText: string;
@@ -156,7 +148,7 @@ const ReviewForm: React.FC = () => {
                     </span>
                     {uploadImage && (
                         <div className="absolute left-0 right-0 top-0 bottom-0 w-24 h-24 flex justify-center items-center">
-                            <CircularProgress />
+                            <CustomLoader />
                         </div>
                     )}
                 </label>

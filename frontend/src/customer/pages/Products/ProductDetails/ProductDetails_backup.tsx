@@ -1,11 +1,7 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\pages\Products\ProductDetails\ProductDetails.tsx
 import StarIcon from '@mui/icons-material/Star';
 import { teal } from '@mui/material/colors';
-import {
-  Box, Button, Divider, Modal, Snackbar, Alert,
-  Chip, Typography, Grid, Paper, CircularProgress, Card,
-  CardContent, Drawer, Avatar, IconButton,
-} from '@mui/material';
+import { Box, Button, Divider, Modal, Snackbar, Alert, Chip, Typography, Grid, Paper, Card, CardContent, Drawer, Avatar, IconButton } from '@mui/material';
 import CloseIcon from "@mui/icons-material/Close";
 import ShieldIcon from '@mui/icons-material/Shield';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
@@ -45,6 +41,7 @@ import {
 } from '../../../../redux/Admin/CategoryAttributeSlice';
 import { api } from '../../../../Config/Api';
 import { selectLocationFilter } from '../../../../redux/Customer/ProductSlice';
+import CustomLoader from "../../../../components/CustomLoader";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -1227,7 +1224,7 @@ const ProductDetails = () => {
     <div className="px-5 lg:px-20 pt-10">
       {products.loading || catalogLoading ? (
         <Box sx={{ textAlign: 'center', py: 10 }}>
-          <CircularProgress />
+          <CustomLoader />
         </Box>
       ) : !product ? (
         <Alert severity="error">Product not found</Alert>

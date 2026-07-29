@@ -1,19 +1,5 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\pages\Account\OrderDetails.tsx
-import {
-  Box,
-  Button,
-  Divider,
-  CircularProgress,
-  Alert,
-  Typography,
-  Chip,
-  Card,
-  Avatar,
-  Rating,
-  Menu,
-  MenuItem,
-  IconButton
-} from '@mui/material';
+import { Box, Button, Divider, Alert, Typography, Chip, Card, Avatar, Rating, Menu, MenuItem, IconButton } from '@mui/material';
 import { useEffect, useState } from 'react';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import StorefrontIcon from '@mui/icons-material/Storefront';
@@ -44,6 +30,7 @@ import OrderStepper from './OrderStepper';
 import ReturnRequestForm from './ReturnRequestForm';
 import ReplacementRequestForm from './ReplacementRequestForm';
 import SupaviewModal from '../../components/Review/SupaviewModal';
+import CustomLoader from "../../../components/CustomLoader";
 
 // Helper function to format date and time
 const formatDateTime = (dateString?: string) => {
@@ -203,7 +190,7 @@ const OrderDetails = () => {
   if (orders.loading) {
     return (
       <div className="h-[80vh] flex justify-center items-center">
-        <CircularProgress />
+        <CustomLoader />
       </div>
     );
   }
