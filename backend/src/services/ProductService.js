@@ -707,9 +707,9 @@ class ProductService {
 
       // ✅ ADD 'location' and 'district' to populate
       const product = await Product.findById(productId)
-        .populate('seller', 'sellerName businessDetails.businessName district location')
+        .populate('seller', 'sellerName businessDetails.businessName district location handlingTime minFreeDelivery')
         .populate('category', 'name categoryId level')
-        .populate('variants.offers.seller', 'sellerName businessDetails.businessName district location');
+        .populate('variants.offers.seller', 'sellerName businessDetails.businessName district location handlingTime minFreeDelivery');
 
       if (!product || !product.isActive) {
         throw new ProductError("Product not found");

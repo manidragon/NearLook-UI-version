@@ -193,7 +193,7 @@ const SellerReviewForm = () => {
                 {/* IMAGES */}
                 <div className="mt-8">
                   <Typography sx={{ mb: 3, fontWeight: 600, fontSize: "18px" }}>
-                    Upload Images
+                    Upload Images <span style={{ fontWeight: 'normal', color: '#6b7280', fontSize: '0.8rem' }}>(Supported: JPEG, JPG, PNG, WebP. Max: 3MB)</span>
                   </Typography>
 
                   <div className="flex flex-wrap gap-4">

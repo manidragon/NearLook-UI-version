@@ -21,19 +21,12 @@ class CategoryAttributeController {
       });
     }
 
-    // ✅ Try to find category by EITHER _id (ObjectId) OR categoryId (slug)
+    // ✅ Try to find category by _id
     const Category = mongoose.model('Category');
     let categoryDoc;
     
     if (mongoose.Types.ObjectId.isValid(categoryId)) {
       categoryDoc = await Category.findById(categoryId);
-    }
-    
-    if (!categoryDoc) {
-      categoryDoc = await Category.findOne({ 
-        categoryId: categoryId.toLowerCase(),
-        level: 3
-      });
     }
     
     if (!categoryDoc) {
@@ -51,7 +44,7 @@ class CategoryAttributeController {
     }
 
     const attributes = await CategoryAttributeService.getAttributesByCategory(
-      categoryDoc.categoryId,
+      categoryDoc._id.toString(),
       includeInactive === 'true'
     );
 
@@ -114,13 +107,13 @@ class CategoryAttributeController {
     try {
       const { categoryId } = req.params;
       const {
-        name, label, type, options, required, placeholder, min, max, step, order, isVariantField, displayInHighlights, sortOrder, isFilterable
+        label, type, options, required, placeholder, min, max, step, order, isVariantField, displayInHighlights, sortOrder, isFilterable
       } = req.body;
 
-      if (!name || !label || !type) {
+      if (!label || !type) {
         return res.status(400).json({
           success: false,
-          message: 'name, label, and type are required fields'
+          message: 'label and type are required fields'
         });
       }
 
@@ -144,7 +137,7 @@ class CategoryAttributeController {
       const attribute = await CategoryAttributeService.createAttribute(
         categoryId,
         {
-          name, label, type, options,
+          label, type, options,
           required: required || false,
           placeholder,
           min: type === 'number' ? min : undefined,

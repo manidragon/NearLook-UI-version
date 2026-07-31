@@ -27,7 +27,13 @@ const AdminAuth = React.lazy(() => import('./admin/pages/Auth/AdminAuth'));
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    const timeout = setTimeout(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }, 0);
+    return () => clearTimeout(timeout);
   }, [pathname]);
   return null;
 };

@@ -41,6 +41,11 @@ export interface CategoryAttribute {
   isVariantField?: boolean;
   
   /**
+   * If true, this field applies to the top-level Color Variant
+   */
+  isColorVariantField?: boolean;
+  
+  /**
    * If true, show this attribute in Product Highlights section
    * - Same value shown for all variants (assumed consistent)
    * - Examples: Mobile → Processor/Camera | Dress → Material/Care
@@ -79,6 +84,7 @@ export interface AttributeDefinition {
   isFilterable?: boolean;
   // ✅ Variant control fields
   isVariantField?: boolean;
+  isColorVariantField?: boolean;
   displayInHighlights?: boolean;
   sortOrder?: number;
 }
@@ -201,6 +207,7 @@ export const transformApiAttribute = (apiAttr: CategoryAttribute): AttributeDefi
   return {
     ...rest,
     isVariantField: apiAttr.isVariantField ?? false,
+    isColorVariantField: apiAttr.isColorVariantField ?? false,
     displayInHighlights: apiAttr.displayInHighlights ?? true,
     sortOrder: apiAttr.sortOrder ?? 0,
     // ✅✅✅ NEW: Default to true for backward compatibility
@@ -222,6 +229,7 @@ export const transformFormToApiPayload = (
     isActive: formValues.isActive ?? true,
     name: formValues.name?.toLowerCase().trim().replace(/\s+/g, '_'),
     isVariantField: formValues.isVariantField ?? false,
+    isColorVariantField: formValues.isColorVariantField ?? false,
     displayInHighlights: formValues.displayInHighlights ?? true,
     sortOrder: formValues.sortOrder ?? 0,
     // ✅✅✅ NEW: Include isFilterable in payload
@@ -237,17 +245,21 @@ export const separateAttributesByType = (
   attributes: CategoryAttribute[]
 ): {
   variantAttributes: CategoryAttribute[];
+  colorVariantAttributes: CategoryAttribute[];
   highlightAttributes: CategoryAttribute[];
   otherAttributes: CategoryAttribute[];
 } => {
   const variantAttributes: CategoryAttribute[] = [];
+  const colorVariantAttributes: CategoryAttribute[] = [];
   const highlightAttributes: CategoryAttribute[] = [];
   const otherAttributes: CategoryAttribute[] = [];
 
   attributes.forEach((attr) => {
     if (!attr.isActive) return; // Skip inactive attributes
     
-    if (isVariantSelector(attr)) {
+    if (attr.isColorVariantField) {
+      colorVariantAttributes.push(attr);
+    } else if (isVariantSelector(attr)) {
       variantAttributes.push(attr);
     } else if (shouldShowInHighlights(attr)) {
       highlightAttributes.push(attr);
@@ -262,6 +274,7 @@ export const separateAttributesByType = (
 
   return {
     variantAttributes: variantAttributes.sort(sortBySortOrder),
+    colorVariantAttributes: colorVariantAttributes.sort(sortBySortOrder),
     highlightAttributes: highlightAttributes.sort(sortBySortOrder),
     otherAttributes: otherAttributes.sort(sortBySortOrder),
   };

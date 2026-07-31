@@ -142,6 +142,7 @@ const ReviewForm: React.FC = () => {
                     onChange={handleImageChange}
                 />
 
+                <p style={{ width: '100%', fontSize: '12px', color: '#6b7280', marginBottom: '4px', marginTop: '0' }}>Supported: JPEG, JPG, PNG, WebP (Max: 3MB)</p>
                 <label className="relative" htmlFor="fileInput">
                     <span className="w-24 h-24 cursor-pointer flex items-center justify-center p-3 border rounded-md border-gray-400">
                         <AddPhotoAlternateIcon className="text-gray-700" />

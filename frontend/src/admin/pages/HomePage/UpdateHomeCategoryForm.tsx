@@ -131,7 +131,7 @@ const UpdateHomeCategoryForm = ({
       {/* Image Upload Section */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-          Banner Image *
+          Banner Image * <span style={{ fontWeight: 'normal', color: '#6b7280', fontSize: '0.8rem' }}>(Supported: JPEG, JPG, PNG, WebP. Max: 3MB)</span>
         </Typography>
         <Button
           variant="outlined"

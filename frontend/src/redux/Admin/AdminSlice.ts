@@ -6,7 +6,7 @@ import { api } from '../../Config/Api';
 const API_URL = '/home';
 
 // ✅ UPDATE: Simplified update - only image and description
-export const updateHomeCategory = createAsyncThunk<HomeCategory, { id: string; data: { image: string; description: string } }>(
+export const updateHomeCategory = createAsyncThunk<HomeCategory, { id: string; data: { image: string; description: string; categoryId?: string } }>(
   'homeCategory/updateHomeCategory',
   async ({ id, data }, { rejectWithValue }) => {
     try {
@@ -24,7 +24,7 @@ export const updateHomeCategory = createAsyncThunk<HomeCategory, { id: string; d
 );
 
 // ✅ NEW: Create new banner item
-export const createHomeCategory = createAsyncThunk<HomeCategory, { image: string; description: string; section: string }>(
+export const createHomeCategory = createAsyncThunk<HomeCategory, { image: string; description: string; section: string; categoryId?: string }>(
   'homeCategory/createHomeCategory',
   async (data, { rejectWithValue }) => {
     try {

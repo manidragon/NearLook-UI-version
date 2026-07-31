@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import Alert from "../../../../components/CustomAlert";
 import CustomLoader from "../../../../components/CustomLoader";
-import { Grid, Paper, Typography, FormControl, InputLabel, Select, MenuItem, FormHelperText, Box, Chip } from "@mui/material";
+import { Grid, Paper, Typography, FormControl, InputLabel, Select, MenuItem, FormHelperText, Box, Chip, Autocomplete, TextField } from "@mui/material";
 import type { FormikProps } from 'formik';
 import type { ProductFormValues } from '../types/productFormTypes';
 import type { Category } from '../../../../types/categoryTypes';
@@ -153,82 +153,77 @@ export const CategoryStep: React.FC<CategoryStepProps> = ({
       {/* Level 1 Category */}
       <Grid size={{ xs: 12, md: 4 }}>
         <Paper elevation={0} sx={{ p: 3, border: '1px solid', borderColor: 'grey.200', borderRadius: 3, height: '100%', transition: 'all 0.2s', '&:hover': { borderColor: 'primary.main', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' } }}>
-          <FormControl fullWidth error={formik.touched.category && Boolean(formik.errors.category)}>
-            <InputLabel id="category-label">Main Category *</InputLabel>
-            <Select
-              labelId="category-label"
-              id="category"
-              name="category"
-              value={formik.values.category}
-              onChange={(e) => {
-                formik.handleChange(e);
-                formik.setFieldValue('category2', '');
-                formik.setFieldValue('category3', '');
-              }}
-              label="Main Category *"
-              sx={{ borderRadius: 2 }}
-            >
-              {allLevelOne.map((cat: Category) => (
-                <MenuItem key={cat._id} value={cat._id}>{cat.name}</MenuItem>
-              ))}
-            </Select>
-            {formik.touched.category && formik.errors.category && (
-              <FormHelperText>{String(formik.errors.category)}</FormHelperText>
+          <Autocomplete
+            id="category"
+            options={allLevelOne}
+            getOptionLabel={(option: Category) => option.name || ''}
+            value={allLevelOne.find((cat: Category) => cat._id === formik.values.category) || null}
+            onChange={(e, newValue) => {
+              formik.setFieldValue('category', newValue?._id || '');
+              formik.setFieldValue('category2', '');
+              formik.setFieldValue('category3', '');
+            }}
+            renderInput={(params) => (
+              <TextField 
+                {...params} 
+                label="Main Category *" 
+                error={formik.touched.category && Boolean(formik.errors.category)}
+                helperText={formik.touched.category && formik.errors.category ? String(formik.errors.category) : undefined}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+              />
             )}
-          </FormControl>
+          />
         </Paper>
       </Grid>
 
       {/* Level 2 Category */}
       <Grid size={{ xs: 12, md: 4 }}>
         <Paper elevation={0} sx={{ p: 3, border: '1px solid', borderColor: 'grey.200', borderRadius: 3, height: '100%', transition: 'all 0.2s', opacity: !formik.values.category ? 0.6 : 1, '&:hover': { borderColor: formik.values.category ? 'primary.main' : 'grey.200', boxShadow: formik.values.category ? '0 4px 12px rgba(0,0,0,0.05)' : 'none' } }}>
-          <FormControl fullWidth disabled={!formik.values.category} error={formik.touched.category2 && Boolean(formik.errors.category2)}>
-            <InputLabel id="category2-label">Sub Category *</InputLabel>
-            <Select
-              labelId="category2-label"
-              id="category2"
-              name="category2"
-              value={formik.values.category2}
-              onChange={(e) => {
-                formik.handleChange(e);
-                formik.setFieldValue('category3', '');
-              }}
-              label="Sub Category *"
-              sx={{ borderRadius: 2 }}
-            >
-              {filteredLevelTwo.map((cat: Category) => (
-                <MenuItem key={cat._id} value={cat._id}>{cat.name}</MenuItem>
-              ))}
-            </Select>
-            {formik.touched.category2 && formik.errors.category2 && (
-              <FormHelperText>{String(formik.errors.category2)}</FormHelperText>
+          <Autocomplete
+            id="category2"
+            disabled={!formik.values.category}
+            options={filteredLevelTwo}
+            getOptionLabel={(option: Category) => option.name || ''}
+            value={filteredLevelTwo.find((cat: Category) => cat._id === formik.values.category2) || null}
+            onChange={(e, newValue) => {
+              formik.setFieldValue('category2', newValue?._id || '');
+              formik.setFieldValue('category3', '');
+            }}
+            renderInput={(params) => (
+              <TextField 
+                {...params} 
+                label="Sub Category *" 
+                error={formik.touched.category2 && Boolean(formik.errors.category2)}
+                helperText={formik.touched.category2 && formik.errors.category2 ? String(formik.errors.category2) : undefined}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+              />
             )}
-          </FormControl>
+          />
         </Paper>
       </Grid>
 
       {/* Level 3 Category */}
       <Grid size={{ xs: 12, md: 4 }}>
         <Paper elevation={0} sx={{ p: 3, border: '1px solid', borderColor: 'grey.200', borderRadius: 3, height: '100%', transition: 'all 0.2s', opacity: !formik.values.category2 ? 0.6 : 1, '&:hover': { borderColor: formik.values.category2 ? 'primary.main' : 'grey.200', boxShadow: formik.values.category2 ? '0 4px 12px rgba(0,0,0,0.05)' : 'none' } }}>
-          <FormControl fullWidth disabled={!formik.values.category2} error={formik.touched.category3 && Boolean(formik.errors.category3)}>
-            <InputLabel id="category3-label">Product Type *</InputLabel>
-            <Select
-              labelId="category3-label"
-              id="category3"
-              name="category3"
-              value={formik.values.category3}
-              onChange={formik.handleChange}
-              label="Product Type *"
-              sx={{ borderRadius: 2 }}
-            >
-              {filteredLevelThree.map((cat: Category) => (
-                <MenuItem key={cat._id} value={cat._id}>{cat.name}</MenuItem>
-              ))}
-            </Select>
-            {formik.touched.category3 && formik.errors.category3 && (
-              <FormHelperText>{String(formik.errors.category3)}</FormHelperText>
+          <Autocomplete
+            id="category3"
+            disabled={!formik.values.category2}
+            options={filteredLevelThree}
+            getOptionLabel={(option: Category) => option.name || ''}
+            value={filteredLevelThree.find((cat: Category) => cat._id === formik.values.category3) || null}
+            onChange={(e, newValue) => {
+              formik.setFieldValue('category3', newValue?._id || '');
+            }}
+            renderInput={(params) => (
+              <TextField 
+                {...params} 
+                label="Product Type *" 
+                error={formik.touched.category3 && Boolean(formik.errors.category3)}
+                helperText={formik.touched.category3 && formik.errors.category3 ? String(formik.errors.category3) : undefined}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+              />
             )}
-          </FormControl>
+          />
         </Paper>
       </Grid>
       

@@ -90,7 +90,6 @@ const chatboatRouters = require("./routers/chatboatRoutes.js");
 const reviewRouters = require("./routers/reviewRouters.js");
 const addressRoutes = require('./routers/addressRoutes');
 const categoryRouters = require("./routers/categoryRoutes");
-const electronicCategoryRoutes = require('./routers/electronicCategoryRoutes');
 const categoryAttributeRoutes = require('./routers/categoryAttributeRoutes');
 const catalogRoutes = require('./routers/catalogRoutes');
 const returnRoutes = require('./routers/returnRoutes.js');
@@ -110,7 +109,6 @@ app.use('/api/wallet', walletRoutes);
 app.use('/api/returns', returnRoutes);
 app.use('/api/catalog', catalogRoutes);
 app.use('/api/admin/categories', categoryAttributeRoutes);
-app.use('/api/admin/electronics', electronicCategoryRoutes);
 app.use('/api/categories', categoryRouters);
 app.use('/api/addresses', addressRoutes);
 

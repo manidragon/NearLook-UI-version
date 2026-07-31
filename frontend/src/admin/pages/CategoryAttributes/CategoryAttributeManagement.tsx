@@ -109,7 +109,6 @@ const CategoryAttributeManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
   // ✅ State for form - INCLUDES variant control fields
   const [formData, setFormData] = useState<Partial<CategoryAttribute>>({
-    name: '',
     label: '',
     type: 'text',
     options: [],
@@ -122,6 +121,7 @@ const CategoryAttributeManagement: React.FC = () => {
     isActive: true,
     // ✅✅✅ NEW: Variant Control Fields
     isVariantField: false,
+    isColorVariantField: false,
     displayInHighlights: true,
     isFilterable: true,
     sortOrder: 0,
@@ -194,7 +194,6 @@ const CategoryAttributeManagement: React.FC = () => {
   const handleOpenCreate = () => {
     setEditingAttribute(null);
     setFormData({
-      name: '',
       label: '',
       type: 'text',
       options: [],
@@ -219,7 +218,6 @@ const CategoryAttributeManagement: React.FC = () => {
   const handleOpenEdit = (attribute: CategoryAttribute) => {
     setEditingAttribute(attribute);
     setFormData({
-      name: attribute.name,
       label: attribute.label,
       type: attribute.type,
       options: attribute.options ? [...attribute.options] : [],
@@ -230,8 +228,9 @@ const CategoryAttributeManagement: React.FC = () => {
       step: attribute.step || 1,
       order: attribute.order,
       isActive: attribute.isActive,
-      // ✅✅✅ NEW: Load variant control fields with defaults
+      // ✅✅✅ NEW: Load variant control fields
       isVariantField: attribute.isVariantField ?? false,
+      isColorVariantField: attribute.isColorVariantField ?? false,
       displayInHighlights: attribute.displayInHighlights ?? true,
       isFilterable: attribute.isFilterable ?? true,
       sortOrder: attribute.sortOrder ?? 0,
@@ -251,7 +250,6 @@ const CategoryAttributeManagement: React.FC = () => {
     setOpenFormDialog(false);
     setEditingAttribute(null);
     setFormData({
-      name: '',
       label: '',
       type: 'text',
       options: [],
@@ -318,10 +316,6 @@ const CategoryAttributeManagement: React.FC = () => {
   // ✅ Submit form (create or update)
   const handleSubmitForm = async () => {
     // ✅ Validate required fields
-    if (!formData.name?.trim()) {
-      showSnackbar('Attribute name is required', 'error');
-      return;
-    }
     if (!formData.label?.trim()) {
       showSnackbar('Attribute label is required', 'error');
       return;
@@ -488,10 +482,33 @@ const CategoryAttributeManagement: React.FC = () => {
             <FormControl fullWidth required>
               <Autocomplete
                 options={levelThreeCategories as Category[]}
-                getOptionLabel={(option: Category) => `${option.name} (${option.categoryId})`}
-                value={(levelThreeCategories as Category[]).find(c => c.categoryId === selectedCategoryId) || null}
+                getOptionLabel={(option: Category | string) => {
+                  if (typeof option === 'string') return option;
+                  let label = option?.name || '';
+                  if (option?.parentCategory) {
+                    const parent = (categories as Category[]).find(c => c._id === option.parentCategory);
+                    if (parent && parent.name) {
+                      label += ` (in ${parent.name})`;
+                    }
+                  }
+                  return label;
+                }}
+                filterOptions={(options, state) => {
+                  const inputValue = state.inputValue.toLowerCase();
+                  return options.filter(option => {
+                    let textToSearch = (option?.name || '').toLowerCase();
+                    if (option?.parentCategory) {
+                      const parent = (categories as Category[]).find(c => c._id === option.parentCategory);
+                      if (parent && parent.name) {
+                        textToSearch += ` in ${parent.name.toLowerCase()}`;
+                      }
+                    }
+                    return textToSearch.includes(inputValue);
+                  });
+                }}
+                value={(levelThreeCategories as Category[]).find(c => (c.categoryId || c._id) === selectedCategoryId) || null}
                 onChange={(event, newValue) => {
-                  const categoryId = newValue ? newValue.categoryId : '';
+                  const categoryId = newValue ? (newValue.categoryId || newValue._id) : '';
                   setSelectedCategory(categoryId);
                   if (newValue) {
                     setSelectedCategoryName(newValue.name);
@@ -619,14 +636,14 @@ const CategoryAttributeManagement: React.FC = () => {
                         <TableCell sx={{ width: '50px' }}>
                           <DragIcon fontSize="small" color="action" />
                         </TableCell>
-                        <TableCell><strong>Name</strong></TableCell>
                         <TableCell><strong>Label</strong></TableCell>
                         <TableCell><strong>Type</strong></TableCell>
                         <TableCell><strong>Options</strong></TableCell>
                         <TableCell><strong>Required</strong></TableCell>
                         <TableCell><strong>Status</strong></TableCell>
                         {/* ✅✅✅ NEW: Variant/Highlight Columns */}
-                        <TableCell><strong>Variant</strong></TableCell>
+                        <TableCell><strong>Sub-Variant</strong></TableCell>
+                        <TableCell><strong>Color Level</strong></TableCell>
                         <TableCell><strong>Highlights</strong></TableCell>
                         <TableCell><strong>Filter</strong></TableCell>
                         <TableCell><strong>Sort</strong></TableCell>
@@ -654,9 +671,6 @@ const CategoryAttributeManagement: React.FC = () => {
                             >
                               <TableCell {...provided.dragHandleProps} sx={{ width: '50px', cursor: 'move' }}>
                                 <DragIcon fontSize="small" color="action" />
-                              </TableCell>
-                              <TableCell>
-                                <code>{attr.name}</code>
                               </TableCell>
                               <TableCell>{attr.label}</TableCell>
                               <TableCell>
@@ -719,9 +733,25 @@ const CategoryAttributeManagement: React.FC = () => {
                                   <Typography variant="body2" color="text.secondary">-</Typography>
                                 )}
                               </TableCell>
+                              {/* ✅✅✅ NEW: Color Variant Column */}
+                              <TableCell>
+                                {attr.isColorVariantField ? (
+                                  <Tooltip title="Appears in the Color Variant card">
+                                    <Chip
+                                      label="Color Level"
+                                      size="small"
+                                      color="secondary"
+                                      variant="filled"
+                                      icon={<InfoIcon fontSize="small" />}
+                                    />
+                                  </Tooltip>
+                                ) : (
+                                  <Typography variant="body2" color="text.secondary">-</Typography>
+                                )}
+                              </TableCell>
                               {/* ✅✅✅ NEW: Highlights Column */}
                               <TableCell>
-                                {attr.displayInHighlights && !attr.isVariantField ? (
+                                {attr.displayInHighlights && !attr.isVariantField && !attr.isColorVariantField ? (
                                   <Tooltip title="Appears in Product Highlights section">
                                     <Chip
                                       label="Yes"
@@ -845,20 +875,6 @@ const CategoryAttributeManagement: React.FC = () => {
         </DialogTitle>
         <DialogContent dividers sx={{ px: 4, py: 3 }}>
           <Grid container spacing={3}>
-            {/* Name */}
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField
-                fullWidth
-                label="Attribute Name *"
-                value={formData.name}
-                onChange={(e) => handleFormChange('name', e.target.value)}
-                placeholder="e.g., ram, fabric, wattage"
-                helperText="Lowercase, no spaces (used in specifications object)"
-                disabled={!!editingAttribute}
-                required
-                variant="outlined"
-              />
-            </Grid>
             {/* Label */}
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
@@ -1062,13 +1078,35 @@ const CategoryAttributeManagement: React.FC = () => {
                   sx={{ alignItems: 'flex-start', '& .MuiSwitch-root': { mt: -0.5 } }}
                 />
                 
+                {/* ✅✅✅ NEW: Color Variant Field Toggle */}
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={formData.isColorVariantField ?? false}
+                      onChange={(e) => handleFormChange('isColorVariantField', e.target.checked)}
+                      color="secondary"
+                    />
+                  }
+                  label={
+                    <Box>
+                      <Typography variant="body2" fontWeight="bold">
+                        Use as Color-Level Variant Field
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" component="div">
+                        If enabled, this field appears inside the top-level Color Variant card (e.g., Pattern, Material). It applies to all sub-variants under that color.
+                      </Typography>
+                    </Box>
+                  }
+                  sx={{ alignItems: 'flex-start', '& .MuiSwitch-root': { mt: -0.5 } }}
+                />
+                
                 {/* Highlight Field Toggle */}
                 <FormControlLabel
                   control={
                     <Switch
                       checked={formData.displayInHighlights ?? true}
                       onChange={(e) => handleFormChange('displayInHighlights', e.target.checked)}
-                      disabled={formData.isVariantField} // Can't be both variant and highlight
+                      disabled={formData.isVariantField || formData.isColorVariantField} // Can't be variant and highlight
                       color="success"
                     />
                   }
@@ -1080,7 +1118,7 @@ const CategoryAttributeManagement: React.FC = () => {
                       <Typography variant="caption" color="text.secondary" component="div">
                         If enabled, this field appears in the Product Highlights checklist. Same value shown for all variants.
                         <br />
-                        <em>Disabled when "Variant Selector" is enabled.</em>
+                        <em>Disabled when "Variant Selector" or "Color-Level Variant" is enabled.</em>
                         <br />
                         <em>Example: Mobile → ✓ Processor: A16 Bionic</em>
                       </Typography>

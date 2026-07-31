@@ -196,7 +196,7 @@ const UpdateCategoryForm: React.FC<UpdateCategoryFormProps> = ({
       {/* Image Upload Field (All levels) */}
       <Box>
         <Typography variant="subtitle1" gutterBottom>
-          Category Image (Optional)
+          Category Image (Optional) <span style={{ fontWeight: 'normal', color: '#6b7280', fontSize: '0.8rem' }}>(Supported: JPEG, JPG, PNG, WebP. Max: 3MB)</span>
           </Typography>
           <input
             type="file"

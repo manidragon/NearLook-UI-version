@@ -7,30 +7,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { updateSeller } from "../../../redux/Seller/sellerSlice";
 import { validateImageSize } from "../../../util/fileValidator";
-
-// ✅ Cloudinary Upload Function
-const uploadToCloudinary = async (file: File) => {
-  const cloud_name = "dt6nu9oqs";
-  const upload_preset = "nearlook";
-  const url = `https://api.cloudinary.com/v1_1/${cloud_name}/image/upload`;
-  
-  if (file) {
-    const data = new FormData();
-    data.append("file", file);
-    data.append("upload_preset", upload_preset);
-    data.append("cloud_name", cloud_name);
-
-    const res = await fetch(url, {
-      method: "post",
-      body: data,
-    });
-    
-    const fileData = await res.json();
-    return fileData.url;
-  } else {
-    console.log("error");
-  }
-};
+import { uploadToCloudinary } from "../../../util/uploadToCloudnary";
 
 interface LogoUploadFormProps {
   onClose: () => void;
@@ -54,9 +31,12 @@ const LogoUploadForm = ({ onClose }: LogoUploadFormProps) => {
     const validFiles = validateImageSize(event.target.files);
     const file = validFiles[0];
     if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        setError('Please select an image file (JPG, PNG, GIF)');
+      // Validate file type and extension
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      const validExts = /\.(jpg|jpeg|png|webp)$/i;
+      
+      if (!validTypes.includes(file.type) || !validExts.test(file.name)) {
+        setError('Please select an image file (JPEG, JPG, PNG, WebP)');
         return;
       }
 
@@ -83,10 +63,10 @@ const LogoUploadForm = ({ onClose }: LogoUploadFormProps) => {
 
     try {
       // ✅ Upload to Cloudinary
-      const cloudinaryUrl = await uploadToCloudinary(selectedFile);
+      const result = await uploadToCloudinary(selectedFile, 'logo');
       
-      if (!cloudinaryUrl) {
-        throw new Error('Failed to upload to Cloudinary');
+      if (!result.success || !result.url) {
+        throw new Error(result.error || 'Failed to upload to Cloudinary');
       }
 
       // ✅ Update seller with Cloudinary URL
@@ -94,7 +74,7 @@ const LogoUploadForm = ({ onClose }: LogoUploadFormProps) => {
         updateSeller({
           businessDetails: {
             ...sellers.profile?.businessDetails,
-            logo: cloudinaryUrl,
+            logo: result.url,
           },
         })
       ).unwrap();
@@ -183,7 +163,7 @@ const LogoUploadForm = ({ onClose }: LogoUploadFormProps) => {
           <input
             type="file"
             hidden
-            accept="image/*"
+            accept="image/jpeg, image/png, image/webp"
             onChange={handleFileChange}
           />
         </Button>
@@ -233,8 +213,8 @@ const LogoUploadForm = ({ onClose }: LogoUploadFormProps) => {
         <Box sx={{ textAlign: 'center', mt: 2, maxWidth: 300 }}>
           <Typography variant="caption" color="text.secondary">
             • Recommended size: 200x200px<br />
-            • Max file size: 5MB<br />
-            • Supported formats: JPG, PNG, GIF<br />
+            • Max file size: 3MB<br />
+            • Supported formats: JPEG, JPG, PNG, WebP<br />
             • Stored on Cloudinary
           </Typography>
         </Box>

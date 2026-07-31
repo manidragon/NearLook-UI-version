@@ -169,7 +169,7 @@ const AddProductForm: React.FC<{
 
         // ✅ Get variant attribute names from attributeState
         const variantAttributeNames = (attributeState.attributes || [])
-          .filter((attr: CategoryAttribute) => attr?.isVariantField && attr?.isActive)
+          .filter((attr: CategoryAttribute) => (attr?.isVariantField || attr?.isColorVariantField) && attr?.isActive)
           .map((attr: CategoryAttribute) => attr?.name?.toLowerCase());
 
         const variantsPayload: ProductVariantPayload[] = values.variants.flatMap((colorVariant) => {
@@ -502,7 +502,7 @@ const AddProductForm: React.FC<{
           const categoryObj = categoryState.categories?.find(
             (cat: Category) => cat._id === formik.values.category3
           );
-          const categoryIdSlug = categoryObj?.categoryId;
+          const categoryIdSlug = categoryObj?._id || categoryObj?.categoryId;
           if (categoryIdSlug) {
             // ✅ Fetch and WAIT for completion
             const result = await dispatch(fetchCategoryAttributes({

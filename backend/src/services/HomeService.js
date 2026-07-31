@@ -1,8 +1,6 @@
 // D:\Mani\Code with Zosh\Backup\source code\backend\src\services\HomeService.js
 const HomeCategorySection = require('../domain/HomeCategorySection');
 const Deal = require('../models/Deal');
-const ElectronicCategory = require('../models/ElectronicCategory'); // ✅ ADD THIS
-
 class HomeService {
     async createHomePageData(allCategories) {
         // Filter categories based on their section
@@ -14,8 +12,6 @@ class HomeService {
             category.section === HomeCategorySection.SHOP_BY_CATEGORIES
         );
 
-        // ✅ FETCH ELECTRONIC CATEGORIES FROM NEW COLLECTION
-        const electricCategories = await ElectronicCategory.find({ isActive: true }).sort({ createdAt: 1 });
 
         const dealCategories = allCategories.filter(category => 
             category.section === HomeCategorySection.DEALS
@@ -31,7 +27,6 @@ class HomeService {
         const home = {
             grid: gridCategories,
             shopByCategories: shopByCategories,
-            electricCategories: electricCategories, // ✅ USE NEW DATA
             deals: dealsToReturn,
             dealCategories: dealCategories
         };

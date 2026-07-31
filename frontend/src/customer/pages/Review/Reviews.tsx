@@ -10,9 +10,8 @@ import {
     fetchReviewsByProductId
 } from "../../../redux/Customer/ReviewSlice";
 
-import ProductReviewCard
+import ProductReviewCard from "./ProductReviewCard";
 import CustomLoader from "../../../components/CustomLoader";
-from "./ProductReviewCard";
 
 const ReviewPage = () => {
 

@@ -229,6 +229,9 @@ const SupaviewModal: React.FC<SupaviewModalProps> = ({ open, onClose, reviewType
                                             <div className="text-red-500 text-sm mb-3 text-center">{formik.errors.rating}</div>
                                         )}
 
+                                        <p style={{ textAlign: 'center', fontSize: '12px', color: '#6b7280', marginBottom: '8px', marginTop: '0' }}>
+                                            Supported: JPEG, JPG, PNG, WebP (Max: 3MB)
+                                        </p>
                                         <div className="supaview__images">
                                             {previewUrls.map((previewUrl, idx) => (
                                                 <div key={idx} className="supaview__image-wrapper">

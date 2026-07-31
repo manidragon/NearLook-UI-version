@@ -21,11 +21,11 @@ class CategoryAttributeService {
         );
       }
 
-      // ✅ Normalize attribute name (lowercase, no spaces)
-      const normalizedName = attributeData.name
+      // ✅ Normalize attribute name (lowercase, no spaces) from label
+      const normalizedName = attributeData.label
         .toLowerCase()
         .trim()
-        .replace(/\s+/g, '_');
+        .replace(/[\s\W-]+/g, '_');
 
       // ✅ Check for duplicate attribute name in same category
       const existing = await CategoryAttribute.findOne({
@@ -62,6 +62,7 @@ class CategoryAttributeService {
 
         // ✅✅✅ NEW: Variant Control Fields
         isVariantField: attributeData.isVariantField ?? false,
+        isColorVariantField: attributeData.isColorVariantField ?? false,
         displayInHighlights: attributeData.displayInHighlights ?? true,
         sortOrder: attributeData.sortOrder ?? 0,
         isFilterable: attributeData.isFilterable ?? true,
@@ -148,25 +149,8 @@ async getAttributesByCategory(categoryId, includeInactive = false) {
         throw new CategoryAttributeError('Cannot change category of an existing attribute');
       }
 
-      // ✅ Normalize name if being updated
-      if (updates.name) {
-        const normalizedName = updates.name.toLowerCase().trim().replace(/\s+/g, '_');
-
-        // ✅ Check for duplicate name (excluding current attribute)
-        const existing = await CategoryAttribute.findOne({
-          categoryId: attribute.categoryId,
-          name: normalizedName,
-          _id: { $ne: attributeId },
-        });
-
-        if (existing) {
-          throw new CategoryAttributeError(
-            `Attribute "${normalizedName}" already exists for this category`
-          );
-        }
-
-        updates.name = normalizedName;
-      }
+      // ✅ If label is updated, we DO NOT automatically update the name 
+      // to avoid breaking existing product specifications that use the old name as a key.
 
       // ✅ Validate select type has options
       if (updates.type === 'select' && (!updates.options || updates.options.length === 0)) {
@@ -175,11 +159,11 @@ async getAttributesByCategory(categoryId, includeInactive = false) {
         );
       }
 
-      // ✅ Update allowed fields
+      // ✅ Update allowed fields (removed 'name')
       const allowedUpdates = [
-        'label', 'name', 'type', 'options', 'required',
+        'label', 'type', 'options', 'required',
         'placeholder', 'min', 'max', 'step', 'order', 'isActive',
-        'isVariantField', 'displayInHighlights', 'sortOrder', 'isFilterable'
+        'isVariantField', 'isColorVariantField', 'displayInHighlights', 'sortOrder', 'isFilterable'
       ];
 
       const updateData = {};

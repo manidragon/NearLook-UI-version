@@ -433,8 +433,8 @@ const formVariants = useMemo(() => {
     const category3Id = normalizedInitialValues.category3;
     if (category3Id && categoryState.categories.length > 0) {
       const level3Category = categoryState.categories.find((cat: Category) => cat._id === category3Id);
-      if (level3Category?.categoryId) {
-        dispatch(fetchCategoryAttributes({ categoryId: level3Category.categoryId, includeInactive: false }));
+      if (level3Category?._id || level3Category?.categoryId) {
+        dispatch(fetchCategoryAttributes({ categoryId: level3Category._id || level3Category.categoryId, includeInactive: false }));
       }
     }
   }, [normalizedInitialValues.category3, dispatch, categoryState.categories]);
@@ -492,6 +492,11 @@ const formVariants = useMemo(() => {
         const currentSeller = getCurrentSellerFromJWT();
         const currentSellerId = currentSeller?._id || '';
 
+        // ✅ Get variant attribute names from attributeState
+        const variantAttributeNames = (Array.isArray(attributeState) ? attributeState : [])
+          .filter((attr: CategoryAttribute) => (attr?.isVariantField || attr?.isColorVariantField) && attr?.isActive)
+          .map((attr: CategoryAttribute) => attr?.name?.toLowerCase());
+
         const payload: ProductUpdatePayload = {
           title: values.title?.trim() || '',
           description: values.description?.trim() || '',
@@ -520,10 +525,25 @@ const formVariants = useMemo(() => {
 
                 if (offersPayload.length === 0) return null;
 
+                // ✅ Build specifications with ALL fields first
+                const allSpecs = {
+                  ...(values.highlights || {}),
+                  ...(colorVariant.highlights || {}),
+                  ...(subVar.specifications || {})
+                };
+
+                // ✅ CRITICAL: Filter to ONLY variant-specific fields
+                const variantSpecs: Record<string, string> = {};
+                Object.entries(allSpecs).forEach(([key, value]) => {
+                  if (variantAttributeNames.includes(key.toLowerCase())) {
+                    variantSpecs[key] = String(value);
+                  }
+                });
+
                 return {
                   _id: subVar.variantId || colorVariant._id, 
                   color: colorVariant.color.trim(),
-                  specifications: { ...(subVar.specifications || {}) },
+                  specifications: variantSpecs,
                   images: colorVariant.images,
                   offers: offersPayload,
                   isActive: subVar.isActive !== false,

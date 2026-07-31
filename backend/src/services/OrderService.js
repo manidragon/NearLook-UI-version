@@ -155,12 +155,17 @@ class OrderService {
           orderItemIds.push(savedOrderItem._id);
         }
 
+        // Fetch seller details to get handling time and pickup address
+        const seller = await Seller.findById(sellerId).populate('pickupAddress');
+        if (!seller) {
+          throw new OrderError(`Seller not found for id ${sellerId}`);
+        }
+
         // Handle shipping address for this seller
         let finalShippingAddress = null;
         if (fulfillmentType === 'SELF_PICKUP') {
           // Use seller's pickup address
-          const seller = await Seller.findById(sellerId).populate('pickupAddress');
-          if (!seller || !seller.pickupAddress) {
+          if (!seller.pickupAddress) {
             throw new OrderError("Seller pickup address not available for self-pickup");
           }
           finalShippingAddress = seller.pickupAddress._id;
@@ -175,10 +180,9 @@ class OrderService {
         // ✅ FIX: Set order status to PLACED for ALL orders (both delivery and self-pickup)
         const orderStatus = OrderStatus.PLACED; // 👈 Changed from conditional logic
 
-        // Set deliver date (sooner for pickup)
-        const deliverDate = fulfillmentType === 'SELF_PICKUP'
-          ? new Date(Date.now() + 2 * 24 * 60 * 60 * 1000) // 2 days
-          : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+        // Set deliver date dynamically based on seller's handling time
+        const handlingTimeDays = seller.handlingTime || (fulfillmentType === 'SELF_PICKUP' ? 2 : 7);
+        const deliverDate = new Date(Date.now() + handlingTimeDays * 24 * 60 * 60 * 1000);
 
         // ✅ Set pickup time (only for self-pickup orders)
         const orderPickupTime = fulfillmentType === 'SELF_PICKUP' ? pickupTime : null;
@@ -305,9 +309,7 @@ const newOrder = new Order({
       .populate([
         {
           path: "seller",
-          populate: {
-            path: "pickupAddress"
-          }
+          select: "businessDetails sellerName"
         },
         { path: "shippingAddress" },
         {
@@ -315,9 +317,10 @@ const newOrder = new Order({
           populate: [
             {
               path: "product",
+              select: "title images variants seller",
               populate: {
                 path: "seller",
-                populate: { path: "pickupAddress" }
+                select: "businessDetails sellerName"
               }
             },
             {

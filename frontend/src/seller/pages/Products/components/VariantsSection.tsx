@@ -261,6 +261,13 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
     return attrs;
   }, [attributeState.attributes, activeColorTab, variants]);
 
+  // ✅ Filter color variant attributes (isColorVariantField: true)
+  const colorVariantAttributes = useMemo(() => {
+    return (attributeState.attributes || [])
+      .filter((attr: CategoryAttribute) => attr.isColorVariantField && attr.isActive)
+      .sort((a: CategoryAttribute, b: CategoryAttribute) => (a.sortOrder || 0) - (b.sortOrder || 0));
+  }, [attributeState.attributes]);
+
   // ✅ Helper: Get inherited images for catalog products
   const inheritedImages = isCatalogProduct && !isOwner && variants[activeColorTab]?.images
     ? variants[activeColorTab].images
@@ -510,12 +517,13 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                       ☁️ Drag & drop your images here
                     </Typography>
                     <Typography variant="body2" color="text.secondary" mb={2}>
-                      High quality JPG, PNG, or WebP up to 5MB
+                      Maximum 7 images. High quality JPG, JPEG, PNG, or WebP up to 3MB.<br/>
+                      Recommended dimensions: 500x500 px or higher.
                     </Typography>
                     <input
                       type="file"
                       multiple
-                      accept="image/*"
+                      accept="image/jpeg, image/png, image/webp"
                       onChange={(e) => onImageUpload(activeColorTab, e.target.files)}
                       style={{ display: 'none' }}
                       id={`image-upload-${activeColorTab}`}
@@ -648,6 +656,27 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                   <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
                     ℹ️ To update these images, contact the catalog owner or admin.
                   </Typography>
+                </Grid>
+              )}
+
+              {/* ✅ NEW: Color-Level Attributes (e.g. Pattern, Material) */}
+              {colorVariantAttributes.length > 0 && (
+                <Grid size={{ xs: 12 }} sx={{ mb: 3 }}>
+                  <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 'bold', color: 'primary.main' }}>
+                    🎨 Color-Level Specifications
+                  </Typography>
+                  <Grid container spacing={2}>
+                    {colorVariantAttributes.map((attr) => (
+                      <Grid size={{ xs: 12, sm: 6, md: 4 }} key={attr._id}>
+                        {renderAttributeField(
+                          attr,
+                          colorHighlights[activeColorTab]?.[attr.name] ?? '',
+                          (value) => onColorHighlightChange(activeColorTab, attr.name, String(value)),
+                          !canEditImages
+                        )}
+                      </Grid>
+                    ))}
+                  </Grid>
                 </Grid>
               )}
 

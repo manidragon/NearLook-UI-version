@@ -11,10 +11,9 @@ const categoryAttributeSchema = new mongoose.Schema({
     index: true,  // Faster queries by categoryId
   },
   
-  // ✅ Attribute key for specifications object (e.g., "ram", "fabric")
+  // ✅ Attribute key for specifications object (e.g., "ram", "fabric") - auto-generated from label
   name: {
     type: String,
-    required: [true, 'Attribute name is required'],
     trim: true,
     lowercase: true,
     match: [/^[a-z0-9_]+$/, 'Name must be lowercase alphanumeric with underscores'],
@@ -84,7 +83,14 @@ const categoryAttributeSchema = new mongoose.Schema({
   isVariantField: { 
     type: Boolean, 
     default: false,
-    description: "If true, this field differentiates product variants (shown as selector)"
+    description: "If true, this field differentiates product sub-variants (shown as selector)"
+  },
+  
+  // ✅ NEW: Top-level Color Variant attribute
+  isColorVariantField: {
+    type: Boolean,
+    default: false,
+    description: "If true, this field applies to the top-level Color Variant"
   },
   
   // If true, show this attribute in Product Highlights section (same for all variants)
@@ -169,9 +175,12 @@ categoryAttributeSchema.virtual('category', {
   justOne: true,
 });
 
-// ✅ Pre-save middleware: ensure name is lowercase
-categoryAttributeSchema.pre('save', function(next) {
-  if (this.isModified('name')) {
+// ✅ Pre-validate middleware: auto-generate name from label and ensure it's lowercase
+categoryAttributeSchema.pre('validate', function(next) {
+  if (this.label && (!this.name || this.isModified('label'))) {
+    // Generate name from label: "Screen Size" -> "screen_size"
+    this.name = this.label.toLowerCase().trim().replace(/[\s\W-]+/g, '_');
+  } else if (this.isModified('name') && this.name) {
     this.name = this.name.toLowerCase().trim();
   }
   next();
