@@ -14,7 +14,7 @@ class CategoryAttributeService {
   async createAttribute(categoryId, attributeData, adminId = null) {
     try {
       // ✅ Validate category exists and is Level 3
-      const category = await Category.findOne({ categoryId, level: 3 });
+      const category = await Category.findOne({ _id: categoryId, level: 3 });
       if (!category) {
         throw new CategoryAttributeError(
           `Category "${categoryId}" not found or is not a Level 3 category`

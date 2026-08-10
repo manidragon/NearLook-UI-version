@@ -98,6 +98,8 @@ const CategoryAttributeManagement: React.FC = () => {
   );
 
   // ✅ State for category selection
+  const [selectedLevel1Category, setSelectedLevel1Category] = useState<string>('');
+  const [selectedLevel2Category, setSelectedLevel2Category] = useState<string>('');
   const [selectedCategoryId, setSelectedCategory] = useState<string>('');
   const [selectedCategoryName, setSelectedCategoryName] = useState<string>('');
   // ✅ State for dialogs
@@ -146,13 +148,26 @@ const CategoryAttributeManagement: React.FC = () => {
     }
   }, [dispatch, categories.length]);
 
-  // ✅ Get Level 3 categories for dropdown (with proper typing)
-  const levelThreeCategories = useMemo(() => {
-    const cats = categories as Category[];
-    return cats
-      .filter((cat) => cat.level === 3)
+  // ✅ Get categories by level for cascading dropdowns
+  const level1Categories = useMemo(() => {
+    return (categories as Category[])
+      .filter((cat) => cat.level === 1)
       .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   }, [categories]);
+
+  const level2Categories = useMemo(() => {
+    if (!selectedLevel1Category) return [];
+    return (categories as Category[])
+      .filter((cat) => cat.level === 2 && (cat.parentCategory === selectedLevel1Category || (cat.parentCategory as any)?._id === selectedLevel1Category))
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  }, [categories, selectedLevel1Category]);
+
+  const level3Categories = useMemo(() => {
+    if (!selectedLevel2Category) return [];
+    return (categories as Category[])
+      .filter((cat) => cat.level === 3 && (cat.parentCategory === selectedLevel2Category || (cat.parentCategory as any)?._id === selectedLevel2Category))
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  }, [categories, selectedLevel2Category]);
 
   // ✅ Fetch attributes when category changes (include inactive)
   useEffect(() => {
@@ -184,7 +199,7 @@ const CategoryAttributeManagement: React.FC = () => {
   // ✅ Handle category selection - FIXED: Use SelectChangeEvent<string>
   const handleCategoryChange = (event: SelectChangeEvent<string>) => { // ✅ Fixed type
     const categoryId = event.target.value;
-    const category = levelThreeCategories.find((c: Category) => c.categoryId === categoryId);
+    const category = level3Categories.find((c: Category) => c.categoryId === categoryId);
     setSelectedCategory(categoryId);
     setSelectedCategoryName(category?.name || '');
     setActiveTab(0); // Reset tab when category changes
@@ -477,36 +492,56 @@ const CategoryAttributeManagement: React.FC = () => {
 
       {/* Category Selection */}
       <Paper sx={{ p: 3, mb: 3 }}>
-        <Grid container spacing={3} alignItems="center">
-          <Grid size={{ xs: 12, md: 6 }}>
+        <Grid container spacing={2} alignItems="center">
+          <Grid size={{ xs: 12, sm: 6, md: 6, lg: 3 }}>
+            <FormControl fullWidth>
+              <Autocomplete
+                options={level1Categories}
+                getOptionLabel={(option) => option.name || ''}
+                value={level1Categories.find(c => (c.categoryId || c._id) === selectedLevel1Category) || null}
+                onChange={(event, newValue) => {
+                  const categoryId = newValue ? (newValue.categoryId || newValue._id) : '';
+                  setSelectedLevel1Category(categoryId);
+                  setSelectedLevel2Category('');
+                  setSelectedCategory('');
+                  setSelectedCategoryName('');
+                  dispatch(clearCategoryAttributes(''));
+                }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Level 1 Category" />
+                )}
+                isOptionEqualToValue={(option, value) => option._id === value._id}
+              />
+            </FormControl>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 6, lg: 3 }}>
+            <FormControl fullWidth>
+              <Autocomplete
+                options={level2Categories}
+                disabled={!selectedLevel1Category}
+                getOptionLabel={(option) => option.name || ''}
+                value={level2Categories.find(c => (c.categoryId || c._id) === selectedLevel2Category) || null}
+                onChange={(event, newValue) => {
+                  const categoryId = newValue ? (newValue.categoryId || newValue._id) : '';
+                  setSelectedLevel2Category(categoryId);
+                  setSelectedCategory('');
+                  setSelectedCategoryName('');
+                  dispatch(clearCategoryAttributes(''));
+                }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Level 2 Category" />
+                )}
+                isOptionEqualToValue={(option, value) => option._id === value._id}
+              />
+            </FormControl>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 12, md: 8, lg: 3 }}>
             <FormControl fullWidth required>
               <Autocomplete
-                options={levelThreeCategories as Category[]}
-                getOptionLabel={(option: Category | string) => {
-                  if (typeof option === 'string') return option;
-                  let label = option?.name || '';
-                  if (option?.parentCategory) {
-                    const parent = (categories as Category[]).find(c => c._id === option.parentCategory);
-                    if (parent && parent.name) {
-                      label += ` (in ${parent.name})`;
-                    }
-                  }
-                  return label;
-                }}
-                filterOptions={(options, state) => {
-                  const inputValue = state.inputValue.toLowerCase();
-                  return options.filter(option => {
-                    let textToSearch = (option?.name || '').toLowerCase();
-                    if (option?.parentCategory) {
-                      const parent = (categories as Category[]).find(c => c._id === option.parentCategory);
-                      if (parent && parent.name) {
-                        textToSearch += ` in ${parent.name.toLowerCase()}`;
-                      }
-                    }
-                    return textToSearch.includes(inputValue);
-                  });
-                }}
-                value={(levelThreeCategories as Category[]).find(c => (c.categoryId || c._id) === selectedCategoryId) || null}
+                options={level3Categories}
+                disabled={!selectedLevel2Category}
+                getOptionLabel={(option) => option.name || ''}
+                value={level3Categories.find(c => (c.categoryId || c._id) === selectedCategoryId) || null}
                 onChange={(event, newValue) => {
                   const categoryId = newValue ? (newValue.categoryId || newValue._id) : '';
                   setSelectedCategory(categoryId);
@@ -515,24 +550,17 @@ const CategoryAttributeManagement: React.FC = () => {
                     dispatch(setSelectedCategoryId(categoryId));
                   } else {
                     setSelectedCategoryName('');
-                    dispatch(clearCategoryAttributes(selectedCategoryId));
+                    dispatch(clearCategoryAttributes(''));
                   }
                 }}
                 renderInput={(params) => (
-                  <TextField 
-                    {...params} 
-                    label="Select Level 3 Category *" 
-                    required={!selectedCategoryId}
-                  />
+                  <TextField {...params} label="Level 3 Category *" required={!selectedCategoryId} />
                 )}
                 isOptionEqualToValue={(option, value) => option._id === value._id}
               />
-              <FormHelperText>
-                Attributes are specific to Level 3 categories (e.g., T-Shirts, Mobile Phones)
-              </FormHelperText>
             </FormControl>
           </Grid>
-          <Grid size={{ xs: 12, md: 6 }} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' }, alignItems: 'center', gap: 2 }}>
+          <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3 }} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', lg: 'flex-end' }, alignItems: 'center', gap: 1 }}>
             <Tooltip title="Refresh attributes">
               <span>
                 <IconButton
@@ -551,10 +579,11 @@ const CategoryAttributeManagement: React.FC = () => {
               disabled={!selectedCategoryId}
               sx={{ 
                 py: 1, 
-                px: 2, 
-                borderRadius: '12px',
+                px: 1.5, 
+                borderRadius: '8px',
                 textTransform: 'none',
                 fontWeight: 600,
+                whiteSpace: 'nowrap',
                 boxShadow: '0 4px 14px 0 rgba(255, 90, 0, 0.39)',
               }}
             >
@@ -562,6 +591,13 @@ const CategoryAttributeManagement: React.FC = () => {
             </Button>
           </Grid>
         </Grid>
+        {!selectedCategoryId && (
+          <Box sx={{ mt: 2 }}>
+            <FormHelperText>
+              Please select Level 1, Level 2, and finally Level 3 categories to view or add attributes. Attributes are strictly tied to Level 3 categories.
+            </FormHelperText>
+          </Box>
+        )}
       </Paper>
 
       {/* Error Alert */}
@@ -1227,10 +1263,10 @@ const CategoryAttributeManagement: React.FC = () => {
 
       {/* Snackbar */}
       <Snackbar
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert
           onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
