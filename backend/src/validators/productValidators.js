@@ -1,8 +1,8 @@
 // ✅ backend/src/validators/productValidators.js
-import Yup from "yup";
+const Yup = require("yup");
 
 // ✅✅✅ UPDATED: Variant validation for multi-seller support (offers array)
-export const variantSchema = Yup.object({
+const variantSchema = Yup.object({
   // ✅ Shared variant fields
   color: Yup.string()
     .required("Color is required")
@@ -93,7 +93,7 @@ export const variantSchema = Yup.object({
   );
 
 // ✅ CREATE schema - category REQUIRED
-export const createProductSchema = Yup.object({
+const createProductSchema = Yup.object({
   title: Yup.string()
     .required("Title is required")
     .min(3, "Title too short")
@@ -117,7 +117,7 @@ export const createProductSchema = Yup.object({
 });
 
 // ✅✅✅ UPDATE schema - category OPTIONAL (categories locked in edit mode)
-export const updateProductSchema = Yup.object({
+const updateProductSchema = Yup.object({
   // ✅ For independent products: allow partial updates
   title: Yup.string()
     .optional()
@@ -159,7 +159,7 @@ export const updateProductSchema = Yup.object({
   );
 
 // ✅ Catalog offer schema (for listing on existing catalog)
-export const catalogOfferSchema = Yup.object({
+const catalogOfferSchema = Yup.object({
   // ✅ Only variants are required for catalog offers
   variants: Yup.array()
     .of(variantSchema)
@@ -169,3 +169,10 @@ export const catalogOfferSchema = Yup.object({
   // ✅ Optional: isActive flag for the offer
   isActive: Yup.boolean().default(true)
 });
+
+module.exports = {
+  variantSchema,
+  createProductSchema,
+  updateProductSchema,
+  catalogOfferSchema
+};
