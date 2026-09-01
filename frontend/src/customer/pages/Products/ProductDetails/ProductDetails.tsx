@@ -5,7 +5,6 @@ import React, {
   useCallback,
   useRef,
 } from 'react';
-// D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\pages\Products\ProductDetails\ProductDetails.tsx
 import SEO from '../../../../components/SEO';
 import { Box, Snackbar, Alert, Chip, Typography, Grid, Paper, Card, CardContent, Drawer, IconButton } from '@mui/material';
 import CloseIcon from "@mui/icons-material/Close";

@@ -189,8 +189,8 @@ useEffect(() => {
 
                 try {
                     // ✅ Notify backend to verify payment & create actual orders
+                    const API_URL = import.meta.env.VITE_API_URL || "https://api.nearlook.in";
                     const verifyResp = await axios.get(
-                        const API_URL = import.meta.env.VITE_API_URL || "https://api.nearlook.in";
                         `${API_URL}/api/payment/${response.razorpay_payment_id}?paymentLinkId=${paymentOrderId}`,
                         {
                             headers: {
