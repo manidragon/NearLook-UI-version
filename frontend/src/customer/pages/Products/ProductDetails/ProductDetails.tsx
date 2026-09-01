@@ -1387,6 +1387,25 @@ const ProductDetails = () => {
           title={`${product.title} - NearLook`} 
           description={product.description || "Buy this product on NearLook"} 
           image={product.images && product.images.length > 0 ? product.images[0] : undefined}
+          url={`https://nearlook.in/product/${product._id}`}
+          structuredData={{
+            "@context": "https://schema.org/",
+            "@type": "Product",
+            "name": product.title,
+            "image": product.images || [],
+            "description": product.description || "Buy this product on NearLook",
+            "brand": {
+              "@type": "Brand",
+              "name": product.seller?.businessDetails?.businessName || "NearLook"
+            },
+            "offers": {
+              "@type": "Offer",
+              "url": `https://nearlook.in/product/${product._id}`,
+              "priceCurrency": "INR",
+              "price": product.sellingPrice,
+              "availability": "https://schema.org/InStock"
+            }
+          }}
         />
       )}
       <div className="!py-2">
