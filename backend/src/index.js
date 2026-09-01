@@ -158,6 +158,11 @@ app.use("/chat", chatboatRouters);
 // enquiry routes
 app.use("/api/enquiries", enquiryRoutes);
 
+// Healthcheck route
+app.get("/", (req, res) => {
+  return res.status(200).send({ message: "API is running", status: "OK" });
+});
+
 const port = process.env.PORT || 8080;
 
 console.clear();
