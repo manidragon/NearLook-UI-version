@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Box, IconButton, Modal, Snackbar, Typography } from "@mui/material"
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -120,6 +120,8 @@ const DealsTable = () => {
                           <IconButton 
                             onClick={handleOpen(item._id || item.id)} 
                             size="small" 
+                            aria-label="Edit deal"
+                            title="Edit deal"
                             className="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors"
                           >
                             <EditIcon fontSize="small" />
@@ -127,6 +129,8 @@ const DealsTable = () => {
                           <IconButton 
                             onClick={handleDelete(item._id || item.id)} 
                             size="small" 
+                            aria-label="Delete deal"
+                            title="Delete deal"
                             className="bg-red-50 hover:bg-red-100 text-red-600 transition-colors"
                           >
                             <DeleteIcon fontSize="small" />

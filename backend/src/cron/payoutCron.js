@@ -17,13 +17,8 @@ cron.schedule('0 1 * * *', async () => {
         for (const seller of sellers) {
             let shouldGeneratePayout = false;
 
-            if (seller.payoutSchedule === 'DAILY') {
-                shouldGeneratePayout = true;
-            } else if (seller.payoutSchedule === 'WEEKLY' && dayOfWeek === 1) {
-                // Generate weekly payouts on Monday
-                shouldGeneratePayout = true;
-            } else if (seller.payoutSchedule === 'BI_WEEKLY' && (dayOfMonth === 1 || dayOfMonth === 15)) {
-                // Generate bi-weekly on 1st and 15th
+            if (dayOfWeek === 1) {
+                // Generate weekly payouts on Monday for everyone
                 shouldGeneratePayout = true;
             }
 

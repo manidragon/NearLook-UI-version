@@ -77,6 +77,10 @@ const normalizeProductForFormik = (product: ProductFormValues): ProductFormValue
     category2: category3Id,
     category3: category3Id,
 
+    // ✅ Copy approval status and reject reason
+    approvalStatus: product.approvalStatus,
+    rejectReason: product.rejectReason,
+
     // ✅ FILTER: Only include variants where current seller is the owner OR has offers
     variants: (product.variants || [])
       .filter((colorVariant: any) => {
@@ -207,6 +211,8 @@ return {
                     isActive: offer.isActive !== false,
                     _id: typeof offer._id === 'string' ? offer._id : (offer._id as any)?.$oid || (offer._id as any)?._id || '',
                     toBeDeleted: false,
+                    approvalStatus: offer.approvalStatus,
+                    rejectReason: offer.rejectReason,
                   }],
                   isActive: colorVariant?.isActive !== false,
                   isFromCatalog: colorVariant?.isFromCatalog || false,
@@ -371,7 +377,7 @@ const UpdateProductForm: React.FC<{
   const [expandedSubVariant, setExpandedSubVariant] = useState<number | null>(0);
   const [snackbarOpen, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error" | "warning" | "info">("success");
   const [colorSuggestions] = useState(['Black', 'White', 'Blue', 'Red', 'Gold', 'Silver']);
   const [specDefinitions, setSpecDefinitions] = useState<Record<string, string[]>>({});
 
@@ -525,10 +531,8 @@ const formVariants = useMemo(() => {
 
                 if (offersPayload.length === 0) return null;
 
-                // ✅ Build specifications with ALL fields first
+                // ✅ Build specifications with variant fields
                 const allSpecs = {
-                  ...(values.highlights || {}),
-                  ...(colorVariant.highlights || {}),
                   ...(subVar.specifications || {})
                 };
 
@@ -552,10 +556,13 @@ const formVariants = useMemo(() => {
               .filter((v): v is ProductVariantPayload => v !== null)
           ),
           isActive: values.isActive !== false,
+          highlights: values.highlights || {},
         };
 
         if (!payload.variants || payload.variants.length === 0) {
-          alert('⚠️ No valid offers to update. Please ensure you have active offers.');
+          setSnackbarMessage('⚠️ No valid offers to update. Please ensure you have active offers.');
+          setSnackbarSeverity('warning');
+          setOpenSnackbar(true);
           setSubmitting(false);
           return;
         }
@@ -563,11 +570,15 @@ const formVariants = useMemo(() => {
         if (initialValues._id) {
           dispatch(updateProduct({ productId: initialValues._id, product: payload }));
         } else {
-          alert('❌ Product ID is missing');
+          setSnackbarMessage('❌ Product ID is missing');
+          setSnackbarSeverity('error');
+          setOpenSnackbar(true);
         }
       } catch (error) {
         console.error('❌ Submit Error:', error);
-        alert('❌ Failed to submit form. Check console for details.');
+        setSnackbarMessage('❌ Failed to submit form. Check console for details.');
+        setSnackbarSeverity('error');
+        setOpenSnackbar(true);
       }
       setSubmitting(false);
     },
@@ -618,7 +629,12 @@ const formVariants = useMemo(() => {
     const subVariant = newVariants[colorIndex].subVariants[subVariantIndex];
     if (subVariant._id) { newVariants[colorIndex].subVariants[subVariantIndex] = { ...subVariant, toBeDeleted: true } as ProductSubVariantForm; }
     else {
-      if (newVariants[colorIndex].subVariants.length <= 1) { alert('Each color must have at least one storage variant'); return; }
+      if (newVariants[colorIndex].subVariants.length <= 1) { 
+        setSnackbarMessage('Each color must have at least one storage variant');
+        setSnackbarSeverity('warning');
+        setOpenSnackbar(true);
+        return; 
+      }
       newVariants[colorIndex].subVariants.splice(subVariantIndex, 1);
     }
     formik.setFieldValue('variants', newVariants);
@@ -652,13 +668,19 @@ const formVariants = useMemo(() => {
   }, [formik.values.variants, formik]);
 
   const handleColorVariantImageUpload = useCallback((colorIndex: number, files: FileList | null) => {
-    let validFiles = validateImageSize(files);
+    let validFiles = validateImageSize(files, 5, (msg) => {
+      setSnackbarMessage(msg);
+      setSnackbarSeverity('error');
+      setOpenSnackbar(true);
+    });
     if (validFiles.length === 0) return;
     const newVariants = [...formik.values.variants];
     const existingImages = newVariants[colorIndex].images || [];
 
     if (existingImages.length + validFiles.length > 7) {
-      alert('You can only upload a maximum of 7 images per variant. Extra images will be ignored.');
+      setSnackbarMessage('You can only upload a maximum of 7 images per variant. Extra images will be ignored.');
+      setSnackbarSeverity('warning');
+      setOpenSnackbar(true);
       const remainingSlots = 7 - existingImages.length;
       validFiles = validFiles.slice(0, remainingSlots > 0 ? remainingSlots : 0);
     }
@@ -735,7 +757,7 @@ const formVariants = useMemo(() => {
                       {isVariantOwner ? (
                         <Grid container spacing={2} sx={{ mb: 3 }}>
                           <Grid size={{ xs: 12, sm: 6 }}>
-                            <Autocomplete freeSolo options={colorSuggestions} value={formik.values.variants[activeColorTab].color} onChange={(_, val) => handleColorVariantChange(activeColorTab, 'color', val || '')} renderInput={(params) => <TextField {...params} label="Variant Name" error={Boolean(formik.touched.variants?.[activeColorTab]?.color && (formik.errors.variants as any)?.[activeColorTab]?.color)} helperText={formik.touched.variants?.[activeColorTab]?.color && ((formik.errors.variants as any)?.[activeColorTab]?.color as string)} required />} />
+                            <Autocomplete freeSolo options={colorSuggestions} value={formik.values.variants[activeColorTab].color} onChange={(_, val) => handleColorVariantChange(activeColorTab, 'color', val || '')} onInputChange={(_, val) => handleColorVariantChange(activeColorTab, 'color', val || '')} renderInput={(params) => <TextField {...params} label="Variant Name" error={Boolean(formik.touched.variants?.[activeColorTab]?.color && (formik.errors.variants as any)?.[activeColorTab]?.color)} helperText={formik.touched.variants?.[activeColorTab]?.color && ((formik.errors.variants as any)?.[activeColorTab]?.color as string)} required />} />
                           </Grid>
                         </Grid>
                       ) : (
@@ -748,7 +770,10 @@ const formVariants = useMemo(() => {
 
                       {isVariantOwner && (
                         <Grid size={{ xs: 12 }} sx={{ mb: 3 }}>
-                          <Typography variant="subtitle2" gutterBottom>Images for {formik.values.variants[activeColorTab].color || 'this variant'} *</Typography>
+                          <Typography variant="subtitle2" gutterBottom>
+                            Images for {formik.values.variants[activeColorTab].color || 'this variant'} *{' '}
+                            <span style={{ fontWeight: 'normal', color: '#6b7280', fontSize: '0.8rem' }}>(Supported: JPEG, JPG, PNG, WebP. Max: 5MB)</span>
+                          </Typography>
                           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
                             <input type="file" accept="image/*" multiple id={`color-images-${activeColorTab}`} style={{ display: 'none' }} onChange={(e) => handleColorVariantImageUpload(activeColorTab, e.target.files)} />
                             <label htmlFor={`color-images-${activeColorTab}`}><Button component="span" variant="outlined" startIcon={<AddPhotoAlternateIcon />} disabled={uploadingImage}>{uploadingImage ? <CustomLoader size={20} /> : 'Upload Images'}</Button></label>
@@ -785,7 +810,11 @@ const formVariants = useMemo(() => {
                           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
                               <StorageIcon color="primary" />
-                              <Typography variant="subtitle2" fontWeight="bold">{subVariant.specifications?.storage || `Subvariant ${subIndex + 1}`}{subVariant.specifications?.ram && ` • ${subVariant.specifications.ram}`}</Typography>
+                              <Typography variant="subtitle2" fontWeight="bold">
+                                {subVariant.specifications && Object.values(subVariant.specifications).filter(Boolean).length > 0 
+                                  ? Object.values(subVariant.specifications).filter(Boolean).join(' • ') 
+                                  : `Subvariant ${subIndex + 1}`}
+                              </Typography>
                               {subVariant.offers?.length > 0 && <Chip label={`₹${Math.min(...subVariant.offers.filter(o => o.sellingPrice).map(o => Number(o.sellingPrice))) || '0'}`} size="small" color="success" variant="outlined" />}
                               {!subVariant.isActive && <Chip label="Inactive" size="small" color="default" />}
                               {!isVariantOwner && <Chip label="Read-Only" size="small" color="info" variant="outlined" />}
@@ -838,19 +867,7 @@ const formVariants = useMemo(() => {
                                       </Box>
                                     </Grid>
                                   )}
-                                  {otherAttributes?.length > 0 && (
-                                    <Grid size={{ xs: 12 }}>
-                                      <Box sx={{ p: { xs: 1, sm: 2 }, bgcolor: 'grey.50', borderRadius: 2, border: { xs: 'none', sm: '1px dashed' }, borderColor: 'grey.300', mb: 2 }}>
-                                        <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1 }}>⚪ Additional Specifications ({otherAttributes.length})</Typography>
-                                        <Grid container spacing={2}>
-                                          {otherAttributes.map((attr: CategoryAttribute) => {
-                                            const specValue = subVariant.specifications?.[attr.name];
-                                            return <Grid key={attr._id || attr.name} size={{ xs: 12, sm: 6 }}><TextField fullWidth label={`${attr.label}${attr.required ? ' *' : ''}`} value={specValue || ''} onChange={(e) => handleSubVariantSpecChange(activeColorTab, subIndex, attr.name, e.target.value)} type={attr.type === 'number' ? 'number' : 'text'} required={attr.required} /></Grid>;
-                                          })}
-                                        </Grid>
-                                      </Box>
-                                    </Grid>
-                                  )}
+                                  {/* otherAttributes moved to Product Highlights */}
                                 </>
                               ) : !isVariantOwner ? (
                                 <Grid size={{ xs: 12 }}>
@@ -943,6 +960,20 @@ const formVariants = useMemo(() => {
     );
   };
 
+  const rejectedMessages: string[] = [];
+  if (formik.values.approvalStatus === 'REJECTED' && formik.values.rejectReason) {
+    rejectedMessages.push(`Product: ${formik.values.rejectReason}`);
+  }
+  formik.values.variants.forEach(variant => {
+    variant.subVariants?.forEach(sub => {
+      sub.offers?.forEach(offer => {
+        if (offer.approvalStatus === 'REJECTED' && offer.rejectReason) {
+          rejectedMessages.push(`Offer (SKU ${offer.sku || 'Unknown'}): ${offer.rejectReason}`);
+        }
+      });
+    });
+  });
+
   return (
     <Box sx={{ p: 0, bgcolor: 'grey.50', borderRadius: 3, overflowY: 'auto', overflowX: 'hidden' }}>
       {/* 🌟 Premium Header */}
@@ -964,6 +995,19 @@ const formVariants = useMemo(() => {
           Update variant details, prices, and stock. Categories are locked.
         </Typography>
       </Box>
+
+      {/* 🚨 Rejection Alert Banner */}
+      {rejectedMessages.length > 0 && (
+        <Box sx={{ p: { xs: 1, md: 4 }, pb: 0 }}>
+          <Alert severity="error" variant="filled" sx={{ borderRadius: 2 }}>
+            <Typography variant="subtitle1" fontWeight="bold">Action Required: Rejection Corrections</Typography>
+            <Typography variant="body2" sx={{ mb: 1 }}>Please make the following corrections and save to automatically reapply for approval:</Typography>
+            <ul style={{ margin: 0, paddingLeft: '20px' }}>
+              {rejectedMessages.map((msg, i) => <li key={i}><Typography variant="body2">{msg}</Typography></li>)}
+            </ul>
+          </Alert>
+        </Box>
+      )}
 
       {/* 📄 Form Container */}
       <Box sx={{ p: { xs: 1, md: 4 } }}>
@@ -987,16 +1031,20 @@ const formVariants = useMemo(() => {
             </Grid>
 
             {/* ✨ Highlights Section */}
-            {isProductOwner && highlightAttributes.length > 0 && (
+            {isProductOwner && (highlightAttributes.length > 0 || otherAttributes.length > 0) && (
               <Grid size={{ xs: 12 }}>
                 <Paper elevation={0} sx={{ p: { xs: 2, md: 4 }, borderRadius: 3, border: { xs: 'none', sm: '1px solid' }, borderColor: 'grey.200', boxShadow: { xs: 'none', sm: '0 4px 20px rgba(0,0,0,0.03)' }, bgcolor: 'white' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
-                    <Typography variant="h6" fontWeight="700" color="success.main">✨ Product Highlights</Typography>
+                    <Typography variant="h6" fontWeight="700" color="success.main">✨ Product Highlights & Additional Specs</Typography>
                   </Box>
                   <Grid container spacing={3}>
                     {highlightAttributes.map((attr: CategoryAttribute) => {
                       const highlightValue = formik.values.highlights?.[attr.name] || '';
                       return <Grid key={attr._id || attr.name} size={{ xs: 12, sm: 6 }}>{renderAttributeField(attr, highlightValue, (newValue: any) => formik.setFieldValue(`highlights.${attr.name}`, newValue), false)}</Grid>;
+                    })}
+                    {otherAttributes.map((attr: CategoryAttribute) => {
+                      const specValue = formik.values.highlights?.[attr.name] || '';
+                      return <Grid key={attr._id || attr.name} size={{ xs: 12, sm: 6 }}>{renderAttributeField(attr, specValue, (newValue: any) => formik.setFieldValue(`highlights.${attr.name}`, newValue), false)}</Grid>;
                     })}
                   </Grid>
                 </Paper>

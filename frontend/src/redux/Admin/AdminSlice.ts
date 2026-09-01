@@ -69,6 +69,7 @@ interface HomeCategoryState {
   loading: boolean;
   error: string | null;
   categoryUpdated: boolean;
+  categoryDeleted: boolean;
 }
 
 const initialState: HomeCategoryState = {
@@ -76,6 +77,7 @@ const initialState: HomeCategoryState = {
   loading: false,
   error: null,
   categoryUpdated: false,
+  categoryDeleted: false,
 };
 
 const homeCategorySlice = createSlice({
@@ -84,6 +86,7 @@ const homeCategorySlice = createSlice({
   reducers: {
     resetCategoryUpdated: (state) => {
       state.categoryUpdated = false;
+      state.categoryDeleted = false;
     },
   },
   extraReducers: (builder) => {
@@ -128,7 +131,7 @@ const homeCategorySlice = createSlice({
     builder.addCase(deleteHomeCategory.fulfilled, (state, action) => {
       state.loading = false;
       state.categories = state.categories.filter(cat => cat._id !== action.payload);
-      state.categoryUpdated = true;
+      state.categoryDeleted = true;
     });
     builder.addCase(deleteHomeCategory.rejected, (state, action) => {
       state.loading = false;

@@ -1,6 +1,6 @@
 import Alert from "../../../components/CustomAlert";
 import Button from "../../../components/NeonButton";
-import { Snackbar, Dialog, DialogContent, IconButton } from "@mui/material";
+import { Snackbar, Dialog, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState, useEffect } from "react";
 import SellerAccountForm from "./SellerAccountForm";
@@ -12,6 +12,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import Navbar from "../../components/Navbar/Navbar";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 const BecomeSeller = () => {
   const dispatch = useAppDispatch();
   const [modalOpen, setModalOpen] = useState(false);
@@ -68,13 +69,13 @@ const BecomeSeller = () => {
                 onClick={openRegister}
                 variant="contained"
                 sx={{
-                  backgroundColor: '#FF5A00',
+                  backgroundColor: '#C43600',
                   color: 'white',
                   fontWeight: 'bold',
                   py: '14px',
                   px: '32px',
                   fontSize: '1.1rem',
-                  '&:hover': { backgroundColor: '#e65100' }
+                  '&:hover': { backgroundColor: '#9E2A00' }
                 }}
               >
                 Start Selling
@@ -96,11 +97,19 @@ const BecomeSeller = () => {
               </Button>
             </div>
           </div>
-          <div className="w-full md:w-1/2 flex justify-center">
+          <div className="w-full lg:w-1/2 p-10 flex justify-center items-center">
             <img
-              className="w-full max-w-lg object-contain drop-shadow-2xl rounded-2xl"
-              src="/seller.jpg"
-              alt="Seller Marketplace"
+              src="https://res.cloudinary.com/dt6nu9oqs/image/upload/f_auto,q_auto,w_800,c_limit/v1786087952/nearlook_uploads/k5gw83xcj2gktr4uhp8a.jpg"
+              srcSet="
+                https://res.cloudinary.com/dt6nu9oqs/image/upload/f_auto,q_auto,w_400,c_limit/v1786087952/nearlook_uploads/k5gw83xcj2gktr4uhp8a.jpg 400w,
+                https://res.cloudinary.com/dt6nu9oqs/image/upload/f_auto,q_auto,w_800,c_limit/v1786087952/nearlook_uploads/k5gw83xcj2gktr4uhp8a.jpg 800w
+              "
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              width="800"
+              height="557"
+              alt="Become a Seller"
+              className="w-full h-auto max-w-lg object-contain drop-shadow-xl"
+              fetchPriority="high"
             />
           </div>
         </div>
@@ -162,6 +171,7 @@ const BecomeSeller = () => {
       </section>
 
       {/* ─── MODAL POPUP FOR FORMS ─── */}
+      <GoogleOAuthProvider clientId="903968210580-qe4gosdi9acof4hutt3aeamro1bmj9a5.apps.googleusercontent.com">
       <Dialog
         open={modalOpen}
         onClose={handleCloseModal}
@@ -207,6 +217,7 @@ const BecomeSeller = () => {
           </div>
         </div>
       </Dialog>
+      </GoogleOAuthProvider>
 
       {/* Snackbar */}
       <Snackbar

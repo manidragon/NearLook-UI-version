@@ -21,7 +21,6 @@ const BusinessDetailsForm = ({ onClose }: UpdateDetailsFormProps) => {
       businessName: "",
       businessEmail: "",
       businessMobile: "",
-      businessAddress: "",
       GSTIN: "",
       PAN: "",
       businessType: "SOLE_PROPRIETOR",
@@ -30,7 +29,6 @@ const BusinessDetailsForm = ({ onClose }: UpdateDetailsFormProps) => {
       businessName: Yup.string().required("Business Name is required"),
       businessEmail: Yup.string().email("Invalid email").required("Business Email is required"),
       businessMobile: Yup.string().required("Business Mobile is required"),
-      businessAddress: Yup.string().required("Business Address is required"),
       GSTIN: Yup.string().required("GSTIN is required"),
       PAN: Yup.string().nullable(),
       businessType: Yup.string().required("Business Type is required"),
@@ -45,7 +43,6 @@ const BusinessDetailsForm = ({ onClose }: UpdateDetailsFormProps) => {
               businessName: values.businessName,
               businessEmail: values.businessEmail,
               businessMobile: values.businessMobile,
-              businessAddress: values.businessAddress,
             },
             GSTIN: values.GSTIN,
             PAN: values.PAN,
@@ -68,7 +65,6 @@ const BusinessDetailsForm = ({ onClose }: UpdateDetailsFormProps) => {
         businessName: sellers.profile?.businessDetails?.businessName || "",
         businessEmail: sellers.profile?.businessDetails?.businessEmail || "",
         businessMobile: sellers.profile?.businessDetails?.businessMobile || "",
-        businessAddress: sellers.profile?.businessDetails?.businessAddress || "",
         GSTIN: sellers.profile?.GSTIN || "",
         PAN: sellers.profile?.PAN || "",
         businessType: sellers.profile?.businessType || "SOLE_PROPRIETOR",
@@ -112,16 +108,7 @@ const BusinessDetailsForm = ({ onClose }: UpdateDetailsFormProps) => {
           error={formik.touched.businessMobile && Boolean(formik.errors.businessMobile)}
           helperText={formik.touched.businessMobile && formik.errors.businessMobile}
         />
-        <TextField
-          fullWidth
-          id="businessAddress"
-          name="businessAddress"
-          label="Business Address"
-          value={formik.values.businessAddress}
-          onChange={formik.handleChange}
-          error={formik.touched.businessAddress && Boolean(formik.errors.businessAddress)}
-          helperText={formik.touched.businessAddress && formik.errors.businessAddress}
-        />
+
         <TextField
           fullWidth
           id="GSTIN"

@@ -86,7 +86,7 @@ const SearchProducts = () => {
       <div className="sticky top-0 z-50 bg-white border-b border-gray-200">
         <div className="flex items-center px-2 py-1 max-w-[1400px] mx-auto">
           {/* Mobile Back Button (Visible <768px) */}
-          <IconButton className="md:hidden" onClick={() => navigate(-1)} sx={{ color: '#555', display: { md: 'none' } }}>
+          <IconButton aria-label="Back" className="md:hidden" onClick={() => navigate(-1)} sx={{ color: '#555', display: { md: 'none' } }}>
             <ArrowBackIcon />
           </IconButton>
           
@@ -102,6 +102,7 @@ const SearchProducts = () => {
                 onKeyDown={handleKeyPress}
               />
               <button 
+                aria-label="Search"
                 className="custom-search-btn"
                 onClick={handleSearchCommit}
               >
@@ -190,7 +191,7 @@ const SearchProducts = () => {
           {/* Search Results */}
           {products.searchProduct && products.searchProduct.length > 0 && hasSearched && !showSuggestions ? (
             <div className="min-h-[500px]">
-              <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5">
+              <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-5">
                 {products.searchProduct.map((item: Product) => (
                   <div key={item._id} className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-transparent transition-all duration-300 transform hover:-translate-y-1 relative group cursor-pointer overflow-hidden">
                     <ProductCard item={item} />

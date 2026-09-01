@@ -1,15 +1,11 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\admin-seller\pages\AdminSidebar.tsx
 
-// ✅ FIXED: Proper import statements on separate lines
 import * as React from "react";
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
-import AddIcon from '@mui/icons-material/Add';
 import HomeIcon from '@mui/icons-material/Home';
-import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
-import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstructions';
-import { Category, Settings } from "@mui/icons-material";
-import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import CategoryIcon from '@mui/icons-material/Category';
+import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
@@ -46,8 +42,8 @@ const menu = [
     {
         name: "Category Attributes",
         path: "/admin/categories/attributes",
-        icon: <Settings className="text-primary-color" />,
-        activeIcon: <Settings className="text-white" />,
+        icon: <SettingsIcon className="text-primary-color" />,
+        activeIcon: <SettingsIcon className="text-white" />,
     },
     // {
     //     name: "Coupons",
@@ -70,8 +66,8 @@ const menu = [
     {
         name: "Shop By Category",
         path: "/admin/shop-by-category",
-        icon: <Category className="text-primary-color" />,
-        activeIcon: <Category className="text-white" />,
+        icon: <CategoryIcon className="text-primary-color" />,
+        activeIcon: <CategoryIcon className="text-white" />,
     },
     {
         name: "Deals",
@@ -180,7 +176,7 @@ const handleClick = (item: any) => () => {
             <div
                 className="flex flex-col justify-between h-full w-[300px] border-r py-5"
             >
-                <div>
+                <div className="overflow-y-auto flex-1">
                     <div className="radio-container radio-container-seller relative" style={{ "--total-radio": menu.length } as React.CSSProperties}>
                         <div className="glider-container" style={{ width: '3px' }}>
                             {menu.findIndex(item => item.path === location.pathname) !== -1 && (
@@ -196,8 +192,8 @@ const handleClick = (item: any) => () => {
                                 <div key={item.name}
                                     onClick={handleClick(item)}
                                     className="pr-9 cursor-pointer relative z-10">
-                                    <div className={`${isActive ? "bg-orange-50 border-l-4 border-[#FF5A00] text-[#FF5A00] font-semibold" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"} flex items-center px-5 py-3 transition-all duration-300`}>
-                                        <ListItemIcon sx={{ color: isActive ? '#FF5A00' : 'inherit' }}>
+                                    <div className={`${isActive ? "bg-orange-50 border-l-4 border-[#FF5A00] text-[#b33f00] font-semibold" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"} flex items-center px-5 py-3 transition-all duration-300`}>
+                                        <ListItemIcon sx={{ color: isActive ? '#b33f00' : 'inherit' }}>
                                             {isActive ? item.activeIcon : item.icon}
                                         </ListItemIcon>
                                         <ListItemText primary={item.name} />
@@ -222,8 +218,8 @@ const handleClick = (item: any) => () => {
                             const isActive = item.path === location.pathname;
                             return (
                                 <div onClick={handleClick(item)} className="pr-9 cursor-pointer relative z-10" key={item.name}>
-                                    <div className={`${isActive ? "bg-orange-50 border-l-4 border-[#FF5A00] text-[#FF5A00] font-semibold" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"} flex items-center px-5 py-3 transition-all duration-300`}>
-                                        <ListItemIcon sx={{ color: isActive ? '#FF5A00' : 'inherit' }}>
+                                    <div className={`${isActive ? "bg-orange-50 border-l-4 border-[#FF5A00] text-[#b33f00] font-semibold" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"} flex items-center px-5 py-3 transition-all duration-300`}>
+                                        <ListItemIcon sx={{ color: isActive ? '#b33f00' : 'inherit' }}>
                                             {isActive ? item.activeIcon : item.icon}
                                         </ListItemIcon>
                                         <ListItemText primary={item.name} />

@@ -1,0 +1,10 @@
+# NearLook E-Commerce App
+
+This is a modern multivendor e-commerce application.
+
+## Resources
+- [Main Website](/)
+- [Seller Dashboard](/seller)
+- [Admin Dashboard](/admin)
+
+This file helps AI agents understand the structure of the website.

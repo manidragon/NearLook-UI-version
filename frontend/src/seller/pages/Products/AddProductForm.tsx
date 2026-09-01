@@ -43,7 +43,7 @@ const AddProductForm: React.FC<{
   const fetchedCategoryRef = useRef<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error" | "warning" | "info">("success");
   const isUserSubmittedRef = useRef(false);
 
   const categoryState = useAppSelector((state: any) => state.category);
@@ -371,7 +371,7 @@ const AddProductForm: React.FC<{
     },
   });
 
-  const catalogSearch = useCatalogSearch(formik);
+  const catalogSearch = useCatalogSearch(formik, (msg) => { setSnackbarMessage(msg); setSnackbarSeverity('error'); setOpenSnackbar(true); });
 
   // ✅ FIX: validationSchema AFTER catalogSearch declaration
   const validationSchema = useMemo(() => {
@@ -518,7 +518,9 @@ const AddProductForm: React.FC<{
               });
             } else {
               console.error('❌ Fetch failed:', fetchCategoryAttributes.rejected.match(result) ? result.error : 'Unknown');
-              alert('Failed to load product attributes. Please try again.');
+              setSnackbarMessage('Failed to load product attributes. Please try again.');
+              setSnackbarSeverity('error');
+              setOpenSnackbar(true);
             }
           } else {
             // ✅ No slug found - just move to next step
@@ -728,7 +730,9 @@ const AddProductForm: React.FC<{
       newVariants[colorIndex].subVariants[subVariantIndex] = { ...subVariant, toBeDeleted: true };
     } else {
       if (newVariants[colorIndex].subVariants.length <= 1) {
-        alert('Each color must have at least one storage variant');
+        setSnackbarMessage('Each color must have at least one storage variant');
+        setSnackbarSeverity('warning');
+        setOpenSnackbar(true);
         return;
       }
       newVariants[colorIndex].subVariants.splice(subVariantIndex, 1);
@@ -861,7 +865,11 @@ const AddProductForm: React.FC<{
 
   const handleColorVariantImageUpload = useCallback(
     (colorIndex: number, files: FileList | null) => {
-      let validFiles = validateImageSize(files);
+      let validFiles = validateImageSize(files, 5, (msg) => {
+        setSnackbarMessage(msg);
+        setSnackbarSeverity('error');
+        setOpenSnackbar(true);
+      });
       if (validFiles.length === 0) return;
 
       formik.setFieldValue('variants', (prevVariants: ProductVariantForm[]) => {
@@ -869,7 +877,9 @@ const AddProductForm: React.FC<{
         const existingImages = newVariants[colorIndex]?.images || [];
         
         if (existingImages.length + validFiles.length > 7) {
-          alert('You can only upload a maximum of 7 images per variant. Extra images will be ignored.');
+          setSnackbarMessage('You can only upload a maximum of 7 images per variant. Extra images will be ignored.');
+          setSnackbarSeverity('warning');
+          setOpenSnackbar(true);
           const remainingSlots = 7 - existingImages.length;
           validFiles = validFiles.slice(0, remainingSlots > 0 ? remainingSlots : 0);
         }
@@ -1328,18 +1338,16 @@ const AddProductForm: React.FC<{
           )}
         </Grid>
       </form>
-      <Snackbar
-        open={snackbarOpen}
+      <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen}
         autoHideDuration={6000}
         onClose={() => setOpenSnackbar(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert
           severity={snackbarSeverity}  // ✅ Use local state
           onClose={() => setOpenSnackbar(false)}
           sx={{ width: '100%' }}
         >
-          {snackbarMessage}  // ✅ Use local state directly
+          {snackbarMessage}
         </Alert>
       </Snackbar>
 

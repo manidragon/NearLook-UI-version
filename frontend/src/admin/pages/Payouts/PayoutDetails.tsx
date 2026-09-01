@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { DialogTitle, DialogContent, DialogActions, Button, Typography, Divider, TextField, Box, Table, TableBody, TableCell, TableHead, TableRow, Card, IconButton, Chip } from '@mui/material';
+import { DialogTitle, DialogContent, DialogActions, Button, Typography, Divider, TextField, Box, Table, TableBody, TableCell, TableHead, TableRow, Card, IconButton, Chip, Snackbar, Alert } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import PersonIcon from '@mui/icons-material/Person';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { fetchPayoutDetails, completePayout, clearSelectedPayout } from "../../../redux/Admin/AdminPayoutSlice";
 import CustomLoader from "../../../components/CustomLoader";
@@ -19,6 +20,9 @@ const PayoutDetails = ({ payoutId, onClose }: Props) => {
     const { selectedPayout, loading } = useAppSelector((state) => state.adminPayouts);
     const [transferId, setTransferId] = useState("");
     const [submitting, setSubmitting] = useState(false);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMsg, setSnackbarMsg] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('info');
 
     useEffect(() => {
         dispatch(fetchPayoutDetails(payoutId));
@@ -29,7 +33,9 @@ const PayoutDetails = ({ payoutId, onClose }: Props) => {
 
     const handleComplete = async () => {
         if (!transferId) {
-            alert("Please enter a Razorpay Transfer Reference ID.");
+            setSnackbarMsg("Please enter a Razorpay Transfer Reference ID.");
+            setSnackbarSeverity('warning');
+            setSnackbarOpen(true);
             return;
         }
         setSubmitting(true);
@@ -37,7 +43,9 @@ const PayoutDetails = ({ payoutId, onClose }: Props) => {
             await dispatch(completePayout({ id: payoutId, razorpayTransferId: transferId })).unwrap();
             onClose();
         } catch (error) {
-            alert("Failed to complete payout");
+            setSnackbarMsg("Failed to complete payout");
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
         } finally {
             setSubmitting(false);
         }
@@ -193,6 +201,11 @@ const PayoutDetails = ({ payoutId, onClose }: Props) => {
                     </Button>
                 )}
             </DialogActions>
+            <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)}>
+                <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMsg}
+                </Alert>
+            </Snackbar>
         </div>
     );
 };

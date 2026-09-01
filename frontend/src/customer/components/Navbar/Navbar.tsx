@@ -1,6 +1,6 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\components\Navbar\Navbar.tsx
-import { Avatar, Badge, Box, Button, Drawer, IconButton, useMediaQuery, useTheme, Dialog, DialogTitle, DialogContent, MenuItem, Divider, TextField, Typography, Tooltip, Autocomplete } from '@mui/material';
-import React, { useEffect, useState } from "react";
+import { Avatar, Badge, Box, Button, Drawer, IconButton, useMediaQuery, useTheme, Dialog, DialogTitle, DialogContent, Divider, TextField, Typography, Autocomplete } from '@mui/material';
+import React, { useEffect, useState, Suspense } from "react";
 import "./Navbar.css";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import StorefrontIcon from "@mui/icons-material/Storefront";
@@ -15,31 +15,31 @@ import { useNavigate, useLocation } from "react-router-dom";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import CloseIcon from "@mui/icons-material/Close";
 import GpsFixedIcon from "@mui/icons-material/GpsFixed";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
-import { FavoriteBorder } from "@mui/icons-material";
 import { selectCartItemCount } from "../../../redux/Customer/CartSlice";
 import { fetchCategories } from "../../../redux/Admin/CategorySlice";
 // ✅ FIX 1: Comment out setLocationFilter import temporarily (we'll add it next)
 import { setLocationFilter } from "../../../redux/Customer/ProductSlice";
-import Auth from "../../pages/Auth/Auth";
+const Auth = React.lazy(() => import("../../pages/Auth/Auth"));
 
 // ✅ Icon imports for categories
 import CheckroomOutlinedIcon from '@mui/icons-material/CheckroomOutlined';
 import SmartphoneOutlinedIcon from '@mui/icons-material/SmartphoneOutlined';
 import LaptopMacOutlinedIcon from '@mui/icons-material/LaptopMacOutlined';
 import ChairOutlinedIcon from '@mui/icons-material/ChairOutlined';
-import FormatPaintOutlinedIcon from '@mui/icons-material/FormatPaintOutlined';
 import BoltOutlinedIcon from '@mui/icons-material/BoltOutlined';
 import LocalGroceryStoreOutlinedIcon from '@mui/icons-material/LocalGroceryStoreOutlined';
 import DirectionsCarOutlinedIcon from '@mui/icons-material/DirectionsCarOutlined';
 import FoundationOutlinedIcon from '@mui/icons-material/FoundationOutlined';
 import FaceRetouchingNaturalOutlinedIcon from '@mui/icons-material/FaceRetouchingNaturalOutlined';
 import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined';
+import KitchenOutlinedIcon from '@mui/icons-material/KitchenOutlined';
+import HandymanOutlinedIcon from '@mui/icons-material/HandymanOutlined';
+import FitnessCenterOutlinedIcon from '@mui/icons-material/FitnessCenterOutlined';
+import ToysOutlinedIcon from '@mui/icons-material/ToysOutlined';
+import PetsOutlinedIcon from '@mui/icons-material/PetsOutlined';
 
-// Swiper imports
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay } from 'swiper/modules';
-import 'swiper/css';
 import CustomLoader from "../../../components/CustomLoader";
 
 const renderCategoryIcon = (name: string = '') => {
@@ -48,13 +48,17 @@ const renderCategoryIcon = (name: string = '') => {
   if (n.includes('fashion') || n.includes('cloth')) IconCmp = CheckroomOutlinedIcon;
   else if (n.includes('mobile') || n.includes('phone')) IconCmp = SmartphoneOutlinedIcon;
   else if (n.includes('electronic') || n.includes('laptop')) IconCmp = LaptopMacOutlinedIcon;
-  else if (n.includes('furniture') || n.includes('home')) IconCmp = ChairOutlinedIcon;
-  else if (n.includes('hardware') || n.includes('paint')) IconCmp = FormatPaintOutlinedIcon;
+  else if (n.includes('appliance')) IconCmp = KitchenOutlinedIcon;
+  else if (n.includes('improvement') || n.includes('hardware') || n.includes('paint')) IconCmp = HandymanOutlinedIcon;
+  else if (n.includes('furniture')) IconCmp = ChairOutlinedIcon;
   else if (n.includes('electrical') || n.includes('pipe')) IconCmp = BoltOutlinedIcon;
   else if (n.includes('grocer') || n.includes('food')) IconCmp = LocalGroceryStoreOutlinedIcon;
-  else if (n.includes('auto') || n.includes('car') || n.includes('vehicle')) IconCmp = DirectionsCarOutlinedIcon;
+  else if (n.includes('automotive') || n.includes('auto ') || n.includes('vehicle')) IconCmp = DirectionsCarOutlinedIcon;
   else if (n.includes('construction') || n.includes('material')) IconCmp = FoundationOutlinedIcon;
   else if (n.includes('beauty') || n.includes('personal')) IconCmp = FaceRetouchingNaturalOutlinedIcon;
+  else if (n.includes('sport') || n.includes('fitness') || n.includes('outdoor')) IconCmp = FitnessCenterOutlinedIcon;
+  else if (n.includes('toy') || n.includes('baby') || n.includes('stationery')) IconCmp = ToysOutlinedIcon;
+  else if (n.includes('pet')) IconCmp = PetsOutlinedIcon;
 
   return (
     <div className="relative flex items-center justify-center">
@@ -477,7 +481,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
           
           <div className="flex items-center gap-1 sm:gap-2 lg:gap-6 shrink-0">
             {!isLarge && (
-              <IconButton onClick={toggleDrawer(true)} sx={{ p: 0, mr: 0.5 }}>
+              <IconButton aria-label="Open menu" onClick={toggleDrawer(true)} sx={{ p: 0, mr: 0.5 }}>
                 <MenuIcon className="text-gray-700" />
               </IconButton>
             )}
@@ -487,7 +491,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
               onClick={() => navigate("/")}
               className="cursor-pointer flex items-center overflow-hidden h-10 w-24 sm:h-12 sm:w-32 shrink-0"
             >
-              <img src="/logo.png" alt="Near Look Logo" className="w-full h-full object-cover scale-[1.35] origin-center" />
+              <img src="https://res.cloudinary.com/dt6nu9oqs/image/upload/f_auto,q_auto,w_400,c_limit/v1786088256/nearlook_uploads/walx5a8b8xft0xsc0bhc.png" alt="Near Look Logo" className="w-full h-full object-cover scale-[1.35] origin-center" />
             </div>
 
             {/* Travel / Become Seller Button */}
@@ -515,6 +519,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
               {renderLocationSelector()}
             </div>
             <IconButton 
+              aria-label="Wishlist"
               onClick={() => {
                 if (user.user) {
                   navigate("/wishlist");
@@ -563,7 +568,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
               <span className="absolute top-[5px] inset-x-0 h-full rounded-full bg-[linear-gradient(45deg,var(--gradient-from),var(--gradient-to))] blur-[10px] opacity-0 -z-10 transition-all duration-500 group-hover:opacity-50"></span>
               <span className="relative z-10 transition-all duration-500 group-hover:scale-0 delay-0 flex items-center justify-center">
                 {user.user ? (
-                  <Avatar sx={{ width: 28, height: 28 }} src={secureUrl(user.user?.profilePicture || "")} />
+                  <Avatar sx={{ width: 28, height: 28 }} src={secureUrl(user.user?.profilePicture || "", 100)} alt={user.user?.fullName || "User Profile"} />
                 ) : (
                   <AccountCircleIcon sx={{ fontSize: 26, color: "#6b7280" }} />
                 )}
@@ -588,7 +593,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
               <span className="absolute inset-0 rounded-full bg-[linear-gradient(45deg,var(--gradient-from),var(--gradient-to))] opacity-0 transition-all duration-500 group-hover:opacity-100"></span>
               <span className="absolute top-[5px] inset-x-0 h-full rounded-full bg-[linear-gradient(45deg,var(--gradient-from),var(--gradient-to))] blur-[10px] opacity-0 -z-10 transition-all duration-500 group-hover:opacity-50"></span>
               <span className="relative z-10 transition-all duration-500 group-hover:scale-0 delay-0 flex items-center justify-center">
-                <FavoriteBorder sx={{ fontSize: 26, color: "#6b7280" }} />
+                <FavoriteBorderIcon sx={{ fontSize: 26, color: "#6b7280" }} />
               </span>
               <span className="absolute text-white uppercase tracking-wide text-xs font-semibold transition-all duration-500 scale-0 group-hover:scale-100 delay-150">
                 Wishlist
@@ -668,7 +673,13 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
     )}
 
     {/* Render Auth modal globally */}
-    <Auth open={isAuthModalOpen} handleClose={() => setIsAuthModalOpen(false)} />
+    <React.Suspense fallback={null}>
+      {isAuthModalOpen && (
+        <Suspense fallback={null}>
+          <Auth open={isAuthModalOpen} handleClose={() => setIsAuthModalOpen(false)} />
+        </Suspense>
+      )}
+    </React.Suspense>
 
     {/* Mobile Bottom Navigation - Glassmorphic, Animated */}
     {!isAuthModalOpen && !hideMobileNav && !(isChatActive && !isLarge) && (
@@ -705,7 +716,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
             <div className={`absolute inset-0 bg-gradient-to-b from-white/80 to-[#FF5A00]/10 rounded-full transition-all duration-500 ease-out ${location.pathname.includes('/account') ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`} />
             <div className={`transition-all duration-400 ease-out ${location.pathname.includes('/account') ? '-translate-y-2.5 scale-110 drop-shadow-md' : 'translate-y-0'}`}>
               {user.user ? (
-                <Avatar sx={{ width: 24, height: 24, border: location.pathname.includes('/account') ? '2px solid #FF5A00' : '2px solid transparent', transition: 'border 0.4s' }} src={secureUrl(user.user?.profilePicture || "")} />
+                <Avatar sx={{ width: 24, height: 24, border: location.pathname.includes('/account') ? '2px solid #FF5A00' : '2px solid transparent', transition: 'border 0.4s' }} src={secureUrl(user.user?.profilePicture || "", 100)} alt={user.user?.fullName || "User Profile"} />
               ) : (
                 <AccountCircleIcon sx={{ color: location.pathname.includes('/account') ? '#FF5A00' : '#6b7280', fontSize: 24, transition: 'color 0.4s' }} />
               )}

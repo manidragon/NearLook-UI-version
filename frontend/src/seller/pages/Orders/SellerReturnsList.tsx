@@ -21,13 +21,13 @@ import CustomLoader from "../../../components/CustomLoader";
 // ✅ Status Config
 const getStatusConfig = (status: ReturnStatus) => {
   switch (status) {
-    case 'PENDING': return { color: '#FFA500', label: 'Pending', icon: <Replay fontSize="small" /> };
-    case 'APPROVED': return { color: '#1E90FF', label: 'Approved', icon: <Check fontSize="small" /> };
-    case 'REJECTED': return { color: '#FF0000', label: 'Rejected', icon: <Cancel fontSize="small" /> };
-    case 'PICKED_UP': return { color: '#9C27B0', label: 'Picked Up', icon: <LocalShipping fontSize="small" /> };
-    case 'COMPLETED': return { color: '#32CD32', label: 'Refunded', icon: <CheckCircle fontSize="small" /> };
-    case 'CANCELLED': return { color: '#999', label: 'Cancelled', icon: <Cancel fontSize="small" /> };
-    default: return { color: '#999', label: status, icon: undefined };
+    case 'PENDING': return { color: '#c24100', label: 'Pending', icon: <Replay fontSize="small" /> };
+    case 'APPROVED': return { color: '#1565C0', label: 'Approved', icon: <Check fontSize="small" /> };
+    case 'REJECTED': return { color: '#d32f2f', label: 'Rejected', icon: <Cancel fontSize="small" /> };
+    case 'PICKED_UP': return { color: '#7B1FA2', label: 'Picked Up', icon: <LocalShipping fontSize="small" /> };
+    case 'COMPLETED': return { color: '#2E7D32', label: 'Refunded', icon: <CheckCircle fontSize="small" /> };
+    case 'CANCELLED': return { color: '#616161', label: 'Cancelled', icon: <Cancel fontSize="small" /> };
+    default: return { color: '#616161', label: status, icon: undefined };
   }
 };
 
@@ -97,7 +97,17 @@ const ReturnRow: React.FC<{
         <TableCell sx={{ minWidth: 90 }}><Typography color="success.main" fontWeight="medium">₹{returnReq.refundAmount}</Typography></TableCell>
         <TableCell sx={{ minWidth: 100 }}><Typography variant="caption" color="text.secondary">{dayjs(returnReq.createdAt).format('MMM DD, YYYY')}</Typography></TableCell>
         <TableCell sx={{ minWidth: 110 }}>
-          <Chip icon={statusConf.icon} label={statusConf.label} size="small" sx={{ backgroundColor: `${statusConf.color}20`, color: statusConf.color, fontWeight: 'bold' }} />
+          <Chip 
+            icon={statusConf.icon} 
+            label={statusConf.label} 
+            size="small" 
+            variant="outlined"
+            sx={{ 
+              borderColor: statusConf.color,
+              color: statusConf.color, 
+              fontWeight: 'bold' 
+            }} 
+          />
         </TableCell>
         <TableCell align="right" sx={{ minWidth: 160 }}>{renderActions()}</TableCell>
       </TableRow>

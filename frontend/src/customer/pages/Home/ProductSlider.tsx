@@ -1,7 +1,4 @@
-import React from "react";
 import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 import ProductCard from "../Products/ProductCard/ProductCard";
 import { type Product } from "../../../types/productTypes";
 
@@ -56,6 +53,14 @@ export default function ProductSlider({ products }: ProductSliderProps) {
           infinite: products.length > 2,
         },
       },
+      {
+        breakpoint: 350,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          infinite: products.length > 1,
+        },
+      },
     ],
   };
 
@@ -65,7 +70,7 @@ export default function ProductSlider({ products }: ProductSliderProps) {
         <Slider {...settings}>
           {products.map((item, index) => (
             <div key={index} className="flex flex-col items-center justify-center p-2">
-              <ProductCard item={item} />
+              <ProductCard item={item} isEager={index < 2} />
             </div>
           ))}
         </Slider>

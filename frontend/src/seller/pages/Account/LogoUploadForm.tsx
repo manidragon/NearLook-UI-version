@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import Alert from "../../../components/CustomAlert";
 import Button from "../../../components/NeonButton";
 import CustomLoader from "../../../components/CustomLoader";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Snackbar, Alert, Portal } from "@mui/material";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { updateSeller } from "../../../redux/Seller/sellerSlice";
@@ -28,7 +27,7 @@ const LogoUploadForm = ({ onClose }: LogoUploadFormProps) => {
   }, [sellers.profile]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const validFiles = validateImageSize(event.target.files);
+    const validFiles = validateImageSize(event.target.files, 3, (msg) => setError(msg));
     const file = validFiles[0];
     if (file) {
       // Validate file type and extension
@@ -128,7 +127,9 @@ const LogoUploadForm = ({ onClose }: LogoUploadFormProps) => {
               style={{ 
                 maxWidth: '100%', 
                 maxHeight: 200,
-                objectFit: 'contain'
+                objectFit: 'contain',
+                display: 'block',
+                margin: '0 auto'
               }} 
             />
             <Typography variant="caption" sx={{ mt: 1, display: 'block' }}>
@@ -177,12 +178,7 @@ const LogoUploadForm = ({ onClose }: LogoUploadFormProps) => {
           </Box>
         )}
 
-        {/* Error Message */}
-        {error && (
-          <Alert severity="error" sx={{ width: '100%', maxWidth: 300 }}>
-            {error}
-          </Alert>
-        )}
+        {/* Error Message removed from inline layout */}
 
         {/* Action Buttons */}
         <Box sx={{ display: 'flex', gap: 2, width: '100%', maxWidth: 300, mt: 2 }}>
@@ -193,7 +189,7 @@ const LogoUploadForm = ({ onClose }: LogoUploadFormProps) => {
             onClick={handleUpload}
             disabled={!selectedFile || uploading}
           >
-            {uploading ? <CustomLoader size={24} /> : 'Upload to Cloudinary'}
+            {uploading ? <CustomLoader size={24} /> : 'Upload Logo'}
           </Button>
           
           {previewUrl && (
@@ -215,10 +211,17 @@ const LogoUploadForm = ({ onClose }: LogoUploadFormProps) => {
             • Recommended size: 200x200px<br />
             • Max file size: 3MB<br />
             • Supported formats: JPEG, JPG, PNG, WebP<br />
-            • Stored on Cloudinary
+            • Stored securely
           </Typography>
         </Box>
       </Box>
+      <Portal>
+        <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
+          <Alert onClose={() => setError(null)} severity="error" sx={{ width: '100%' }}>
+            {error}
+          </Alert>
+        </Snackbar>
+      </Portal>
     </Box>
   );
 };

@@ -1,6 +1,6 @@
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { TextField, Button, Box, Rating, InputLabel, Typography, IconButton } from '@mui/material';
+import { TextField, Button, Box, Rating, InputLabel, Typography, IconButton, Snackbar, Alert } from '@mui/material';
 import CloseIcon from "@mui/icons-material/Close";
 import { uploadToCloudinary } from '../../../util/uploadToCloudnary';
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
@@ -18,6 +18,8 @@ interface CreateReviewRequest {
 
 const ReviewForm: React.FC = () => {
     const [uploadImage, setUploadingImage] = useState(false);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMsg, setSnackbarMsg] = useState('');
     const dispatch = useAppDispatch()
     const { productId } = useParams();
     const navigate = useNavigate();
@@ -70,11 +72,13 @@ const ReviewForm: React.FC = () => {
                     ]
                 );
             } else {
-                alert(result.error || "Image upload failed");
+                setSnackbarMsg(result.error || "Image upload failed");
+                setSnackbarOpen(true);
             }
         } catch (error) {
             console.error(error);
-            alert("Image upload failed");
+            setSnackbarMsg("Image upload failed");
+            setSnackbarOpen(true);
         } finally {
             setUploadingImage(false);
         }
@@ -185,8 +189,13 @@ const ReviewForm: React.FC = () => {
             <Button color="primary" variant="contained" type="submit">
                 Submit Review
             </Button>
+            <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)}>
+                <Alert onClose={() => setSnackbarOpen(false)} severity="error" sx={{ width: '100%' }}>
+                    {snackbarMsg}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };
 
-export default ReviewForm;
+export default ReviewForm;

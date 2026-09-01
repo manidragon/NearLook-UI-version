@@ -82,7 +82,7 @@ export interface Seller {
     fulfillmentMode?: 'SELF_SHIP' | 'PLATFORM_FULFILLED' | 'DROPSHIP';
     handlingTime?: number;
     storefront?: Storefront;
-    payoutSchedule?: 'DAILY' | 'WEEKLY' | 'BI_WEEKLY';
+
     performanceMetrics?: PerformanceMetrics;
     averageRating?: number;
     totalReviews?: number;

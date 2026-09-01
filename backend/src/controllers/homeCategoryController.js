@@ -26,6 +26,18 @@ class HomeCategoryController {
         }
     }
 
+    // Get Home Page Data
+    async getHomePageData(req, res) {
+        try {
+            const categories = await HomeCategoryService.getAllHomeCategories();
+            const home = await HomeService.createHomePageData(categories);
+            return res.status(200).json(home);
+        } catch (error) {
+            return res.status(500).json({ message: error.message });
+        }
+    }
+
+
     // ✅ NEW: Create single home category
     async createHomeCategory(req, res) {
         try {

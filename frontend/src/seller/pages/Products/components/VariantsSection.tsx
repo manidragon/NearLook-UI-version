@@ -111,6 +111,59 @@ interface VariantsSectionProps {
 
 }
 
+// Define FastAutocomplete above renderAttributeField
+const FastAutocomplete = ({ options, value, disabled, onChange, label, required, placeholder }: any) => {
+  const [localValue, setLocalValue] = React.useState(value || '');
+  const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  React.useEffect(() => {
+    setLocalValue(value || '');
+  }, [value]);
+
+  const triggerChange = (val: string) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      onChange(val);
+    }, 350);
+  };
+
+  return (
+    <Autocomplete
+      freeSolo
+      options={options}
+      value={localValue}
+      disabled={disabled}
+      onChange={(_event, newValue) => {
+        const val = newValue || '';
+        setLocalValue(val);
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        onChange(val); // Selection from dropdown should be immediate
+      }}
+      onInputChange={(_event, newInputValue, reason) => {
+        if (reason === 'input' || reason === 'clear') {
+          setLocalValue(newInputValue);
+          triggerChange(newInputValue);
+        }
+      }}
+      onBlur={() => {
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          onChange(localValue);
+        }
+      }}
+      renderInput={(params) => (
+        <TextField 
+          {...params} 
+          label={label}
+          placeholder={placeholder} 
+          required={required}
+          InputLabelProps={{ required: false }}
+        />
+      )}
+    />
+  );
+};
+
 // ✅ FIX: Move renderAttributeField OUTSIDE component to prevent re-creation on every render
 const renderAttributeField = (
   attr: CategoryAttribute,
@@ -126,33 +179,19 @@ const renderAttributeField = (
       const options: string[] = attr.options || [];
 
       return (
-        <Autocomplete
-          freeSolo
+        <FastAutocomplete
           options={options}
           value={rawValue}
           disabled={disabled}
-          onChange={(_event, newValue) => {
-            onChange(newValue || '');
-          }}
-          onInputChange={(_event, newInputValue, reason) => {
-            if (reason === 'input') {
-              onChange(newInputValue);
-            }
-          }}
-          renderInput={(params) => (
-            <TextField 
-              {...params} 
-              label={
-                <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  {label}
-                  {disabled && <Lock fontSize="small" sx={{ color: 'text.disabled' }} />}
-                </Box>
-              }
-              placeholder={`Select or type ${attr.label}`} 
-              required={attr.required}
-              InputLabelProps={{ required: false }}
-            />
-          )}
+          onChange={onChange}
+          label={
+            <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              {label}
+              {disabled && <Lock fontSize="small" sx={{ color: 'text.disabled' }} />}
+            </Box>
+          }
+          placeholder={`Select or type ${attr.label}`}
+          required={attr.required}
         />
       );
     }
@@ -416,7 +455,9 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <StyleIcon fontSize="small" sx={{ color: activeColorTab === colorIndex ? 'white' : 'inherit' }} />
                     <Typography variant="body2" fontWeight="inherit">
-                      {colorVariant.color || `Variant ${colorIndex + 1}`}
+                      {colorVariantAttributes.length > 0
+                        ? (colorHighlights[colorIndex]?.[colorVariantAttributes[0].name] || colorVariant.color || `Variant ${colorIndex + 1}`)
+                        : (colorVariant.color || `Variant ${colorIndex + 1}`)}
                     </Typography>
                     {isCatalogProduct && !colorVariant.isFromCatalog && (
                       <Chip label="NEW" size="small" sx={{ height: 20, fontSize: '0.65rem', bgcolor: 'rgba(255,255,255,0.2)', color: 'inherit' }} />
@@ -435,56 +476,58 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
 
           {variants[activeColorTab] && (
             <Paper sx={{ p: 3 }}>
-              {/* Color Field */}
-              <Grid container spacing={2} sx={{ mb: 3 }}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    fullWidth
-                    InputLabelProps={{ required: false }}
-                    label={
-                      <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        Variant Name *
-                        {isCatalogProduct && !isOwner && isColorFromCatalog && (
-                          <Tooltip title="Inherited from catalog - contact owner to change">
-                            <Lock fontSize="small" sx={{ color: 'text.disabled' }} />
-                          </Tooltip>
-                        )}
-                      </Box>
-                    }
-                    value={variants[activeColorTab]?.color || ''}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      onColorChange(activeColorTab, e.target.value);
-                    }}
-                    onBlur={() => {
-                      formik.setFieldTouched(`variants.${activeColorTab}.color`, true);
-                    }}
-                    required
-                    disabled={isCatalogProduct && !isOwner && isColorFromCatalog}
-                    error={
-                      !!(
+              {/* Variant Group Field (Only show if NO color-level attributes exist) */}
+              {colorVariantAttributes.length === 0 && (
+                <Grid container spacing={2} sx={{ mb: 3 }}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                      fullWidth
+                      InputLabelProps={{ required: false }}
+                      label={
+                        <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          Variant Group Name (e.g., Pack of 1, 500g) *
+                          {isCatalogProduct && !isOwner && isColorFromCatalog && (
+                            <Tooltip title="Inherited from catalog - contact owner to change">
+                              <Lock fontSize="small" sx={{ color: 'text.disabled' }} />
+                            </Tooltip>
+                          )}
+                        </Box>
+                      }
+                      value={variants[activeColorTab]?.color || ''}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        onColorChange(activeColorTab, e.target.value);
+                      }}
+                      onBlur={() => {
+                        formik.setFieldTouched(`variants.${activeColorTab}.color`, true);
+                      }}
+                      required
+                      disabled={isCatalogProduct && !isOwner && isColorFromCatalog}
+                      error={
+                        !!(
+                          (formik.touched.variants as ProductVariantForm[] | undefined)?.[activeColorTab]?.color &&
+                          (formik.errors.variants as Partial<Record<keyof ProductVariantForm, string>>[] | undefined)?.[activeColorTab]?.color
+                        )
+                      }
+                      helperText={
                         (formik.touched.variants as ProductVariantForm[] | undefined)?.[activeColorTab]?.color &&
-                        (formik.errors.variants as Partial<Record<keyof ProductVariantForm, string>>[] | undefined)?.[activeColorTab]?.color
-                      )
-                    }
-                    helperText={
-                      (formik.touched.variants as ProductVariantForm[] | undefined)?.[activeColorTab]?.color &&
-                        (formik.errors.variants as Partial<Record<keyof ProductVariantForm, string>>[] | undefined)?.[activeColorTab]?.color
-                        ? (formik.errors.variants as Partial<Record<keyof ProductVariantForm, string>>[] | undefined)?.[activeColorTab]?.color
-                        : isCatalogProduct && !isOwner && isColorFromCatalog
-                          ? "This variant name is managed by the catalog owner"
-                          : "Enter variant name (e.g., Red, 50g, XL)"
-                    }
-                    InputProps={
-                      isCatalogProduct && !isOwner && isColorFromCatalog
-                        ? {
-                          endAdornment: <Chip label="Read-Only" size="small" color="info" variant="outlined" />,
-                        }
-                        : undefined
-                    }
-                    autoFocus={!isColorFromCatalog && !variants[activeColorTab]?.color}
-                  />
+                          (formik.errors.variants as Partial<Record<keyof ProductVariantForm, string>>[] | undefined)?.[activeColorTab]?.color
+                          ? (formik.errors.variants as Partial<Record<keyof ProductVariantForm, string>>[] | undefined)?.[activeColorTab]?.color
+                          : isCatalogProduct && !isOwner && isColorFromCatalog
+                            ? "This variant group is managed by the catalog owner"
+                            : "Enter variant group name (e.g., Pack of 1, 500g)"
+                      }
+                      InputProps={
+                        isCatalogProduct && !isOwner && isColorFromCatalog
+                          ? {
+                            endAdornment: <Chip label="Read-Only" size="small" color="info" variant="outlined" />,
+                          }
+                          : undefined
+                      }
+                      autoFocus={!isColorFromCatalog && !variants[activeColorTab]?.color}
+                    />
+                  </Grid>
                 </Grid>
-              </Grid>
+              )}
 
               {/* Image Upload Section */}
               {canEditImages && (
@@ -517,7 +560,7 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                       ☁️ Drag & drop your images here
                     </Typography>
                     <Typography variant="body2" color="text.secondary" mb={2}>
-                      Maximum 7 images. High quality JPG, JPEG, PNG, or WebP up to 3MB.<br/>
+                      Maximum 7 images. High quality JPG, JPEG, PNG, or WebP up to 5MB.<br/>
                       Recommended dimensions: 500x500 px or higher.
                     </Typography>
                     <input
@@ -666,12 +709,17 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                     🎨 Color-Level Specifications
                   </Typography>
                   <Grid container spacing={2}>
-                    {colorVariantAttributes.map((attr) => (
+                    {colorVariantAttributes.map((attr: CategoryAttribute) => (
                       <Grid size={{ xs: 12, sm: 6, md: 4 }} key={attr._id}>
                         {renderAttributeField(
                           attr,
                           colorHighlights[activeColorTab]?.[attr.name] ?? '',
-                          (value) => onColorHighlightChange(activeColorTab, attr.name, String(value)),
+                          (value) => {
+                            onColorHighlightChange(activeColorTab, attr.name, String(value));
+                            if (colorVariantAttributes.length > 0 && attr.name === colorVariantAttributes[0].name) {
+                              onColorChange(activeColorTab, String(value));
+                            }
+                          },
                           !canEditImages
                         )}
                       </Grid>
@@ -1088,4 +1136,4 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
   );
 });
 
-export default VariantsSection;
+export default VariantsSection;

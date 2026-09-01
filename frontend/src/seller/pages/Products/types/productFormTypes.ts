@@ -22,6 +22,7 @@ export interface CategoryAttribute {
   step?: number;
   order: number;
   isVariantField: boolean;
+  isColorVariantField?: boolean;
   displayInHighlights: boolean;
   isFilterable: boolean;
   sortOrder: number;
@@ -45,6 +46,8 @@ export interface ProductOfferForm {
   freeDeliveryRadiusKM: string;
   isActive: boolean;
   toBeDeleted?: boolean;
+  approvalStatus?: string;
+  rejectReason?: string;
 }
 
 // ✅ OFFER PAYLOAD: API expects seller (ObjectId string)
@@ -116,6 +119,8 @@ export interface ProductFormValues {
   highlights: Record<string, string | number | boolean>;
   variants: ProductVariantForm[];
   isActive?: boolean;
+  approvalStatus?: string;
+  rejectReason?: string;
   catalogMode?: CatalogModeState;
 }
 
@@ -198,6 +203,7 @@ export type ProductUpdatePayload = Partial<{
   variants: ProductVariantPayload[];
   isActive: boolean;
   isFeatured: boolean;
+  highlights: Record<string, string | number | boolean>;
 }>;
 
 // ✅ Catalog search state

@@ -1,7 +1,5 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\pages\Home\Deals\DealSlider.tsx
 import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 import DealCard from "./DealCard";
 import { useAppSelector } from "../../../../redux/Store";
 

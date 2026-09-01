@@ -140,6 +140,9 @@ export const updateProductSchema = Yup.object({
   // ✅ NEW: catalogId field (for linking to catalog)
   catalogId: Yup.string().optional(),
 
+  // ✅ Highlights (product-level attributes)
+  highlights: Yup.object().optional(),
+
   isActive: Yup.boolean().optional(),
   isFeatured: Yup.boolean().optional()
 })

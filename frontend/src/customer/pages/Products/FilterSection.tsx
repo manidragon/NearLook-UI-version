@@ -1,12 +1,9 @@
 // frontend/src/customer/pages/Products/FilterSection.tsx
 
 import {
-  Button,
-  Divider,
   FormControlLabel,
   Radio,
   RadioGroup,
-  Checkbox,
   Box,
   Typography,
   Collapse,
@@ -71,7 +68,13 @@ const FilterSection: React.FC<FilterSectionProps> = ({ categoryId: propCategoryI
 
   useEffect(() => {
     if (categoryId) {
-      dispatch(fetchCategoryAttributes({ categoryId, includeInactive: false }));
+      // Find category to check level
+      const category = categoryState?.categories?.find((c: any) => c._id === categoryId || c.categoryId === categoryId);
+      
+      // Only fetch attributes for Level 3 categories to avoid API errors
+      if (category && category.level === 3) {
+        dispatch(fetchCategoryAttributes({ categoryId, includeInactive: false }));
+      }
       
       // Fetch all products for this category to build available facets
       api.get(`/products?category=${categoryId}&limit=1000`)
@@ -82,7 +85,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({ categoryId: propCategoryI
         })
         .catch(console.error);
     }
-  }, [categoryId, dispatch]);
+  }, [categoryId, dispatch, categoryState?.categories]);
 
   const allAttributes = useMemo(() => {
     return categoryAttributes
@@ -94,6 +97,10 @@ const FilterSection: React.FC<FilterSectionProps> = ({ categoryId: propCategoryI
         );
       })
       .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+  }, [categoryAttributes]);
+
+  const hasColorAttribute = useMemo(() => {
+    return categoryAttributes?.some((a: any) => a.isColorVariantField);
   }, [categoryAttributes]);
 
   // ✅ FIXED COLOR LOGIC
@@ -166,7 +173,11 @@ const FilterSection: React.FC<FilterSectionProps> = ({ categoryId: propCategoryI
       <Typography sx={{ fontWeight: 500, fontSize: '13px', textTransform: 'uppercase', color: '#212121' }}>
         {title}
       </Typography>
-      <IconButton size="small" sx={{ color: '#878787', padding: 0, '&:hover': { bgcolor: 'transparent' } }}>
+      <IconButton 
+        size="small" 
+        sx={{ color: '#878787', padding: 0, '&:hover': { bgcolor: 'transparent' } }}
+        aria-label={`Toggle ${title} filter`}
+      >
         {expandedSections[key] ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
       </IconButton>
     </Box>
@@ -212,8 +223,9 @@ const getAvailableDiscountRanges = () => {
       <div className="flex-1 overflow-y-auto custom-scrollbar px-2">
 
         {/* ✅ COLOR FILTER */}
-        <section className="border-b border-gray-100 py-3 mx-3">
-          {renderHeader("Color", "color")}
+        {hasColorAttribute && (
+          <section className="border-b border-gray-100 py-3 mx-3">
+            {renderHeader("Color", "color")}
 
           <Collapse in={expandedSections.color}>
             <Box sx={{ px: 1, pb: 1, pt: 1 }}>
@@ -259,6 +271,7 @@ const getAvailableDiscountRanges = () => {
             </Box>
           </Collapse>
         </section>
+        )}
 
         {/* ✅ ATTRIBUTE FILTERS */}
         {allAttributes.map((attr) => {

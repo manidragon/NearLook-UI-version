@@ -365,7 +365,7 @@ useEffect(() => {
                 >
                   {/* Main Info */}
                   <Box sx={{ p: 2 }}>
-                    <Box sx={{ display: 'flex', gap: 3 }}>
+                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 2, sm: 3 } }}>
                       {/* Product Image */}
                       <Box
                         sx={{
@@ -430,11 +430,11 @@ useEffect(() => {
                       </Box>
 
                       {/* Select Button */}
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Box sx={{ display: 'flex', alignItems: { xs: 'stretch', sm: 'center' }, mt: { xs: 1, sm: 0 } }}>
                         <Button
                           variant="outlined"
                           size="large"
-                          sx={{ minWidth: 100 }}
+                          sx={{ width: { xs: '100%', sm: 'auto' }, minWidth: 100 }}
                           onClick={(e) => {
                             e.stopPropagation();
                             if (!isSelected || selectedCount === 0) {
@@ -492,7 +492,7 @@ useEffect(() => {
                       </Box>
 
                       {/* Variants Table */}
-                      <TableContainer sx={{ border: '1px solid', borderColor: 'grey.200', borderRadius: 2, m: 2, width: 'auto', bgcolor: 'background.paper', overflow: 'hidden' }}>
+                      <TableContainer sx={{ border: '1px solid', borderColor: 'grey.200', borderRadius: 2, mx: { xs: 0, sm: 2 }, my: 2, width: { xs: '100%', sm: 'auto' }, bgcolor: 'background.paper', overflowX: 'auto' }}>
                         <Table size="medium">
                           <TableHead>
                             <TableRow sx={{ bgcolor: 'grey.50' }}>
@@ -611,12 +611,11 @@ useEffect(() => {
       </Grid>
 
       {/* Snackbar for alerts */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={4000}
-        onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
+      <Snackbar 
+          open={snackbarOpen} 
+          autoHideDuration={4000} 
+          onClose={() => setSnackbarOpen(false)}
+        >
         <Alert onClose={() => setSnackbarOpen(false)} severity="warning" sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>

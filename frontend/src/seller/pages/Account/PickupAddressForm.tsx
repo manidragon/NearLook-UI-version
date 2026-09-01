@@ -6,6 +6,7 @@ import { TextField, Button } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { updateSeller } from "../../../redux/Seller/sellerSlice";
 import { api } from "../../../Config/Api";
+import { handleNameChange, handleNumberChange } from "../../../utils/validationUtils";
 
 interface UpdateDetailsFormProps {
   onClose: () => void;
@@ -28,7 +29,7 @@ const PickupAddressForm = ({ onClose }: UpdateDetailsFormProps) => {
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Name is required"),
-      mobile: Yup.string().required("Mobile number is required"),
+      mobile: Yup.string().matches(/^[6-9]\d{9}$/, 'Invalid mobile number').required("Mobile number is required"),
       pinCode: Yup.string().required("Pin Code is required"),
       address: Yup.string().required("Address is required"),
       locality: Yup.string().required("Locality is required"),
@@ -118,7 +119,7 @@ const PickupAddressForm = ({ onClose }: UpdateDetailsFormProps) => {
           name="name"
           label="Contact Name"
           value={formik.values.name}
-          onChange={formik.handleChange}
+          onChange={handleNameChange(formik)}
           error={formik.touched.name && Boolean(formik.errors.name)}
           helperText={formik.touched.name && formik.errors.name}
         />
@@ -128,7 +129,7 @@ const PickupAddressForm = ({ onClose }: UpdateDetailsFormProps) => {
           name="mobile"
           label="Mobile"
           value={formik.values.mobile}
-          onChange={formik.handleChange}
+          onChange={handleNumberChange(formik)}
           error={formik.touched.mobile && Boolean(formik.errors.mobile)}
           helperText={formik.touched.mobile && formik.errors.mobile}
           inputProps={{ maxLength: 10 }}
@@ -159,7 +160,7 @@ const PickupAddressForm = ({ onClose }: UpdateDetailsFormProps) => {
           name="city"
           label="City"
           value={formik.values.city}
-          onChange={formik.handleChange}
+          onChange={handleNameChange(formik)}
           error={formik.touched.city && Boolean(formik.errors.city)}
           helperText={formik.touched.city && formik.errors.city}
         />
@@ -169,7 +170,7 @@ const PickupAddressForm = ({ onClose }: UpdateDetailsFormProps) => {
           name="state"
           label="State"
           value={formik.values.state}
-          onChange={formik.handleChange}
+          onChange={handleNameChange(formik)}
           error={formik.touched.state && Boolean(formik.errors.state)}
           helperText={formik.touched.state && formik.errors.state}
         />
@@ -179,7 +180,7 @@ const PickupAddressForm = ({ onClose }: UpdateDetailsFormProps) => {
           name="pinCode"
           label="Pin Code"
           value={formik.values.pinCode}
-          onChange={formik.handleChange}
+          onChange={handleNumberChange(formik)}
           error={formik.touched.pinCode && Boolean(formik.errors.pinCode)}
           helperText={formik.touched.pinCode && formik.errors.pinCode}
         />

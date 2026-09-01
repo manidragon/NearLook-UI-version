@@ -1,6 +1,7 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\pages\BecomeSeller\BecomeSellerFormStep3.tsx
 import React from "react";
-import TextField from "../../../components/CustomTextField";;
+import TextField from "../../../components/CustomTextField";
+import { handleNameChange, handleNumberChange } from "../../../utils/validationUtils";
 
 interface BecomeSellerFormStep2Props {
   formik: any; // Replace 'any' with the correct type for formik instance
@@ -15,7 +16,7 @@ const BecomeSellerFormStep3: React.FC<BecomeSellerFormStep2Props> = ({ formik })
             name="bankDetails.accountNumber"
             label="Account Number"
             value={formik.values.bankDetails.accountNumber}
-            onChange={formik.handleChange}
+            onChange={handleNumberChange(formik)}
             onBlur={formik.handleBlur}
             error={formik.touched.bankDetails?.accountNumber && Boolean(formik.errors.bankDetails?.accountNumber)}
             helperText={formik.touched.bankDetails?.accountNumber && formik.errors.bankDetails?.accountNumber}
@@ -35,7 +36,7 @@ const BecomeSellerFormStep3: React.FC<BecomeSellerFormStep2Props> = ({ formik })
             name="bankDetails.accountHolderName"
             label="Account Holder Name"
             value={formik.values.bankDetails.accountHolderName}
-            onChange={formik.handleChange}
+            onChange={handleNameChange(formik)}
             onBlur={formik.handleBlur}
             error={formik.touched.bankDetails?.accountHolderName && Boolean(formik.errors.bankDetails?.accountHolderName)}
             helperText={formik.touched.bankDetails?.accountHolderName && formik.errors.bankDetails?.accountHolderName}

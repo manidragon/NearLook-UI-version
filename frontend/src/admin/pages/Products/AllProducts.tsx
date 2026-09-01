@@ -34,25 +34,25 @@ const ProductRow = ({ product, handleStatusChange }: any) => {
                         {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                     </IconButton>
                 </TableCell>
-                <TableCell>
+                <TableCell sx={{ color: '#111827' }}>
                     <Box display="flex" alignItems="center" gap={2}>
-                        <Avatar src={image} variant="rounded" sx={{ width: 50, height: 50 }} />
+                        <Avatar src={image} alt={product.title || 'Product Image'} variant="rounded" sx={{ width: 50, height: 50 }} />
                         <Box>
-                            <Typography variant="body1" fontWeight="500">{product.title}</Typography>
+                            <Typography variant="body1" fontWeight="500" sx={{ color: '#111827' }}>{product.title}</Typography>
                             <Box display="flex" alignItems="center" gap={0.5}>
                                 <Rating value={product.averageRating || 0} readOnly size="small" precision={0.5} />
-                                <Typography variant="caption" color="text.secondary">({product.numRatings || product.totalReviews || 0})</Typography>
+                                <Typography variant="caption" sx={{ color: '#4B5563' }}>({product.numRatings || product.totalReviews || 0})</Typography>
                             </Box>
                         </Box>
                     </Box>
                 </TableCell>
-                <TableCell>{sellerName}</TableCell>
+                <TableCell sx={{ color: '#111827' }}>{sellerName}</TableCell>
                 <TableCell>
-                    <Chip label={categoryName} size="small" variant="outlined" />
+                    <Chip label={categoryName} size="small" variant="outlined" sx={{ color: '#111827', borderColor: '#D1D5DB' }} />
                 </TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>₹{price}</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }}>₹{price}</TableCell>
                 <TableCell>
-                    <Typography color={stock === 0 ? 'error' : (stock < 20 ? 'warning.main' : 'success.main')} fontWeight="bold">
+                    <Typography sx={{ color: stock === 0 ? '#DC2626' : (stock < 20 ? '#854D0E' : '#15803d'), fontWeight: 'bold' }}>
                         {stock === 0 ? 'Out of Stock' : `${stock} left`}
                     </Typography>
                 </TableCell>
@@ -62,6 +62,7 @@ const ProductRow = ({ product, handleStatusChange }: any) => {
                         size="small"
                         color={product.approvalStatus === 'APPROVED' ? 'success' : (product.approvalStatus === 'PENDING' ? 'warning' : 'error')}
                         icon={(!product.approvalStatus || product.approvalStatus === 'APPROVED') ? <VerifiedIcon /> : undefined}
+                        sx={{ fontWeight: 'bold' }}
                     />
                 </TableCell>
                 <TableCell align="right">
@@ -70,6 +71,7 @@ const ProductRow = ({ product, handleStatusChange }: any) => {
                             value={product.approvalStatus || 'APPROVED'}
                             onChange={(e) => handleStatusChange(product._id as string, e.target.value)}
                             sx={{ fontSize: '0.875rem', height: 32 }}
+                            inputProps={{ 'aria-label': 'Update approval status' }}
                         >
                             <MenuItem value="APPROVED">APPROVE</MenuItem>
                             <MenuItem value="PENDING">PENDING</MenuItem>
@@ -171,7 +173,7 @@ const AllProducts = () => {
                 mb={4}
             >
                 <Box>
-                    <Typography variant="h4" fontWeight="bold" color="primary">Global Products</Typography>
+                    <Typography variant="h4" fontWeight="bold" sx={{ color: '#111827' }}>Global Products</Typography>
                     <Typography variant="body2" color="text.secondary">Manage and moderate all products across the platform</Typography>
                 </Box>
                 
@@ -203,13 +205,13 @@ const AllProducts = () => {
                         <TableHead sx={{ backgroundColor: alpha(theme.palette.primary.main, 0.05) }}>
                             <TableRow>
                                 <TableCell />
-                                <TableCell sx={{ fontWeight: 'bold' }}>Product</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Seller</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Category</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Price</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Stock</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }} align="right">Actions</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }}>Product</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }}>Seller</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }}>Category</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }}>Price</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }}>Stock</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }}>Status</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }} align="right">Actions</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>

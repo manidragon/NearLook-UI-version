@@ -44,7 +44,8 @@ interface UseCatalogSearchReturn {
 }
 
 export const useCatalogSearch = (
-  formik: FormikHelpers<ProductFormValues>
+  formik: FormikHelpers<ProductFormValues>,
+  onError?: (msg: string) => void
 ): UseCatalogSearchReturn => {
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<CatalogProduct[]>([]);  // ✅ Typed
@@ -95,7 +96,11 @@ export const useCatalogSearch = (
       }
     } catch (error) {
       console.error('❌ [DEBUG] Catalog search failed:', error);
-      alert('Failed to search catalog: ' + (error as Error).message);
+      if (onError) {
+        onError('Failed to search catalog: ' + (error as Error).message);
+      } else {
+        console.warn('Failed to search catalog: ' + (error as Error).message);
+      }
       setResults([]);
     } finally {
       setIsSearching(false);

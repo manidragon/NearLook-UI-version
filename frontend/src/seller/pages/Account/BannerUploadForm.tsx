@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import Alert from "../../../components/CustomAlert";
 import Button from "../../../components/NeonButton";
 import CustomLoader from "../../../components/CustomLoader";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Snackbar, Alert, Portal } from "@mui/material";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { updateSeller } from "../../../redux/Seller/sellerSlice";
@@ -28,7 +27,7 @@ const BannerUploadForm = ({ onClose }: BannerUploadFormProps) => {
   }, [sellers.profile]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const validFiles = validateImageSize(event.target.files);
+    const validFiles = validateImageSize(event.target.files, 3, (msg) => setError(msg));
     const file = validFiles[0];
     if (file) {
       // Validate file type and extension
@@ -168,12 +167,7 @@ const BannerUploadForm = ({ onClose }: BannerUploadFormProps) => {
             </Typography>
           </Box>
         )}
-        {/* Error Message */}
-        {error && (
-          <Alert severity="error" sx={{ width: '100%', maxWidth: 400 }}>
-            {error}
-          </Alert>
-        )}
+        {/* Error Message removed from inline layout */}
         {/* Action Buttons */}
         <Box sx={{ display: 'flex', gap: 2, width: '100%', maxWidth: 400, mt: 2 }}>
           <Button
@@ -183,7 +177,7 @@ const BannerUploadForm = ({ onClose }: BannerUploadFormProps) => {
             onClick={handleUpload}
             disabled={!selectedFile || uploading}
           >
-            {uploading ? <CustomLoader size={24} /> : 'Upload to Cloudinary'}
+            {uploading ? <CustomLoader size={24} /> : 'Upload Banner'}
           </Button>
           
           {previewUrl && (
@@ -204,10 +198,17 @@ const BannerUploadForm = ({ onClose }: BannerUploadFormProps) => {
             • Recommended size: 1200x400px<br />
             • Max file size: 3MB<br />
             • Supported formats: JPEG, JPG, PNG, WebP<br />
-            • Stored on Cloudinary
+            • Stored securely
           </Typography>
         </Box>
       </Box>
+      <Portal>
+        <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
+          <Alert onClose={() => setError(null)} severity="error" sx={{ width: '100%' }}>
+            {error}
+          </Alert>
+        </Snackbar>
+      </Portal>
     </Box>
   );
 };

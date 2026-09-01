@@ -1,11 +1,8 @@
 import "./ProductCard.css";
 import { secureUrl } from '../../../../util/secureUrl';
 import React, { useState, useEffect, useMemo } from "react";
-import FavoriteIcon from "@mui/icons-material/Favorite";
 import LocationOnIcon from "@mui/icons-material/LocationOn"; // ✅ ADD: For distance badge
-import { teal } from "@mui/material/colors";
-import Button from "../../../../components/NeonButton";
-import { Box, Modal, IconButton, Typography, Snackbar, Alert } from "@mui/material"; // ✅ ADD: Typography, Snackbar, Alert
+import { Box, Modal, Snackbar, Alert } from "@mui/material"; // ✅ ADD: Typography, Snackbar, Alert
 import { useNavigate } from "react-router-dom";
 import type { Product } from "../../../../types/productTypes";
 import {
@@ -13,10 +10,8 @@ import {
   useAppSelector,
 } from "../../../../redux/Store";
 import { addProductToWishlist, removeProductFromWishlist } from "../../../../redux/Customer/WishlistSlice";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { isWishlisted } from "../../../../util/isWishlisted";
-import ModeCommentIcon from "@mui/icons-material/ModeComment";
-import ChatBot from "../../ChatBot/ChatBot";
+const ChatBot = React.lazy(() => import("../../ChatBot/ChatBot"));
 import { selectLocationFilter } from "../../../../redux/Customer/ProductSlice";
 import StarIcon from '@mui/icons-material/Star';
 import { Portal } from "@mui/material";
@@ -25,6 +20,7 @@ interface ProductCardProps {
   item: Product;
   categoryId?: string;
   sellerId?: string;
+  isEager?: boolean;
 }
 
 const style = {
@@ -40,7 +36,7 @@ const style = {
 const PLACEHOLDER_IMAGE = "https://via.placeholder.com/300x300?text=No+Image";
 const ERROR_IMAGE = "https://via.placeholder.com/300x300?text=Image+Error";
 
-const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId, isEager = false }) => {
   const [currentImage, setCurrentImage] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const wishlist = useAppSelector((state) => state.wishlist);
@@ -189,14 +185,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId })
               <img
                 key={`${image}-${index}`}
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                src={secureUrl(image)}
+                src={secureUrl(image, 250)}
                 alt={`${item.title} - ${index + 1}`}
+                width={250}
+                height={250}
+                loading={isEager ? "eager" : "lazy"}
+                fetchPriority={isEager ? "high" : "auto"}
                 style={{
                   opacity: index === currentImage ? 1 : 0,
                   transition: 'opacity 0.4s ease-in-out'
                 }}
                 onError={handleImageError}
-                loading="lazy"
               />
             ))
           ) : (
@@ -205,6 +204,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId })
               className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-multiply"
               src={PLACEHOLDER_IMAGE}
               alt="No image available"
+              width={250}
+              height={250}
+              loading={isEager ? "eager" : "lazy"}
+              fetchPriority={isEager ? "high" : "auto"}
             />
           )}
         </div>
@@ -219,7 +222,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId })
             <div className="flex items-center gap-1 mt-1 mb-3 bg-green-50 w-fit px-2 py-0.5 rounded-md border border-green-100">
               <span className="text-xs font-bold text-green-700">{item.averageRating ? item.averageRating.toFixed(1) : "0.0"}</span>
               <StarIcon sx={{ color: '#15803d', fontSize: '12px' }} />
-              <span className="text-[10px] text-green-600 ml-1 font-medium">({item.totalReviews || item.numRatings || 0})</span>
+              <span className="text-[10px] text-green-800 ml-1 font-medium">({item.totalReviews || item.numRatings || 0})</span>
             </div>
           ) : (
             <div className="flex items-center gap-1 mt-1 mb-3 bg-orange-50 w-fit px-2 py-0.5 rounded-md border border-orange-100">
@@ -235,7 +238,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId })
                   ₹{item.variants?.[0]?.offers?.[0]?.sellingPrice ?? item.variants?.[0]?.sellingPrice ?? item.minPrice ?? item.sellingPrice ?? 'N/A'}
                 </span>
                 {(item.variants?.[0]?.offers?.[0]?.mrpPrice || item.variants?.[0]?.mrpPrice || item.mrpPrice) && (
-                  <span className="text-[12px] sm:text-xs text-gray-400 line-through font-medium leading-none mb-[2px]">
+                  <span className="text-[12px] sm:text-xs text-gray-600 line-through font-medium leading-none mb-[2px]">
                     ₹{item.variants?.[0]?.offers?.[0]?.mrpPrice || item.variants?.[0]?.mrpPrice || item.mrpPrice}
                   </span>
                 )}
@@ -248,7 +251,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId })
                   const discount = Math.round(((mrpPrice - sellingPrice) / mrpPrice) * 100);
                   return (
                     <div>
-                      <span className="text-[10px] sm:text-xs font-bold text-green-600 bg-green-50 px-1 rounded">
+                      <span className="text-[10px] sm:text-xs font-bold text-green-800 bg-green-50 px-1 rounded">
                         {discount}% off
                       </span>
                     </div>
@@ -273,6 +276,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId })
                   className="checkbox" 
                   checked={isInWishlist} 
                   readOnly
+                  aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
                   style={{ pointerEvents: 'none' }}
                 />
                 <div className="svg-container">
@@ -314,7 +318,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId })
             onClose={handleCloseChatBot}
           >
             <Box sx={style}>
-              <ChatBot handleClose={handleCloseChatBot} productId={item._id} />
+              <React.Suspense fallback={<div className="p-10 bg-white rounded-xl shadow text-center">Loading AI Assistant...</div>}>
+                <ChatBot handleClose={handleCloseChatBot} productId={item._id} />
+              </React.Suspense>
             </Box>
           </Modal>
         </section>
@@ -322,11 +328,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId })
 
       {/* Snackbar for Wishlist Alerts */}
       <Portal>
-        <Snackbar 
-          open={snackbarOpen} 
+        <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} 
           autoHideDuration={3000} 
           onClose={() => setSnackbarOpen(false)}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         >
           <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
             {snackbarMessage}

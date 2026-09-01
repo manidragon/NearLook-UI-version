@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { Modal, Box, Rating } from '@mui/material';
+import { Modal, Box, Rating, Snackbar, Alert } from '@mui/material';
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import { uploadToCloudinary } from '../../../util/uploadToCloudnary';
 import { useAppDispatch } from '../../../redux/Store';
@@ -111,11 +111,40 @@ const SupaviewModal: React.FC<SupaviewModalProps> = ({ open, onClose, reviewType
     });
 
     const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
+        const files = Array.from(event.target.files || []);
+        if (!files.length) return;
 
-        setSelectedFiles([...selectedFiles, file]);
-        setPreviewUrls([...previewUrls, URL.createObjectURL(file)]);
+        if (selectedFiles.length + files.length > 4) {
+            setSubmitError('Maximum 4 images allowed');
+            event.target.value = "";
+            return;
+        }
+
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        const validExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+        const maxSize = 5 * 1024 * 1024; // 5MB
+
+        const validFiles = files.filter(file => {
+            const extension = file.name.split('.').pop()?.toLowerCase() || '';
+            if (!validTypes.includes(file.type) || !validExtensions.includes(extension)) {
+                setSubmitError('Invalid file format. Supported: JPEG, JPG, PNG, WebP');
+                return false;
+            }
+            if (file.size > maxSize) {
+                setSubmitError(`Image size exceeds 5MB limit`);
+                return false;
+            }
+            return true;
+        });
+
+        if (validFiles.length > 0) {
+            setSelectedFiles(prev => [...prev, ...validFiles]);
+            setPreviewUrls(prev => [...prev, ...validFiles.map(f => URL.createObjectURL(f))]);
+            if (validFiles.length === files.length) {
+                setSubmitError('');
+            }
+        }
+        
         event.target.value = ""; 
     };
 
@@ -137,8 +166,9 @@ const SupaviewModal: React.FC<SupaviewModalProps> = ({ open, onClose, reviewType
     };
 
     return (
-        <Modal
-            open={open}
+        <>
+            <Modal
+                open={open}
             onClose={onClose}
             sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             aria-labelledby="supaview-modal-title"
@@ -197,12 +227,6 @@ const SupaviewModal: React.FC<SupaviewModalProps> = ({ open, onClose, reviewType
                                 </div>
                             ) : (
                                 <>
-                                    {submitError && (
-                                        <div className="supaerror mb-4 p-3 rounded text-sm">
-                                            {submitError}
-                                        </div>
-                                    )}
-
                                     <form id="review" onSubmit={formik.handleSubmit}>
                                         <div className="mb-5 flex justify-center">
                                             <Rating
@@ -230,7 +254,7 @@ const SupaviewModal: React.FC<SupaviewModalProps> = ({ open, onClose, reviewType
                                         )}
 
                                         <p style={{ textAlign: 'center', fontSize: '12px', color: '#6b7280', marginBottom: '8px', marginTop: '0' }}>
-                                            Supported: JPEG, JPG, PNG, WebP (Max: 3MB)
+                                            Supported: JPEG, JPG, PNG, WebP • Max 5MB each
                                         </p>
                                         <div className="supaview__images">
                                             {previewUrls.map((previewUrl, idx) => (
@@ -246,15 +270,18 @@ const SupaviewModal: React.FC<SupaviewModalProps> = ({ open, onClose, reviewType
                                                 </div>
                                             ))}
                                             
-                                            <label className="supaview__image-upload-btn relative">
-                                                <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    hidden
-                                                    onChange={handleImageChange}
-                                                />
-                                                <AddPhotoAlternateIcon fontSize="large" />
-                                            </label>
+                                            {selectedFiles.length < 4 && (
+                                                <label className="supaview__image-upload-btn relative">
+                                                    <input
+                                                        type="file"
+                                                        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                                                        multiple
+                                                        hidden
+                                                        onChange={handleImageChange}
+                                                    />
+                                                    <AddPhotoAlternateIcon fontSize="large" />
+                                                </label>
+                                            )}
                                         </div>
 
                                         <div className="supaview__copy">
@@ -286,7 +313,20 @@ const SupaviewModal: React.FC<SupaviewModalProps> = ({ open, onClose, reviewType
                     </div>
                 </div>
             </Box>
-        </Modal>
+            </Modal>
+            
+            <Snackbar
+                open={!!submitError}
+                autoHideDuration={4000}
+                onClose={() => setSubmitError('')}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                style={{ zIndex: 13000 }}
+            >
+                <Alert onClose={() => setSubmitError('')} severity="error" sx={{ width: '100%', boxShadow: 3 }}>
+                    {submitError}
+                </Alert>
+            </Snackbar>
+        </>
     );
 };
 

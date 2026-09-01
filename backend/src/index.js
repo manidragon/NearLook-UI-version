@@ -1,6 +1,14 @@
 require('dotenv').config();
 
 const express = require('express');
+const cloudinary = require('cloudinary').v2;
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 const http = require('http');
 const { Server } = require('socket.io');
 const connectDB = require('./config/db.js');
@@ -147,6 +155,7 @@ console.clear();
 
 server.listen(port, async () => {
     try {
+        console.log(`🚀 Server is running on port: ${port}`);
         await connectDB();
         // Start Cron Jobs
         initDbCleanup();

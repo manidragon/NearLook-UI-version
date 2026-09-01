@@ -1,7 +1,5 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 import { useNavigate } from "react-router-dom";
 import { type Seller } from "../../../types/sellerTypes";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
@@ -16,17 +14,18 @@ export default function FeaturedSellersSlider({ sellers }: FeaturedSellersSlider
   const dispatch = useAppDispatch();
   const sellerReviewState = useAppSelector((state) => state.sellerReview);
 
-  if (!sellers || sellers.length === 0) {
-    return null;
-  }
-
   useEffect(() => {
-    sellers.forEach(seller => {
+    sellers?.forEach(seller => {
       if (seller._id) {
         dispatch(fetchSellerReviews({ sellerId: seller._id }));
       }
     });
   }, [dispatch, sellers]);
+
+  if (!sellers || sellers.length === 0) {
+    return null;
+  }
+
 
   const settings = {
     dots: false,
@@ -62,6 +61,14 @@ export default function FeaturedSellersSlider({ sellers }: FeaturedSellersSlider
           infinite: sellers.length > 2,
         },
       },
+      {
+        breakpoint: 400,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          infinite: sellers.length > 1,
+        },
+      },
     ],
   };
 
@@ -82,7 +89,7 @@ export default function FeaturedSellersSlider({ sellers }: FeaturedSellersSlider
                 <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-orange-400 to-red-500 p-1 mb-4">
                   <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
                     {seller.businessDetails?.logo ? (
-                      <img src={secureUrl(seller.businessDetails.logo)} alt={seller.businessDetails.businessName || "Seller"} className="w-full h-full object-cover" />
+                      <img src={secureUrl(seller.businessDetails.logo, 150)} alt={seller.businessDetails.businessName || "Seller"} className="w-full h-full object-cover" />
                     ) : (
                       <span className="text-3xl font-bold text-orange-500">
                         {seller.businessDetails?.businessName?.charAt(0)?.toUpperCase() || "S"}
@@ -94,7 +101,7 @@ export default function FeaturedSellersSlider({ sellers }: FeaturedSellersSlider
                 <h3 className="font-bold text-gray-800 text-lg text-center mb-1 line-clamp-1">
                   {seller.businessDetails?.businessName || "Local Seller"}
                 </h3>
-                <div className="text-orange-500 text-sm font-semibold flex items-center justify-center gap-1">
+                <div className="text-orange-700 text-sm font-semibold flex items-center justify-center gap-1">
                   <span>⭐</span> {seller.averageRating ? seller.averageRating.toFixed(1) : "New"} 
                   {displayReviewCount > 0 ? <span className="text-gray-500 text-xs ml-1">({displayReviewCount})</span> : null}
                 </div>

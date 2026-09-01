@@ -7,13 +7,6 @@ import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import RemoveShoppingCartIcon from "@mui/icons-material/RemoveShoppingCart";
 import StorefrontIcon from "@mui/icons-material/Storefront";
-import {
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  type SelectChangeEvent,
-} from "@mui/material";
 
 const Chart = [
   { name: "Today", value: "today" },
@@ -74,6 +67,7 @@ const HomePage = () => {
           <h2 className="text-lg font-bold text-gray-800">Sales Analytics</h2>
           <div className="w-full sm:w-48">
             <select
+              aria-label="Filter sales analytics by time period"
               className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block p-2.5 outline-none transition-shadow hover:shadow-sm cursor-pointer"
               value={chartType}
               onChange={handleChange}

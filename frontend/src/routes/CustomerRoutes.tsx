@@ -5,10 +5,12 @@ import { fetchUserCart } from '../redux/Customer/CartSlice'
 import { getWishlistByUserId } from '../redux/Customer/WishlistSlice'
 
 import GlobalBreadcrumbs from '../components/GlobalBreadcrumbs'
-import Navbar from '../customer/components/Navbar/Navbar'
-import Footer from '../customer/components/Footer/Footer'
 import { Box } from '@mui/material';
 import CustomLoader from "../components/CustomLoader";
+
+// Lazy loaded components for better performance
+const Navbar = React.lazy(() => import('../customer/components/Navbar/Navbar'))
+const Footer = React.lazy(() => import('../customer/components/Footer/Footer'))
 
 // Lazy loaded components for better performance
 const Home = React.lazy(() => import('../customer/pages/Home/Home'))
@@ -28,6 +30,11 @@ const SearchProducts = React.lazy(() => import('../customer/pages/Search/SearchP
 const SellerProfile = React.lazy(() => import('../customer/pages/Seller/SellerProfile'))
 const MapSearch = React.lazy(() => import('../customer/pages/MapSearch/MapSearch'))
 const MobileCategories = React.lazy(() => import('../customer/pages/MobileCategories/MobileCategories'))
+const TermsAndConditions = React.lazy(() => import('../customer/pages/Legal/TermsAndConditions'))
+const PrivacyPolicy = React.lazy(() => import('../customer/pages/Legal/PrivacyPolicy'))
+const RefundPolicy = React.lazy(() => import('../customer/pages/Legal/RefundPolicy'))
+const ShippingPolicy = React.lazy(() => import('../customer/pages/Legal/ShippingPolicy'))
+const ContactUs = React.lazy(() => import('../customer/pages/Legal/ContactUs'))
 
 // Customer writes a review for a seller (after delivery)
 const SellerReviewForm = React.lazy(() => import('../customer/pages/Review/SellerReviewForm'))
@@ -40,6 +47,22 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/" state={{ from: location }} replace />;
   }
   return children;
+};
+
+const LazyFooter = () => {
+  const [isVisible, setIsVisible] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setIsVisible(true);
+        observer.disconnect();
+      }
+    }, { rootMargin: "400px" });
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+  return <div ref={ref}>{isVisible && <Footer />}</div>;
 };
 
 const CustomerRoutes = () => {
@@ -61,10 +84,12 @@ const CustomerRoutes = () => {
 
   return (
     <>
-      <Navbar />
+      <Suspense fallback={<div className="h-16 bg-white w-full border-b" />}>
+        <Navbar />
+      </Suspense>
       <GlobalBreadcrumbs />
       <Suspense fallback={
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
           <CustomLoader sx={{ color: '#FF5A00' }} />
         </Box>
       }>
@@ -89,11 +114,21 @@ const CustomerRoutes = () => {
 
           <Route path='/explore-nearby' element={<MapSearch />} />
           <Route path='/mobile-categories' element={<MobileCategories />} />
+          
+          <Route path='/terms-and-conditions' element={<TermsAndConditions />} />
+          <Route path='/privacy-policy' element={<PrivacyPolicy />} />
+          <Route path='/refund-policy' element={<RefundPolicy />} />
+          <Route path='/shipping-policy' element={<ShippingPolicy />} />
+          <Route path='/contact-us' element={<ContactUs />} />
 
           <Route path='*' element={<NotFound />} />
         </Routes>
       </Suspense>
-      {!isMobileCategoriesPage && <Footer />}
+      {!isMobileCategoriesPage && (
+        <Suspense fallback={<div className="h-[200px] bg-gray-900 w-full" />}>
+          <LazyFooter />
+        </Suspense>
+      )}
       {/* Spacer to prevent mobile bottom navigation from hiding final content */}
       {!isChatActive && (
         <div className="h-[65px] lg:hidden w-full" aria-hidden="true"></div>

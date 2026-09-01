@@ -111,8 +111,8 @@ const Cart = () => {
     
     // Extract minFreeDelivery safely
     let minFreeDelivery = 500; // Default
-    if (sellerObj?.minFreeDelivery !== undefined) {
-      minFreeDelivery = sellerObj.minFreeDelivery;
+    if ((sellerObj as any)?.minFreeDelivery !== undefined) {
+      minFreeDelivery = (sellerObj as any).minFreeDelivery;
     } else if (item.sellerId && (item.sellerId as any).minFreeDelivery !== undefined) {
       minFreeDelivery = (item.sellerId as any).minFreeDelivery;
     }
@@ -223,7 +223,7 @@ const Cart = () => {
                           <i className="fa-solid fa-box mr-2 text-[#FF5A00]"></i>
                           Package from {group.sellerName}
                         </h3>
-                        <span className={`text-sm font-medium ${group.deliveryCharge === 0 ? 'text-[#388e3c]' : 'text-gray-600'}`}>
+                        <span className={`text-sm font-medium ${group.deliveryCharge === 0 ? 'text-[#15803d]' : 'text-gray-600'}`}>
                           Delivery: {group.deliveryCharge === 0 ? 'Free' : `₹${group.deliveryCharge}`}
                         </span>
                       </div>

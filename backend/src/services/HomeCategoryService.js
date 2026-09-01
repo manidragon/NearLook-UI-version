@@ -1,5 +1,6 @@
 const HomeCategory = require('../models/HomeCategory');
 const Deal = require('../models/Deal');
+const cloudinary = require('cloudinary').v2;
 
 class HomeCategoryService {
  
@@ -31,6 +32,28 @@ class HomeCategoryService {
         const existingCategory = await HomeCategory.findById(id);
         if (!existingCategory) {
             throw new Error("Category not found");
+        }
+        
+        // Delete image from Cloudinary if it exists
+        if (existingCategory.image && existingCategory.image.includes('cloudinary.com')) {
+            try {
+                const parts = existingCategory.image.split('/upload/');
+                if (parts.length > 1) {
+                    let path = parts[1];
+                    // Remove version number (e.g. v1234567890/)
+                    if (path.match(/^v\d+\//)) {
+                        path = path.replace(/^v\d+\//, '');
+                    }
+                    // Remove file extension
+                    const dotIndex = path.lastIndexOf('.');
+                    if (dotIndex !== -1) {
+                        path = path.substring(0, dotIndex);
+                    }
+                    await cloudinary.uploader.destroy(path);
+                }
+            } catch (err) {
+                console.error("Failed to delete image from Cloudinary:", err.message);
+            }
         }
         
         // Delete the category itself

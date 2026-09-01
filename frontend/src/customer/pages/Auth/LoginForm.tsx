@@ -11,6 +11,8 @@ import GoogleIcon from '@mui/icons-material/Google';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import AppleIcon from '@mui/icons-material/Apple';
 import TwitterIcon from '@mui/icons-material/Twitter';
+import { GoogleLogin } from '@react-oauth/google';
+import { jwtDecode } from "jwt-decode";
 
 const socialLogins = [
   { title: 'Google', icon: <GoogleIcon />, gradientFrom: '#FF4B2B', gradientTo: '#FF416C' },
@@ -187,6 +189,33 @@ const LoginForm = () => {
           )}
         </div>
       </form>
+
+      {!auth.otpSent && (
+        <div className="mt-6">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+            </div>
+          </div>
+          <div className="mt-6 flex justify-center">
+            <GoogleLogin
+              onSuccess={(credentialResponse) => {
+                const decoded: any = jwtDecode(credentialResponse.credential!);
+                formik.setFieldValue('email', decoded.email);
+                dispatch(sendLoginSignupOtp({ email: decoded.email }));
+                setTimer(30);
+                setIsTimerActive(true);
+              }}
+              onError={() => {
+                console.error('Google Login Failed');
+              }}
+            />
+          </div>
+        </div>
+      )}
 
 
 

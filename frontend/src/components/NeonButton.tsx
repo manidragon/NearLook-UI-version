@@ -7,11 +7,11 @@ const buttonVariants = cva(
     {
         variants: {
             variant: {
-                contained: "bg-[#FF5A00] hover:bg-[#E65100] text-white border-transparent hover:border-foreground/50 transition-all duration-200",
+                contained: "bg-[#C43600] hover:bg-[#9E2A00] text-white border-transparent hover:border-foreground/50 transition-all duration-200",
                 outlined: "border-[#FF5A00] bg-transparent hover:bg-[#FF5A00]/10 text-[#FF5A00]",
                 text: "border-transparent bg-transparent hover:bg-[#FF5A00]/10 text-[#FF5A00]",
                 // Fallbacks
-                solid: "bg-[#FF5A00] hover:bg-[#E65100] text-white border-transparent hover:border-foreground/50 transition-all duration-200",
+                solid: "bg-[#C43600] hover:bg-[#9E2A00] text-white border-transparent hover:border-foreground/50 transition-all duration-200",
                 ghost: "border-transparent bg-transparent hover:border-zinc-600 hover:bg-[#FF5A00]/10 text-[#FF5A00]",
                 default: "bg-[#FF5A00]/5 hover:bg-[#FF5A00]/0 border-[#FF5A00]/20 text-[#FF5A00]",
             },

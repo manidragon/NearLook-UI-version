@@ -1,5 +1,5 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\pages\Account\OrderDetails.tsx
-import { Box, Button, Divider, Alert, Typography, Chip, Card, Avatar, Rating, Menu, MenuItem, IconButton } from '@mui/material';
+import { Box, Button, Divider, Alert, Typography, Chip, Card, Avatar, Rating, Menu, MenuItem, IconButton, Snackbar } from '@mui/material';
 import { useEffect, useState } from 'react';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import StorefrontIcon from '@mui/icons-material/Storefront';
@@ -152,6 +152,9 @@ const OrderDetails = () => {
   const [returnMenuAnchor, setReturnMenuAnchor] = useState<null | HTMLElement>(null);
   const [isProductReviewOpen, setIsProductReviewOpen] = useState(false);
   const [isSellerReviewOpen, setIsSellerReviewOpen] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('info');
 
   // Fetch order data
   useEffect(() => {
@@ -400,7 +403,9 @@ const OrderDetails = () => {
     try {
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
-        alert('Failed to load Razorpay SDK. Please check your internet connection.');
+        setSnackbarMsg('Failed to load Razorpay SDK. Please check your internet connection.');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
         return;
       }
 
@@ -438,7 +443,9 @@ const OrderDetails = () => {
             }
           } catch (err) {
             console.error("Error updating payment status:", err);
-            alert("Payment succeeded but failed to update status. Please refresh the page.");
+            setSnackbarMsg("Payment succeeded but failed to update status. Please refresh the page.");
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
           }
         },
         theme: {
@@ -452,12 +459,16 @@ const OrderDetails = () => {
 
       const rzp = new (window as any).Razorpay(options);
       rzp.on('payment.failed', function (response: any) {
-        alert("Payment failed: " + (response.error.description || response.error.reason));
+        setSnackbarMsg("Payment failed: " + (response.error.description || response.error.reason));
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
       });
       rzp.open();
     } catch (error) {
       console.error("Failed to initiate payment:", error);
-      alert("Could not initialize payment. Please try again later.");
+      setSnackbarMsg("Could not initialize payment. Please try again later.");
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
     }
   };
 
@@ -610,8 +621,8 @@ const OrderDetails = () => {
                   Seller: {sellerName}
                 </Typography>
                 <div className="flex items-center gap-3 mt-1">
-                  <Typography variant="h6" className="font-bold text-[18px]">₹{item?.sellingPrice}</Typography>
-                  {discount > 0 && <Typography variant="caption" className="text-[#388e3c] font-medium">{discount} offer</Typography>}
+                  <Typography component="p" variant="h6" className="font-bold text-[18px]">₹{item?.sellingPrice}</Typography>
+                  {discount > 0 && <Typography variant="caption" className="text-[#15803d] font-medium">{discount} offer</Typography>}
                 </div>
               </div>
               <div className="w-[80px] h-[80px] shrink-0">
@@ -739,7 +750,7 @@ const OrderDetails = () => {
             <Divider />
 
             {/* Bottom Actions */}
-            <div className="flex divide-x divide-gray-200">
+            <div className="flex">
               <div 
                 onClick={(e) => {
                   if (hasReturnRequest() || hasReplacementRequest()) return;
@@ -755,7 +766,7 @@ const OrderDetails = () => {
                     handleCancelOrder();
                   }
                 }} 
-                className={`w-1/2 p-3 text-center flex justify-center items-center ${hasReturnRequest() || hasReplacementRequest() || ((isShipped || isDelivered) && !isReturnWindowOpen && !isReplacementWindowOpen) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-50'}`}
+                className={`w-full p-3 text-center flex justify-center items-center ${hasReturnRequest() || hasReplacementRequest() || ((isShipped || isDelivered) && !isReturnWindowOpen && !isReplacementWindowOpen) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-50'}`}
               >
                  <Typography className="text-[14px] font-medium text-gray-700">
                    {isShipped || isDelivered 
@@ -786,10 +797,6 @@ const OrderDetails = () => {
                   </MenuItem>
                 )}
               </Menu>
-              <div className="w-1/2 p-3 text-center cursor-pointer hover:bg-gray-50 flex justify-center items-center gap-2">
-                 <ChatBubbleOutlineIcon sx={{fontSize: 18, color: '#666'}} />
-                 <Typography className="text-[14px] font-medium text-gray-700">Chat with us</Typography>
-              </div>
             </div>
           </Card>
         </div>
@@ -852,7 +859,7 @@ const OrderDetails = () => {
            {/* Price Details Card */}
            <Card className="rounded-md shadow-sm border border-gray-100">
              <div className="px-6 py-4 border-b border-gray-100">
-               <h2 className="text-[16px] font-medium text-[#878787] uppercase tracking-wide">
+               <h2 className="text-[16px] font-medium text-gray-600 uppercase tracking-wide">
                  Price Details
                </h2>
              </div>
@@ -867,13 +874,13 @@ const OrderDetails = () => {
                {/* Discount */}
                <div className="flex justify-between items-center text-[#212121]">
                  <span>Discount</span>
-                 <span className="text-[#388e3c]">- ₹{discount || 0}</span>
+                 <span className="text-[#15803d]">- ₹{discount || 0}</span>
                </div>
                
                {/* Shipping */}
                <div className="flex justify-between items-center text-[#212121]">
                  <span>Delivery Charges</span>
-                 <span className={deliveryCharge === 0 ? "text-[#388e3c]" : ""}>
+                 <span className={deliveryCharge === 0 ? "text-[#15803d]" : ""}>
                    {deliveryCharge === 0 ? "Free" : `₹${deliveryCharge}`}
                  </span>
                </div>
@@ -900,7 +907,7 @@ const OrderDetails = () => {
              </div>
 
              {/* Savings Footer */}
-             <div className="px-6 py-4 text-[#388e3c] font-medium text-[16px]">
+             <div className="px-6 py-4 text-[#15803d] font-medium text-[16px]">
                You will save ₹{discount} on this order
              </div>
 
@@ -990,7 +997,7 @@ const OrderDetails = () => {
       </div>
       {/* Order ID Footer */}
       <div className="px-1 mt-6">
-         <Typography variant="caption" className="text-gray-500 font-medium">Order #{orderId}</Typography>
+         <Typography variant="caption" className="text-gray-700 font-medium">Order #{orderId}</Typography>
       </div>
 
       {item && (
@@ -1046,6 +1053,12 @@ const OrderDetails = () => {
         orderItemId={item?._id}
         existingReview={mySellerReview}
       />
+      
+      <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)}>
+        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMsg}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

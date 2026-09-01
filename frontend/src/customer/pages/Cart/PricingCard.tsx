@@ -111,7 +111,7 @@ const PricingCard = () => {
         {/* Discount */}
         <div className="flex justify-between items-center text-[#212121]">
           <span>Discount</span>
-          <span className="text-[#388e3c]">- ₹{discount || 0}</span>
+          <span className="text-[#15803d]">- ₹{discount || 0}</span>
         </div>
         
         {/* Shipping */}
@@ -119,12 +119,12 @@ const PricingCard = () => {
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span>Delivery Charges</span>
             {maxFreeRadius > 0 && (
-              <span style={{ fontSize: '0.75rem', color: '#388e3c', marginTop: '2px' }}>
+              <span style={{ fontSize: '0.75rem', color: '#15803d', marginTop: '2px' }}>
                 (Free within {maxFreeRadius} km)
               </span>
             )}
           </div>
-          <span className={totalDeliveryCharges === 0 ? "text-[#388e3c]" : ""}>
+          <span className={totalDeliveryCharges === 0 ? "text-[#15803d]" : ""}>
             {totalDeliveryCharges === 0 ? "Free" : `₹${totalDeliveryCharges}`}
           </span>
         </div>
@@ -151,7 +151,7 @@ const PricingCard = () => {
       </div>
 
       {/* Savings Footer */}
-      <div className="px-6 py-4 text-[#388e3c] font-medium text-[16px]">
+      <div className="px-6 py-4 text-[#15803d] font-medium text-[16px]">
         You will save ₹{discount} on this order
       </div>
     </div>

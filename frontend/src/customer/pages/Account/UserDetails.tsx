@@ -1,5 +1,5 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\pages\Account\UserDetails.tsx
-import { Divider, Button, TextField, Box, Avatar, IconButton, Modal, Alert, Snackbar } from '@mui/material';
+import { Divider, Button, TextField, Box, Avatar, IconButton, Alert, Snackbar } from '@mui/material';
 import { useState, useEffect } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
@@ -7,11 +7,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import PersonIcon from "@mui/icons-material/PersonOutline";
 import EmailIcon from "@mui/icons-material/EmailOutlined";
 import PhoneIcon from "@mui/icons-material/PhoneOutlined";
-import ProfileFildCard from "../../../seller/pages/Account/ProfileFildCard";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { updateUserProfile, updateProfilePicture } from "../../../redux/Customer/UserSlice";
 import { uploadToCloudinary } from "../../../util/uploadToCloudnary";
-import CustomLoader from "../../../components/CustomLoader";
 
 const style = {
   position: 'absolute',
@@ -61,45 +59,21 @@ const UserDetails = () => {
     setIsEditing(false);
   };
 
-  // ✅ FIX: Upload image to backend and get URL
-  const uploadImageToServer = async (file: File): Promise<string> => {
-    const formData = new FormData();
-    formData.append('image', file);
-
-    const response = await fetch('/api/upload', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('jwt')}`
-      },
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to upload image');
-    }
-
-    const data = await response.json();
-    return data.imageUrl; // Backend should return the uploaded image URL
-  };
-
   const handleSave = async () => {
     setLoading(true);
     try {
       const jwt = localStorage.getItem('jwt') || '';
       
-      // ✅ FIX: Upload image first if a new file is selected
       let imageUrl = profilePicture;
       if (selectedFile) {
-        try {
-          imageUrl = await uploadImageToServer(selectedFile);
-          setProfilePicture(imageUrl);
-        } catch (uploadError) {
-          console.error('Image upload failed:', uploadError);
-          // Continue with profile update even if image upload fails
+        const uploadResult = await uploadToCloudinary(selectedFile);
+        if (!uploadResult.success || !uploadResult.url) {
+          throw new Error(uploadResult.error || "Failed to upload image");
         }
+        imageUrl = uploadResult.url;
+        setProfilePicture(imageUrl);
       }
 
-      // ✅ FIX: Update profile picture if it changed
       if (imageUrl !== user.user?.profilePicture) {
         await dispatch(updateProfilePicture({ 
           imageUrl, 
@@ -114,9 +88,7 @@ const UserDetails = () => {
         jwt 
       })).unwrap();
 
-      setSnackbarMessage('Profile updated successfully!');
-      setSnackbarSeverity('success');
-      setSnackbarOpen(true);
+      // Local success snackbar removed to avoid duplicates with global Profile.tsx snackbar
       setIsEditing(false);
       setSelectedFile(null);
       setPreviewImage(null);
@@ -129,56 +101,56 @@ const UserDetails = () => {
     }
   };
 
-  // ✅ FIX: Handle image selection and preview
- const handleImageUpload = async (
-  e: React.ChangeEvent<HTMLInputElement>
-) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+  // ✅ Handle image selection and preview (only local)
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  try {
-    setLoading(true);
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const validExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
+    const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
 
-    // 1️⃣ Upload to Cloudinary
-    const uploadResult = await uploadToCloudinary(file);
-    
-    if (!uploadResult.success || !uploadResult.url) {
-      throw new Error(uploadResult.error || "Failed to upload image");
+    if (!allowedTypes.includes(file.type) || !validExtensions.includes(fileExtension)) {
+      setSnackbarMessage('Only JPEG, JPG, PNG, and WebP formats are supported');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      e.target.value = ''; // clear input
+      return;
     }
-    
-    const imageUrl = uploadResult.url;
 
-    // 2️⃣ Preview immediately
-    setPreviewImage(imageUrl);
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      setSnackbarMessage('Image size must be less than 5MB');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      e.target.value = ''; // clear input
+      return;
+    }
 
-    // 3️⃣ Save in DB
-    const jwt = localStorage.getItem("jwt") || "";
-    await dispatch(
-      updateProfilePicture({ imageUrl, jwt })
-    ).unwrap();
-
-    setSnackbarMessage("Profile picture updated successfully");
-    setSnackbarSeverity("success");
-    setSnackbarOpen(true);
-  } catch (error) {
-    setSnackbarMessage("Image upload failed");
-    setSnackbarSeverity("error");
-    setSnackbarOpen(true);
-  } finally {
-    setLoading(false);
-  }
-};
+    setSelectedFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleRemovePicture = () => {
     setProfilePicture('');
     setPreviewImage(null);
     setSelectedFile(null);
-    const jwt = localStorage.getItem('jwt') || '';
-    dispatch(updateProfilePicture({ imageUrl: '', jwt }));
   };
 
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
+  };
+
+  const getOptimizedImage = (url: string | null | undefined) => {
+    if (!url) return '';
+    if (url.includes('cloudinary.com') && url.includes('/upload/')) {
+      return url.replace('/upload/', '/upload/w_240,h_240,c_fill,q_auto,f_auto/');
+    }
+    return url;
   };
 
   return (
@@ -192,7 +164,7 @@ const UserDetails = () => {
             <Button
               onClick={handleEditClick}
               size="small"
-              sx={{ bgcolor: '#FF5A00', color: 'white', '&:hover': { bgcolor: '#e04f00' }, borderRadius: 2, px: 2, textTransform: 'none', fontWeight: 600 }}
+              sx={{ bgcolor: '#c24100', color: 'white', '&:hover': { bgcolor: '#a33600' }, borderRadius: 2, px: 2, textTransform: 'none', fontWeight: 600 }}
               startIcon={<EditIcon />}
             >
               Edit Profile
@@ -213,7 +185,7 @@ const UserDetails = () => {
                 size="small"
                 startIcon={<SaveIcon />}
                 disabled={loading}
-                sx={{ bgcolor: '#FF5A00', color: 'white', '&:hover': { bgcolor: '#e04f00' }, borderRadius: 2, px: 2, textTransform: 'none', fontWeight: 600, flex: { xs: 1, sm: 'none' }, whiteSpace: 'nowrap' }}
+                sx={{ bgcolor: '#c24100', color: 'white', '&:hover': { bgcolor: '#a33600' }, borderRadius: 2, px: 2, textTransform: 'none', fontWeight: 600, flex: { xs: 1, sm: 'none' }, whiteSpace: 'nowrap' }}
               >
                 {loading ? 'Saving...' : 'Save Changes'}
               </Button>
@@ -234,13 +206,14 @@ const UserDetails = () => {
                   boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
                   border: '4px solid white'
                 }}
-                src={previewImage || profilePicture || "https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/profile-pic-male_4811a1.svg"}
+                src={previewImage || getOptimizedImage(profilePicture) || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.user?.fullName || 'User')}&background=FF5A00&color=fff`}
                 alt="Profile"
+                imgProps={{ fetchPriority: 'high' as any, loading: 'eager' }}
               />
               {isEditing && (
                 <div className="absolute bottom-2 right-2 bg-[#FF5A00] rounded-full p-1 border-2 border-white shadow-md">
                   <input
-                    accept="image/*"
+                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
                     style={{ display: 'none' }}
                     id="profile-picture-upload"
                     type="file"
@@ -259,17 +232,24 @@ const UserDetails = () => {
               )}
             </div>
             
-            {isEditing && (profilePicture || previewImage) && (
-              <Button 
-                onClick={handleRemovePicture} 
-                variant="text" 
-                color="error"
-                size="small"
-                sx={{ mt: { xs: 0, sm: 4 }, textTransform: 'none', fontWeight: 600 }}
-              >
-                Remove Picture
-              </Button>
-            )}
+            <div className="flex flex-col gap-1 sm:mt-4 text-center sm:text-left">
+              {isEditing && (profilePicture || previewImage) && (
+                <Button 
+                  onClick={handleRemovePicture} 
+                  variant="text" 
+                  color="error"
+                  size="small"
+                  sx={{ textTransform: 'none', fontWeight: 600, width: 'fit-content', mx: { xs: 'auto', sm: 0 } }}
+                >
+                  Remove Picture
+                </Button>
+              )}
+              {isEditing && (
+                <span style={{ fontWeight: 'normal', color: '#6b7280', fontSize: '0.8rem', marginTop: '4px' }}>
+                  (Supported: JPEG, JPG, PNG, WebP. Max: 5MB)
+                </span>
+              )}
+            </div>
           </div>
 
           <div>

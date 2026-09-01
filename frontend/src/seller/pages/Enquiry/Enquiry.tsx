@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Box, Chip, Card, CardContent, Divider, Stack, Avatar } from '@mui/material';
+import { useEffect, useState } from "react";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Box, Chip, Card, CardContent, Divider, Avatar } from '@mui/material';
 import EmailIcon from '@mui/icons-material/Email';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -94,8 +94,8 @@ export default function Enquiry() {
                     <Chip 
                       label={item.subject} 
                       size="small" 
-                      color="primary" 
-                      sx={{ textTransform: 'capitalize', fontWeight: 600, height: 24, fontSize: '0.7rem' }}
+                      variant="outlined"
+                      sx={{ textTransform: 'capitalize', fontWeight: 600, height: 24, fontSize: '0.7rem', color: '#9a3412', borderColor: '#9a3412' }}
                     />
                   </Box>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -105,9 +105,9 @@ export default function Enquiry() {
                   <Typography variant="body2" sx={{ bgcolor: 'grey.50', p: 1.5, borderRadius: 2, mb: 1.5, color: 'text.secondary', fontStyle: 'italic' }}>
                     "{item.message}"
                   </Typography>
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 0.5, color: 'text.disabled' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 0.5, color: '#424242' }}>
                     <CalendarTodayIcon sx={{ fontSize: 14 }} />
-                    <Typography variant="caption">
+                    <Typography variant="caption" sx={{ fontWeight: 500 }}>
                       {new Date(item.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                     </Typography>
                   </Box>
@@ -121,10 +121,10 @@ export default function Enquiry() {
             <Table sx={{ minWidth: 800 }} aria-label="enquiries table">
               <TableHead sx={{ bgcolor: 'primary.50' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 700, color: 'primary.dark' }}>Customer Details</TableCell>
-                  <TableCell sx={{ fontWeight: 700, color: 'primary.dark' }}>Subject</TableCell>
-                  <TableCell sx={{ fontWeight: 700, color: 'primary.dark', width: '40%' }}>Message</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 700, color: 'primary.dark' }}>Date</TableCell>
+                  <TableCell sx={{ fontWeight: 700, color: '#9a3412' }}>Customer Details</TableCell>
+                  <TableCell sx={{ fontWeight: 700, color: '#9a3412' }}>Subject</TableCell>
+                  <TableCell sx={{ fontWeight: 700, color: '#9a3412', width: '40%' }}>Message</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700, color: '#9a3412' }}>Date</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -145,9 +145,8 @@ export default function Enquiry() {
                       <Chip 
                         label={item.subject} 
                         size="small" 
-                        color="primary" 
                         variant="outlined" 
-                        sx={{ textTransform: 'capitalize', fontWeight: 600 }}
+                        sx={{ textTransform: 'capitalize', fontWeight: 600, color: '#9a3412', borderColor: '#9a3412' }}
                       />
                     </TableCell>
                     <TableCell>

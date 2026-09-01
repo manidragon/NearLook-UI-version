@@ -6,6 +6,7 @@ const CategoryAttribute = require("../models/CategoryAttribute");
 const ProductError = require("../exceptions/ProductError");
 const mongoose = require("mongoose");
 const { sendVerificationEmail } = require("../utils/sendEmail");
+const { generateStatusTemplate } = require("../utils/emailTemplates");
 
 class ProductService {
 
@@ -34,7 +35,7 @@ class ProductService {
 
       const CategoryAttribute = mongoose.model('CategoryAttribute');
       const categoryAttrs = await CategoryAttribute.find({
-        categoryId: category.categoryId,
+        categoryId: category._id.toString(),
         isActive: true
       });
 
@@ -134,10 +135,7 @@ class ProductService {
           const variantHighlights = {};
           if (req.highlights && typeof req.highlights === 'object') {
             Object.entries(req.highlights).forEach(([key, value]) => {
-              const keyLower = key.toLowerCase();
-              if (highlightFieldNames.includes(keyLower)) {
-                variantHighlights[key] = value;
-              }
+              variantHighlights[key] = value;
             });
           }
 
@@ -175,12 +173,16 @@ class ProductService {
           const attr = categoryAttrs.find(a => a.name === keyLower && a.type === 'select');
           
           if (attr) {
-            const exists = attr.options.some(opt => opt.toLowerCase() === strValue.toLowerCase());
-            if (!exists) {
+            const existsInDb = attr.options.some(opt => opt.toLowerCase() === strValue.toLowerCase());
+            if (!existsInDb) {
               if (!attributesToUpdate.has(keyLower)) {
                 attributesToUpdate.set(keyLower, { doc: attr, newOptions: new Set() });
               }
-              attributesToUpdate.get(keyLower).newOptions.add(strValue);
+              const stagedOptions = Array.from(attributesToUpdate.get(keyLower).newOptions);
+              const existsInStaged = stagedOptions.some(opt => opt.toLowerCase() === strValue.toLowerCase());
+              if (!existsInStaged) {
+                attributesToUpdate.get(keyLower).newOptions.add(strValue);
+              }
             }
           }
         };
@@ -191,6 +193,13 @@ class ProductService {
 
         if (req.variants && Array.isArray(req.variants)) {
           req.variants.forEach(variant => {
+            // ✅ Learn Color variants as well
+            if (variant.color) {
+              const colorAttr = categoryAttrs.find(a => a.isColorVariantField || a.name === 'color' || a.name === 'color_variant');
+              if (colorAttr) {
+                checkAndAddOption(colorAttr.name, variant.color);
+              }
+            }
             if (variant.specifications && typeof variant.specifications === 'object') {
               Object.entries(variant.specifications).forEach(([key, value]) => checkAndAddOption(key, value));
             }
@@ -200,12 +209,15 @@ class ProductService {
         for (const { doc, newOptions } of attributesToUpdate.values()) {
           const addedOptions = Array.from(newOptions);
           if (addedOptions.length > 0) {
-            doc.options.push(...addedOptions);
-            await doc.save();
+            const CategoryAttribute = require('../models/CategoryAttribute');
+            await CategoryAttribute.updateOne(
+              { _id: doc._id },
+              { $addToSet: { options: { $each: addedOptions } } }
+            );
           }
         }
       } catch (attrError) {
-        console.error("⚠️ Failed to update category attribute options dynamically:", attrError.message);
+        console.error("⚠️ Failed to update category attribute options dynamically:", attrError);
       }
 
       const product = new Product({
@@ -402,7 +414,8 @@ class ProductService {
         const message = approvalStatus === 'REJECTED' 
           ? `Your product "${product.title}" has been REJECTED. Reason: ${rejectReason}`
           : `Your product "${product.title}" has been ${approvalStatus}.`;
-        sendVerificationEmail(product.seller.email, subject, message).catch(err => console.error("Email error:", err));
+        const html = generateStatusTemplate(product.title, approvalStatus, rejectReason);
+        sendVerificationEmail(product.seller.email, subject, message, html).catch(err => console.error("Email error:", err));
       }
 
       return product;
@@ -516,10 +529,11 @@ class ProductService {
       // ✅ Send notification to seller
       if (updatedOffer.seller && updatedOffer.seller.email) {
         const subject = `Your Offer is ${approvalStatus}`;
-        const message = approvalStatus === 'REJECTED' 
-          ? `Your offer for "${populatedProduct.title}" has been REJECTED. Reason: ${rejectReason}`
-          : `Your offer for "${populatedProduct.title}" has been ${approvalStatus}.`;
-        sendVerificationEmail(updatedOffer.seller.email, subject, message).catch(err => console.error("Email error:", err));
+        const message = updatedOffer.approvalStatus === 'REJECTED' 
+          ? `Your offer for product variant has been REJECTED. Reason: ${rejectReason}`
+          : `Your offer for product variant has been ${updatedOffer.approvalStatus}.`;
+        const html = generateStatusTemplate("Product Offer Update", updatedOffer.approvalStatus, rejectReason);
+        sendVerificationEmail(updatedOffer.seller.email, subject, message, html).catch(err => console.error("Email error:", err));
       }
 
       return { product: populatedProduct, offer: updatedOffer };
@@ -592,6 +606,10 @@ class ProductService {
               }
 
               const offerUpdates = {};
+              if (existingOffer.approvalStatus === 'REJECTED') {
+                offerUpdates['variants.$[v].offers.$[o].approvalStatus'] = 'PENDING';
+                offerUpdates['variants.$[v].offers.$[o].rejectReason'] = '';
+              }
               if (offerUpdate.mrpPrice !== undefined) offerUpdates['variants.$[v].offers.$[o].mrpPrice'] = offerUpdate.mrpPrice;
               if (offerUpdate.sellingPrice !== undefined) offerUpdates['variants.$[v].offers.$[o].sellingPrice'] = offerUpdate.sellingPrice;
               if (offerUpdate.stock !== undefined) offerUpdates['variants.$[v].offers.$[o].stock'] = offerUpdate.stock;
@@ -605,7 +623,6 @@ class ProductService {
               if (offerUpdate.freeDeliveryRadiusKM !== undefined) offerUpdates['variants.$[v].offers.$[o].freeDeliveryRadiusKM'] = offerUpdate.freeDeliveryRadiusKM;
               if (offerUpdate.isActive !== undefined) offerUpdates['variants.$[v].offers.$[o].isActive'] = offerUpdate.isActive;
               offerUpdates['variants.$[v].offers.$[o].updatedAt'] = new Date();
-
 
               if (Object.keys(offerUpdates).length > 0) {
                 const result = await Product.updateOne(
@@ -658,8 +675,13 @@ class ProductService {
         }
       }
 
-      const topLevelFields = ['title', 'description', 'isActive', 'isFeatured'];
+      const topLevelFields = ['title', 'description', 'isActive', 'isFeatured', 'highlights'];
       const topLevelUpdates = {};
+
+      if (product.approvalStatus === 'REJECTED') {
+        topLevelUpdates['approvalStatus'] = 'PENDING';
+        topLevelUpdates['rejectReason'] = '';
+      }
 
       for (const field of topLevelFields) {
         if (updates[field] !== undefined && updates[field] !== null) {
@@ -845,15 +867,42 @@ class ProductService {
       const baseMatch = { isActive: true, approvalStatus: { $in: ['APPROVED', 'Approved', 'approved', null] } };
 
       if (category) {
+        const Category = mongoose.model('Category');
+        let targetCategoryId = null;
+
         if (mongoose.Types.ObjectId.isValid(category)) {
-          baseMatch.category = new mongoose.Types.ObjectId(category);
+          targetCategoryId = new mongoose.Types.ObjectId(category);
         } else {
           try {
-            const Category = mongoose.model('Category');
             const catDoc = await Category.findOne({ categoryId: category, level: 3 });
-            if (catDoc) baseMatch.category = catDoc._id;
+            if (catDoc) targetCategoryId = catDoc._id;
           } catch (err) {
             console.warn('⚠️ Category slug resolution failed:', err.message);
+          }
+        }
+
+        if (targetCategoryId) {
+          const targetCat = await Category.findById(targetCategoryId);
+          if (targetCat) {
+            let categoryIds = [targetCat._id];
+            
+            if (targetCat.level === 1) {
+              const level2Cats = await Category.find({ parentCategory: targetCat._id }).select('_id');
+              const level2Ids = level2Cats.map(c => c._id);
+              categoryIds = categoryIds.concat(level2Ids);
+              
+              if (level2Ids.length > 0) {
+                const level3Cats = await Category.find({ parentCategory: { $in: level2Ids } }).select('_id');
+                categoryIds = categoryIds.concat(level3Cats.map(c => c._id));
+              }
+            } else if (targetCat.level === 2) {
+              const level3Cats = await Category.find({ parentCategory: targetCat._id }).select('_id');
+              categoryIds = categoryIds.concat(level3Cats.map(c => c._id));
+            }
+
+            baseMatch.category = { $in: categoryIds };
+          } else {
+            baseMatch.category = targetCategoryId;
           }
         }
       }

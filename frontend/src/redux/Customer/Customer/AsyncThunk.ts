@@ -8,7 +8,7 @@ export const fetchHomePageData = createAsyncThunk<HomeData>(
   'home/fetchHomePageData',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('/home-page');
+      const response = await api.get('/home/home-page');
       return response.data;
     } catch (error: any) {
       // Handle the error and return it to be used in rejected action

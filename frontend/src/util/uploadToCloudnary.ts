@@ -35,34 +35,40 @@ export const uploadToCloudinary = async (
       };
     }
 
-    // ✅ Validate file size (max 3MB)
-    const maxSize = 3 * 1024 * 1024;
-    if (file.size > maxSize) {
+    // ✅ Validate file size based on imageType
+    let maxUploadSizeMB = 5; // Default 5MB
+    if (imageType === 'banner') maxUploadSizeMB = 7;
+    else if (imageType === 'product') maxUploadSizeMB = 5;
+    else if (imageType === 'logo') maxUploadSizeMB = 2;
+
+    const maxUploadSize = maxUploadSizeMB * 1024 * 1024;
+    if (file.size > maxUploadSize) {
       return {
         success: false,
-        error: 'Image size must be less than 3MB',
+        error: `Image size must be less than ${maxUploadSizeMB}MB`,
         file
       };
     }
 
     // ✅ Compress Image Based on Type
-    let maxWidthOrHeight = 800;
-    let maxSizeMB = 0.2; // 200KB
+    let maxWidthOrHeight = 1920; // High resolution
+    let maxSizeMB = 1.0; // 1MB general
 
     if (imageType === 'product') {
-      maxWidthOrHeight = 1200;
-      maxSizeMB = 0.3;
+      maxWidthOrHeight = 1920;
+      maxSizeMB = 1.5; // High quality products
     } else if (imageType === 'banner') {
-      maxWidthOrHeight = 1200;
-      maxSizeMB = 0.4;
+      maxWidthOrHeight = 2560; // 2K resolution for banners
+      maxSizeMB = 2.5; // 2.5MB for banners
     } else if (imageType === 'logo') {
-      maxWidthOrHeight = 250;
-      maxSizeMB = 0.05; // 50KB
+      maxWidthOrHeight = 500;
+      maxSizeMB = 0.2; // 200KB for logos
     }
 
     const options = {
       maxSizeMB,
       maxWidthOrHeight,
+      initialQuality: 0.9, // Keep high quality initially
       useWebWorker: true,
       onProgress: onProgress ? (progress: number) => onProgress(progress / 2) : undefined 
       // Divide progress by 2 because compression takes time before upload
@@ -97,12 +103,6 @@ export const uploadToCloudinary = async (
     }
 
     const fileData: CloudinaryUploadResponse = await res.json();
-
-    console.log("✅ Image uploaded:", {
-      url: fileData.secure_url,
-      public_id: fileData.public_id,
-      format: fileData.format
-    });
 
     return {
       success: true,

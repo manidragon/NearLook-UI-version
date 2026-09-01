@@ -39,9 +39,9 @@ const GlobalBreadcrumbs = () => {
                                     <path d="m14.413 10.663-6.25 6.25a.939.939 0 1 1-1.328-1.328L12.42 10 6.836 4.413a.939.939 0 1 1 1.328-1.328l6.25 6.25a.94.94 0 0 1-.001 1.328" fill="#CBD5E1"/>
                                 </svg>
                                 {isLast ? (
-                                    <span className="text-[#FF5A00] capitalize">{cleanName}</span>
+                                    <span className="text-[#c24100] capitalize font-medium">{cleanName}</span>
                                 ) : (
-                                    <span className="text-gray-500 capitalize">{cleanName}</span>
+                                    <span className="text-gray-700 capitalize">{cleanName}</span>
                                 )}
                             </React.Fragment>
                         );

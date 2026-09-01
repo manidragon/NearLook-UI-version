@@ -7,6 +7,8 @@ const router = express.Router();
 // Define routes
 router.post('/categories', homeCategoryController.createHomeCategories);
 router.get('/home-category', homeCategoryController.getHomeCategory);
+router.get('/home-page', homeCategoryController.getHomePageData);
+
 router.post('/home-category', homeCategoryController.createHomeCategory); // ✅ NEW
 router.patch('/home-category/:id', homeCategoryController.updateHomeCategory);
 router.delete('/home-category/:id', homeCategoryController.deleteHomeCategory); // ✅ NEW

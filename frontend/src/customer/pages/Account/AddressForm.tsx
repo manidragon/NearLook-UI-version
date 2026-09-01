@@ -25,7 +25,15 @@ const AddressForm = ({ initialData, onSubmit, onCancel }: AddressFormProps) => {
   const [errors, setErrors] = useState<Partial<Record<keyof Omit<Address, '_id'>, string>>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
+    
+    if (name === 'name' || name === 'city' || name === 'state') {
+      value = value.replace(/[0-9]/g, '');
+    }
+    if (name === 'mobile' || name === 'pinCode') {
+      value = value.replace(/[^0-9]/g, '');
+    }
+
     setFormData(prev => ({ ...prev, [name]: value }));
     
     // Clear error when user starts typing

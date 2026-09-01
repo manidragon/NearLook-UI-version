@@ -16,7 +16,7 @@ const Navbar = ({Sidebar}:any) => {
     <div className='sticky top-0 z-50 h-[10vh] flex items-center px-5 border-b border-white/20 backdrop-blur-2xl bg-white/30 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)]'>
       {/* Left side: Hamburger Menu (Hidden on Desktop) */}
       <div className='flex-1 flex items-center lg:hidden'>
-        <IconButton onClick={toggleDrawer(true)} color='primary'>
+        <IconButton aria-label="Open navigation menu" onClick={toggleDrawer(true)} color='primary'>
           <MenuIcon color='primary' />
         </IconButton>
       </div>
@@ -27,7 +27,7 @@ const Navbar = ({Sidebar}:any) => {
       {/* Center: Logo */}
       <div className='flex-1 flex justify-center'>
         <div onClick={() => navigate("/")} className='cursor-pointer overflow-hidden h-10 w-28 transition-transform hover:scale-105'>
-          <img src="/logo.png" alt="Near Look Logo" className="w-full h-full object-cover scale-[1.35] origin-center drop-shadow-sm" />
+          <img src="https://res.cloudinary.com/dt6nu9oqs/image/upload/f_auto,q_auto,w_400,c_limit/v1786088256/nearlook_uploads/walx5a8b8xft0xsc0bhc.png" alt="Near Look Logo" className="w-full h-full object-cover scale-[1.35] origin-center drop-shadow-sm" />
         </div>
       </div>
 

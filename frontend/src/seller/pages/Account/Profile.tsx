@@ -5,7 +5,6 @@ import {
   Avatar,
   Box,
   Button,
-  Divider,
   Modal,
   Snackbar,
   Typography,
@@ -144,6 +143,7 @@ const Profile = () => {
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full blur-2xl translate-y-1/3 -translate-x-1/4"></div>
         
         <Avatar 
+          alt="Seller Profile Logo"
           src={sellers.profile?.businessDetails?.logo} 
           sx={{ width: { xs: 70, sm: 90 }, height: { xs: 70, sm: 90 }, border: '4px solid rgba(255,255,255,0.9)', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }} 
         />
@@ -165,7 +165,7 @@ const Profile = () => {
             aria-label="seller profile tabs"
             sx={{
               '& .MuiTabs-indicator': { backgroundColor: '#FF5A00', height: 4, borderRadius: '4px 4px 0 0' },
-              '& .MuiTab-root': { textTransform: 'none', fontWeight: 700, fontSize: { xs: '0.85rem', sm: '0.95rem' }, color: 'text.secondary', minHeight: { xs: 48, sm: 60 }, transition: 'all 0.2s', '&:hover': { color: '#FF5A00', opacity: 0.8 }, '&.Mui-selected': { color: '#FF5A00' } }
+              '& .MuiTab-root': { textTransform: 'none', fontWeight: 700, fontSize: { xs: '0.85rem', sm: '0.95rem' }, color: 'text.secondary', minHeight: { xs: 48, sm: 60 }, transition: 'all 0.2s', '&:hover': { color: '#b33f00', opacity: 0.8 }, '&.Mui-selected': { color: '#b33f00' } }
             }}
           >
             <Tab icon={<AccountCircleIcon />} iconPosition="start" label="Profile" {...a11yProps(0)} />
@@ -184,7 +184,7 @@ const Profile = () => {
               <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 4 }, borderRadius: 4, bgcolor: 'white', border: '1px solid', borderColor: 'grey.100', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', '&:hover': { boxShadow: '0 8px 30px rgba(0,0,0,0.06)', transform: 'translateY(-2px)' } }}>
                 <div className="flex items-center justify-between mb-5">
                   <h2 className="text-lg sm:text-xl font-extrabold text-gray-800">Personal Details</h2>
-                  <Button onClick={() => handleOpen("personalDetails")} size="small" variant="contained" sx={{ minWidth: 0, p: 1, borderRadius: '50%', bgcolor: '#FF5A00', '&:hover': { bgcolor: '#e04f00' }, boxShadow: '0 4px 10px rgba(255,90,0,0.3)' }}><EditIcon fontSize="small" /></Button>
+                  <Button aria-label="Edit" onClick={() => handleOpen("personalDetails")} size="small" variant="contained" sx={{ minWidth: 0, p: 1, borderRadius: '50%', bgcolor: '#FF5A00', '&:hover': { bgcolor: '#e04f00' }, boxShadow: '0 4px 10px rgba(255,90,0,0.3)' }}><EditIcon fontSize="small" /></Button>
                 </div>
                 <ProfileFildCard keys={"Seller Name"} value={sellers.profile?.sellerName || "Not provided"} />
                 <ProfileFildCard keys={"Email"} value={sellers.profile?.email || "Not provided"} />
@@ -193,7 +193,7 @@ const Profile = () => {
               <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 4 }, borderRadius: 4, bgcolor: 'white', border: '1px solid', borderColor: 'grey.100', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', '&:hover': { boxShadow: '0 8px 30px rgba(0,0,0,0.06)', transform: 'translateY(-2px)' } }}>
                 <div className="flex items-center justify-between mb-5">
                   <h2 className="text-lg sm:text-xl font-extrabold text-gray-800">Business Logo</h2>
-                  <Button onClick={() => handleOpen("logo")} size="small" variant="contained" sx={{ minWidth: 0, p: 1, borderRadius: '50%', bgcolor: '#FF5A00', '&:hover': { bgcolor: '#e04f00' }, boxShadow: '0 4px 10px rgba(255,90,0,0.3)' }}><EditIcon fontSize="small" /></Button>
+                  <Button aria-label="Edit" onClick={() => handleOpen("logo")} size="small" variant="contained" sx={{ minWidth: 0, p: 1, borderRadius: '50%', bgcolor: '#FF5A00', '&:hover': { bgcolor: '#e04f00' }, boxShadow: '0 4px 10px rgba(255,90,0,0.3)' }}><EditIcon fontSize="small" /></Button>
                 </div>
                 <div className="flex justify-center items-center p-4 bg-slate-50 rounded-md">
                   {sellers.profile?.businessDetails?.logo ? (
@@ -212,18 +212,20 @@ const Profile = () => {
               <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 4 }, borderRadius: 4, bgcolor: 'white', border: '1px solid', borderColor: 'grey.100', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', '&:hover': { boxShadow: '0 8px 30px rgba(0,0,0,0.06)', transform: 'translateY(-2px)' } }}>
                 <div className="flex items-center justify-between mb-5">
                   <h2 className="text-lg sm:text-xl font-extrabold text-gray-800">Business Identity</h2>
-                  <Button onClick={() => handleOpen("businessDetails")} size="small" variant="contained" sx={{ minWidth: 0, p: 1, borderRadius: '50%', bgcolor: '#FF5A00', '&:hover': { bgcolor: '#e04f00' }, boxShadow: '0 4px 10px rgba(255,90,0,0.3)' }}><EditIcon fontSize="small" /></Button>
+                  <Button aria-label="Edit" onClick={() => handleOpen("businessDetails")} size="small" variant="contained" sx={{ minWidth: 0, p: 1, borderRadius: '50%', bgcolor: '#FF5A00', '&:hover': { bgcolor: '#e04f00' }, boxShadow: '0 4px 10px rgba(255,90,0,0.3)' }}><EditIcon fontSize="small" /></Button>
                 </div>
                 <ProfileFildCard keys={"Business Name"} value={sellers.profile?.businessDetails?.businessName || "Not provided"} />
-                <ProfileFildCard keys={"Business Type"} value={sellers.profile?.businessType || "Not specified"} />
-                <ProfileFildCard keys={"PAN Number"} value={sellers.profile?.PAN || "Not provided"} />
+                <ProfileFildCard keys={"Business Email"} value={sellers.profile?.businessDetails?.businessEmail || "Not provided"} />
+                <ProfileFildCard keys={"Business Mobile"} value={sellers.profile?.businessDetails?.businessMobile || "Not provided"} />
                 <ProfileFildCard keys={"GSTIN"} value={sellers.profile?.GSTIN || "Not provided"} />
+                <ProfileFildCard keys={"PAN Number"} value={sellers.profile?.PAN || "Not provided"} />
+                <ProfileFildCard keys={"Business Type"} value={sellers.profile?.businessType || "Not specified"} />
               </Paper>
               
               <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 4 }, borderRadius: 4, bgcolor: 'white', border: '1px solid', borderColor: 'grey.100', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', '&:hover': { boxShadow: '0 8px 30px rgba(0,0,0,0.06)', transform: 'translateY(-2px)' } }}>
                 <div className="flex items-center justify-between mb-5">
                   <h2 className="text-lg sm:text-xl font-extrabold text-gray-800">Store Location</h2>
-                  <Button onClick={() => handleOpen("location")} size="small" variant="contained" sx={{ minWidth: 0, p: 1, borderRadius: '50%', bgcolor: '#FF5A00', '&:hover': { bgcolor: '#e04f00' }, boxShadow: '0 4px 10px rgba(255,90,0,0.3)' }}><EditIcon fontSize="small" /></Button>
+                  <Button aria-label="Edit" onClick={() => handleOpen("location")} size="small" variant="contained" sx={{ minWidth: 0, p: 1, borderRadius: '50%', bgcolor: '#FF5A00', '&:hover': { bgcolor: '#e04f00' }, boxShadow: '0 4px 10px rgba(255,90,0,0.3)' }}><EditIcon fontSize="small" /></Button>
                 </div>
                 <ProfileFildCard keys={"District"} value={sellers.profile?.district || "Not provided"} />
                 <ProfileFildCard keys={"Coordinates"} value={getLocationDisplay()} />
@@ -237,7 +239,7 @@ const Profile = () => {
              <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 4 }, borderRadius: 4, bgcolor: 'white', border: '1px solid', borderColor: 'grey.100', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', '&:hover': { boxShadow: '0 8px 30px rgba(0,0,0,0.06)', transform: 'translateY(-2px)' }, maxWidth: '800px' }}>
                 <div className="flex items-center justify-between mb-5">
                   <h2 className="text-lg sm:text-xl font-extrabold text-gray-800">Bank Details</h2>
-                  <Button onClick={() => handleOpen("bankDetails")} size="small" variant="contained" sx={{ minWidth: 0, p: 1, borderRadius: '50%', bgcolor: '#FF5A00', '&:hover': { bgcolor: '#e04f00' }, boxShadow: '0 4px 10px rgba(255,90,0,0.3)' }}><EditIcon fontSize="small" /></Button>
+                  <Button aria-label="Edit" onClick={() => handleOpen("bankDetails")} size="small" variant="contained" sx={{ minWidth: 0, p: 1, borderRadius: '50%', bgcolor: '#FF5A00', '&:hover': { bgcolor: '#e04f00' }, boxShadow: '0 4px 10px rgba(255,90,0,0.3)' }}><EditIcon fontSize="small" /></Button>
                 </div>
                 <ProfileFildCard keys={"Account Holder"} value={sellers.profile?.bankDetails?.accountHolderName || "Not provided"} />
                 <ProfileFildCard keys={"Account Number"} value={sellers.profile?.bankDetails?.accountNumber || "Not provided"} />
@@ -252,19 +254,20 @@ const Profile = () => {
               <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 4 }, borderRadius: 4, bgcolor: 'white', border: '1px solid', borderColor: 'grey.100', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', '&:hover': { boxShadow: '0 8px 30px rgba(0,0,0,0.06)', transform: 'translateY(-2px)' } }}>
                 <div className="flex items-center justify-between mb-5">
                   <h2 className="text-lg sm:text-xl font-extrabold text-gray-800">Fulfillment Settings</h2>
-                  <Button onClick={() => handleOpen("operations")} size="small" variant="contained" sx={{ minWidth: 0, p: 1, borderRadius: '50%', bgcolor: '#FF5A00', '&:hover': { bgcolor: '#e04f00' }, boxShadow: '0 4px 10px rgba(255,90,0,0.3)' }}><EditIcon fontSize="small" /></Button>
+                  <Button aria-label="Edit" onClick={() => handleOpen("operations")} size="small" variant="contained" sx={{ minWidth: 0, p: 1, borderRadius: '50%', bgcolor: '#FF5A00', '&:hover': { bgcolor: '#e04f00' }, boxShadow: '0 4px 10px rgba(255,90,0,0.3)' }}><EditIcon fontSize="small" /></Button>
                 </div>
                 <ProfileFildCard keys={"Fulfillment Mode"} value={sellers.profile?.fulfillmentMode || "SELF_SHIP"} />
                 <ProfileFildCard keys={"Handling Time"} value={`${sellers.profile?.handlingTime || 2} Days`} />
-                <ProfileFildCard keys={"Payout Schedule"} value={sellers.profile?.payoutSchedule || "WEEKLY"} />
                 <ProfileFildCard keys={"Min Free Delivery (₹)"} value={`₹${sellers.profile?.minFreeDelivery ?? 500}`} />
               </Paper>
               
               <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 4 }, borderRadius: 4, bgcolor: 'white', border: '1px solid', borderColor: 'grey.100', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', '&:hover': { boxShadow: '0 8px 30px rgba(0,0,0,0.06)', transform: 'translateY(-2px)' } }}>
                 <div className="flex items-center justify-between mb-5">
                   <h2 className="text-lg sm:text-xl font-extrabold text-gray-800">Pickup Address</h2>
-                  <Button onClick={() => handleOpen("pickupAddress")} size="small" variant="contained" sx={{ minWidth: 0, p: 1, borderRadius: '50%', bgcolor: '#FF5A00', '&:hover': { bgcolor: '#e04f00' }, boxShadow: '0 4px 10px rgba(255,90,0,0.3)' }}><EditIcon fontSize="small" /></Button>
+                  <Button aria-label="Edit" onClick={() => handleOpen("pickupAddress")} size="small" variant="contained" sx={{ minWidth: 0, p: 1, borderRadius: '50%', bgcolor: '#FF5A00', '&:hover': { bgcolor: '#e04f00' }, boxShadow: '0 4px 10px rgba(255,90,0,0.3)' }}><EditIcon fontSize="small" /></Button>
                 </div>
+                <ProfileFildCard keys={"Contact Name"} value={getAddressField("name")} />
+                <ProfileFildCard keys={"Mobile"} value={getAddressField("mobile")} />
                 <ProfileFildCard keys={"Address"} value={getAddressField("address")} />
                 <ProfileFildCard keys={"Locality"} value={getAddressField("locality")} />
                 <ProfileFildCard keys={"City & State"} value={`${getAddressField("city")}, ${getAddressField("state")}`} />
@@ -278,7 +281,7 @@ const Profile = () => {
             <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 4 }, borderRadius: 4, bgcolor: 'white', border: '1px solid', borderColor: 'grey.100', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', transition: 'all 0.3s ease', '&:hover': { boxShadow: '0 8px 30px rgba(0,0,0,0.06)', transform: 'translateY(-2px)' }, maxWidth: '800px' }}>
                 <div className="flex items-center justify-between mb-5">
                   <h2 className="text-lg sm:text-xl font-extrabold text-gray-800">Storefront Branding</h2>
-                  <Button onClick={() => handleOpen("storefront")} size="small" variant="contained" sx={{ minWidth: 0, p: 1, borderRadius: '50%', bgcolor: '#FF5A00', '&:hover': { bgcolor: '#e04f00' }, boxShadow: '0 4px 10px rgba(255,90,0,0.3)' }}><EditIcon fontSize="small" /></Button>
+                  <Button aria-label="Edit" onClick={() => handleOpen("storefront")} size="small" variant="contained" sx={{ minWidth: 0, p: 1, borderRadius: '50%', bgcolor: '#FF5A00', '&:hover': { bgcolor: '#e04f00' }, boxShadow: '0 4px 10px rgba(255,90,0,0.3)' }}><EditIcon fontSize="small" /></Button>
                 </div>
                 
                 <div className="flex items-center justify-between mb-2">
@@ -297,6 +300,21 @@ const Profile = () => {
                 <div className="p-3 sm:p-4 my-2 flex flex-col xl:flex-row xl:items-center bg-[#f8fafc] border border-slate-100 rounded-xl">
                   <p className="text-xs sm:text-sm text-gray-500 font-medium xl:w-36 mb-1 xl:mb-0 xl:pr-4 uppercase tracking-wider">Store Desc</p>
                   <p className="font-semibold text-gray-800 text-sm sm:text-base flex-1 break-words break-all mt-1 xl:mt-0">{sellers.profile?.storefront?.description || "Not provided"}</p>
+                </div>
+
+                <div className="p-3 sm:p-4 my-2 flex flex-col xl:flex-row xl:items-start bg-[#f8fafc] border border-slate-100 rounded-xl">
+                  <p className="text-xs sm:text-sm text-gray-500 font-medium xl:w-36 mb-1 xl:mb-0 xl:pr-4 uppercase tracking-wider">Promotions</p>
+                  <div className="font-semibold text-gray-800 text-sm sm:text-base flex-1 break-words break-all mt-1 xl:mt-0">
+                    {sellers.profile?.storefront?.promotions && sellers.profile.storefront.promotions.length > 0 ? (
+                      <ul className="list-disc pl-5 m-0">
+                        {sellers.profile.storefront.promotions.map((promo: string, index: number) => (
+                          <li key={index}>{promo}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      "No promotions added"
+                    )}
+                  </div>
                 </div>
                 
                 <ProfileFildCard keys={"Social Links"} value={

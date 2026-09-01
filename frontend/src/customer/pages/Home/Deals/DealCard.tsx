@@ -22,7 +22,7 @@ const DealCard = ({ deal }: any) => {
       <div className='relative overflow-hidden w-[150px] h-[150px] lg:w-[180px] lg:h-[180px] flex items-center justify-center p-2 bg-white rounded-md'>
         <img 
           className='max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-300' 
-          src={secureUrl(category.image) || '/placeholder.jpg'} 
+          src={secureUrl(category.image, 200) || '/placeholder.jpg'} 
           alt={category.description || 'Deal'} 
         />
       </div>
@@ -31,7 +31,7 @@ const DealCard = ({ deal }: any) => {
           {category.name || category.description || 'Top Deal'}
         </h3>
         {discount > 0 && (
-          <p className='text-[#388e3c] font-bold text-[15px] pt-1'>Min. {discount}% Off</p>
+          <p className='text-green-700 font-bold text-[15px] pt-1'>Min. {discount}% Off</p>
         )}
         <p className='text-gray-500 text-[13px] pt-0.5'>Explore Now!</p>
       </div>

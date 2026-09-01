@@ -1,32 +1,3 @@
-// D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\pages\Products\ProductDetails\ProductDetails.tsx
-import StarIcon from '@mui/icons-material/Star';
-import { teal } from '@mui/material/colors';
-import { Box, Button, Divider, Modal, Snackbar, Alert, Chip, Typography, Grid, Paper, Card, CardContent, Drawer, Avatar, IconButton } from '@mui/material';
-import CloseIcon from "@mui/icons-material/Close";
-import ShieldIcon from '@mui/icons-material/Shield';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
-import { Wallet, CheckCircle } from '@mui/icons-material';
-import RemoveIcon from '@mui/icons-material/Remove';
-import AddIcon from '@mui/icons-material/Add';
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
-import PaletteIcon from '@mui/icons-material/Palette';
-import MemoryIcon from '@mui/icons-material/Memory';
-import StoreIcon from '@mui/icons-material/Store';
-import SmilarProduct from '../SimilarProduct/SmilarProduct';
-import ZoomableImage from './ZoomableImage';
-import { useAppDispatch, useAppSelector } from '../../../../redux/Store';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { fetchProductById } from '../../../../redux/Customer/ProductSlice';
-import { addProductToWishlist, removeProductFromWishlist, getWishlistByUserId } from '../../../../redux/Customer/WishlistSlice';
-import { addItemToCart, fetchUserCart } from '../../../../redux/Customer/CartSlice';
-import ProductReviewCard from '../../Review/ProductReviewCard';
-import RatingCard from '../../Review/RatingCard';
-import { fetchReviewsByProductId } from '../../../../redux/Customer/ReviewSlice';
-import { fetchSellerReviews } from '../../../../redux/Customer/SellerReviewSlice';
-import ProductReviewsTab from './components/ProductReviewsTab';
-import './ProductDetails.css';
-
 import React, {
   useState,
   useEffect,
@@ -34,6 +5,30 @@ import React, {
   useCallback,
   useRef,
 } from 'react';
+// D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\pages\Products\ProductDetails\ProductDetails.tsx
+import { Box, Snackbar, Alert, Chip, Typography, Grid, Paper, Card, CardContent, Drawer, IconButton } from '@mui/material';
+import CloseIcon from "@mui/icons-material/Close";
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
+import { CheckCircle } from '@mui/icons-material';
+
+import MemoryIcon from '@mui/icons-material/Memory';
+import StoreIcon from '@mui/icons-material/Store';
+const SmilarProduct = React.lazy(() => import('../SimilarProduct/SmilarProduct'));
+const ProductReviewCard = React.lazy(() => import('../../Review/ProductReviewCard'));
+const RatingCard = React.lazy(() => import('../../Review/RatingCard'));
+const ProductReviewsTab = React.lazy(() => import('./components/ProductReviewsTab'));
+
+import { useAppDispatch, useAppSelector } from '../../../../redux/Store';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { fetchProductById } from '../../../../redux/Customer/ProductSlice';
+import { addProductToWishlist, removeProductFromWishlist } from '../../../../redux/Customer/WishlistSlice';
+import { addItemToCart, fetchUserCart } from '../../../../redux/Customer/CartSlice';
+import { fetchReviewsByProductId } from '../../../../redux/Customer/ReviewSlice';
+import { fetchSellerReviews } from '../../../../redux/Customer/SellerReviewSlice';
+import './ProductDetails.css';
+import { secureUrl } from '../../../../util/secureUrl';
+
+
 import type { ProductVariant } from '../../../../types/productTypes';
 import type { Category } from '../../../../types/categoryTypes';
 import type { CategoryAttribute } from '../../../../types/categoryAttributeTypes';
@@ -46,11 +41,10 @@ import { api } from '../../../../Config/Api';
 import { selectLocationFilter } from '../../../../redux/Customer/ProductSlice';
 import ProductImageGallery from './components/ProductImageGallery';
 import { MdOutlineShoppingCart } from "react-icons/md";
-import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { LuGitCompareArrows } from "react-icons/lu";
 import { FaUndoAlt, FaMoneyBillWave, FaTruck, FaStar, FaLock } from "react-icons/fa";
 import { FiChevronDown, FiPlus, FiMinus } from "react-icons/fi";
-import { Accordion, AccordionSummary, AccordionDetails, Tooltip, Breadcrumbs, Rating } from "@mui/material";
+import { Accordion, AccordionSummary, AccordionDetails, Breadcrumbs, Rating } from "@mui/material";
 import { Link } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, FreeMode } from "swiper/modules";
@@ -90,6 +84,23 @@ const ProductDetails = () => {
   const review = useAppSelector((state) => state.review);
   const attributeState = useAppSelector(selectCategoryAttributes);
   const attributesLoading = useAppSelector(selectCategoryAttributesLoading);
+
+  const hasColorAttribute = useMemo(() => {
+    return attributeState?.some((a: any) => a.isColorVariantField);
+  }, [attributeState]);
+
+  const colorVariantLabel = useMemo(() => {
+    const attr = attributeState?.find((a: any) => a.isColorVariantField);
+    return attr?.label || "Selected Variant";
+  }, [attributeState]);
+
+  const subVariantLabel = useMemo(() => {
+    const attrs = attributeState?.filter((a: any) => a.isVariantField && !a.isColorVariantField);
+    if (attrs && attrs.length > 0) {
+      return attrs.map((a: any) => a.label).join(' + ');
+    }
+    return "Subvariant";
+  }, [attributeState]);
   const categoryState = useAppSelector((state: any) => state.category);
   const sellerReviewState = useAppSelector((state) => state.sellerReview);
   const locationFilter = useAppSelector(selectLocationFilter);
@@ -411,10 +422,11 @@ const ProductDetails = () => {
     if (categoryId && attributeState.length === 0 && !attributesLoading) {
       const fetchAttributesIfSlugExists = (cats: Category[]) => {
         const foundCategory = cats.find((cat: Category) => cat._id === categoryId);
-        if (foundCategory?.categoryId) {
+        // ✅ Use _id since categoryId (slug) is removed from Category model
+        if (foundCategory?._id) {
           dispatch(
             fetchCategoryAttributes({
-              categoryId: foundCategory.categoryId,
+              categoryId: foundCategory._id,
               includeInactive: false,
             })
           );
@@ -553,8 +565,9 @@ const ProductDetails = () => {
         colorMap.get(v.color)!.variants.push(v);
         if (v.images && Array.isArray(v.images)) {
           v.images.forEach((img: string) => {
-            if (img && img.trim() !== '' && !colorMap.get(v.color)!.images.includes(img)) {
-              colorMap.get(v.color)!.images.push(img);
+            const securedImg = secureUrl(img, 800);
+            if (securedImg && securedImg.trim() !== '' && !colorMap.get(v.color)!.images.includes(securedImg)) {
+              colorMap.get(v.color)!.images.push(securedImg);
             }
           });
         }
@@ -837,9 +850,9 @@ const ProductDetails = () => {
       currentVariant.images.length > 0 &&
       selectedVariantId
     ) {
-      return currentVariant.images.filter(
-        (img: string) => img && img.trim() !== ""
-      );
+      return currentVariant.images
+        .filter((img: string) => img && img.trim() !== "")
+        .map((img: string) => secureUrl(img, 800));
     }
 
     // ✅ SECOND PRIORITY: show seller-specific variant images
@@ -849,9 +862,9 @@ const ProductDetails = () => {
       );
 
       if (matchingVariant?.images && matchingVariant.images.length > 0) {
-        return matchingVariant.images.filter(
-          (img: string) => img && img.trim() !== ""
-        );
+        return matchingVariant.images
+          .filter((img: string) => img && img.trim() !== "")
+          .map((img: string) => secureUrl(img, 800));
       }
 
       const colorData = colorsWithImages.find(
@@ -859,18 +872,20 @@ const ProductDetails = () => {
       );
 
       if (colorData?.images && colorData.images.length > 0) {
-        return colorData.images.filter(
-          (img: string) => img && img.trim() !== ""
-        );
+        return colorData.images
+          .filter((img: string) => img && img.trim() !== "")
+          .map((img: string) => secureUrl(img, 800));
       }
     }
 
     // ✅ LAST FALLBACK: product images
-    return (sourceProduct.images || []).filter(
+    const rawImages = (sourceProduct.images || []).filter(
       (img: string) => img && img.trim() !== ""
     );
 
+    return rawImages.map((img: string) => secureUrl(img, 800));
   }, [
+
     isCatalogProduct,
     selectedSellerOffer,
     product,
@@ -1391,7 +1406,7 @@ const ProductDetails = () => {
               }
               return crumbs;
             })()}
-            <span className="text-gray-500 !text-[14px]">{product?.title}</span>
+            <span className="text-gray-700 !text-[14px]">{product?.title}</span>
           </Breadcrumbs>
         </div>
       </div>
@@ -1399,7 +1414,7 @@ const ProductDetails = () => {
       <section className="bg-white !py-5">
         <div className="container mx-auto px-4 sm:px-10 lg:px-20">
           {products.loading || catalogLoading ? (
-            <Box sx={{ textAlign: 'center', py: 10 }}>
+            <Box sx={{ textAlign: 'center', py: 10, minHeight: '80vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <CustomLoader />
             </Box>
           ) : !product ? (
@@ -1441,11 +1456,11 @@ const ProductDetails = () => {
                   )}
 
                   {/* COLOR VARIANTS */}
-                  {colorsWithImages.length > 0 && (
+                  {colorsWithImages.length > 0 && (hasColorAttribute || colorsWithImages.length > 1) && (
                     <div className="mt-5">
-                      <h4 className="text-sm font-bold mb-3 flex items-center gap-1 text-[#212121]">
-                        Selected Variant: <span className="font-normal text-[#5c5c5c]">{selectedColor}</span>
-                      </h4>
+                      <h2 className="text-sm font-bold mb-3 flex items-center gap-1 text-[#212121]">
+                        {colorVariantLabel}: <span className="font-normal text-[#5c5c5c]">{selectedColor}</span>
+                      </h2>
                       <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
                         {colorsWithImages.map((colorObj: any, index: number) => {
                           const isSelected = selectedColor === colorObj.color;
@@ -1458,6 +1473,8 @@ const ProductDetails = () => {
                                 <img
                                   src={colorObj.images[0] || PLACEHOLDER_50}
                                   alt={colorObj.color}
+                                  width="70"
+                                  height="70"
                                   className="w-full h-full object-contain rounded-lg"
                                   onError={(e) => handleImageError(e, '50')}
                                 />
@@ -1494,9 +1511,9 @@ const ProductDetails = () => {
                     return (
                       <div className="mt-5">
                         <div className="flex items-center gap-3 mb-3">
-                          <h4 className="text-sm font-bold flex items-center gap-1 text-[#212121]">
-                            Subvariant: <span className="font-normal text-[#5c5c5c]">{selectedSize || 'Select Subvariant'}</span>
-                          </h4>
+                          <h2 className="text-sm font-bold flex items-center gap-1 text-[#212121]">
+                            {subVariantLabel}: <span className="font-normal text-[#5c5c5c]">{selectedSize || `Select ${subVariantLabel}`}</span>
+                          </h2>
                         </div>
                         <div className="flex gap-3 flex-wrap">
                           {availableVariantsForColor.map((v: any) => {
@@ -1522,7 +1539,7 @@ const ProductDetails = () => {
                                 onClick={() => handleVariantSelect(v)}
                                 className={`p-3 text-center border rounded-xl transition-all min-w-[120px] ${isSelected ? "border-orange-600 border-2 bg-orange-50" : "border-gray-200 text-[#5c5c5c] hover:border-gray-400 bg-white"}`}
                               >
-                                <div className={`text-sm ${isSelected ? 'font-bold text-orange-600' : 'font-medium text-[#5c5c5c]'}`}>
+                                <div className={`text-sm ${isSelected ? 'font-bold text-[#c24100]' : 'font-medium text-[#5c5c5c]'}`}>
                                   {sizeLabel}
                                 </div>
                               </button>
@@ -1557,11 +1574,11 @@ const ProductDetails = () => {
                               ₹{mrpPrice.toLocaleString()}
                             </span>
                           )}
-                          <span className="text-[20px] font-[600] text-orange-600">
+                          <span className="text-[20px] font-[600] text-[#c24100]">
                             ₹{sellingPrice?.toLocaleString()}
                           </span>
                           {mrpPrice > sellingPrice && (
-                            <span className="text-green-600 text-sm font-medium ml-2">
+                            <span className="text-green-700 text-sm font-medium ml-2">
                               {calculateDiscount(mrpPrice, sellingPrice)}% off
                             </span>
                           )}
@@ -1569,7 +1586,7 @@ const ProductDetails = () => {
                         <div className="flex items-center gap-2">
                           <span className="text-[14px]">
                             Available In Stock:
-                            <span className="text-green-600 text-[14px] ml-1 font-bold">
+                            <span className="text-green-700 text-[14px] ml-1 font-bold">
                               {stock}
                             </span>
                           </span>
@@ -1603,6 +1620,7 @@ const ProductDetails = () => {
                                   type="radio"
                                   checked={isSelected}
                                   readOnly
+                                  aria-label={`Select seller ${sellerName}`}
                                   className="accent-orange-600 cursor-pointer"
                                 />
                                 <div>
@@ -1716,7 +1734,7 @@ const ProductDetails = () => {
                     </div>
 
                     <button
-                      className="flex items-center justify-center gap-2 h-[48px] px-8 rounded-[18px] bg-orange-600 border border-orange-700 text-white hover:bg-orange-700 hover:shadow-sm transition-all shadow-orange-600/30 font-bold text-base whitespace-nowrap"
+                      className="flex items-center justify-center gap-2 h-[48px] px-8 rounded-[18px] bg-orange-700 border border-orange-800 text-white hover:bg-orange-800 hover:shadow-sm transition-all shadow-orange-600/30 font-bold text-base whitespace-nowrap"
                       onClick={handleAddCart}
                     >
                       <MdOutlineShoppingCart className="text-[20px]" />
@@ -1799,7 +1817,9 @@ const ProductDetails = () => {
                       </AccordionSummary>
                       <AccordionDetails className="bg-gray-50/30 !p-2 sm:!p-4 overflow-hidden box-border">
                         <div className="rounded-xl bg-white sm:border sm:border-gray-100 sm:shadow-sm overflow-hidden box-border p-2 sm:p-4">
-                          <ProductReviewsTab review={review} productId={productId} />
+                          <React.Suspense fallback={<div>Loading Reviews...</div>}>
+                            <ProductReviewsTab review={review} productId={productId} />
+                          </React.Suspense>
                         </div>
                       </AccordionDetails>
                     </Accordion>
@@ -1885,7 +1905,9 @@ const ProductDetails = () => {
 
                     {activeTab === 2 && (
                       <div className="w-full py-5 rounded-md">
-                        <ProductReviewsTab review={review} productId={productId} />
+                        <React.Suspense fallback={<div>Loading Reviews...</div>}>
+                          <ProductReviewsTab review={review} productId={productId} />
+                        </React.Suspense>
                       </div>
                     )}
                   </div>
@@ -1900,7 +1922,9 @@ const ProductDetails = () => {
       {!catalogLoading && (
         <section className="container mx-auto pt-10 px-4 sm:px-10 lg:px-20 mb-10">
           <h2 className="text-xl font-bold mb-4">Similar Products</h2>
-          <SmilarProduct />
+          <React.Suspense fallback={<div className="h-40">Loading Similar Products...</div>}>
+            <SmilarProduct />
+          </React.Suspense>
         </section>
       )}
 
@@ -1925,12 +1949,16 @@ const ProductDetails = () => {
           {selectedSellerReviews.length > 0 ? (
             <div className="flex flex-col gap-6">
               <div className="mb-2">
-                <RatingCard reviews={selectedSellerReviews} />
+                <React.Suspense fallback={<div>Loading Ratings...</div>}>
+                  <RatingCard reviews={selectedSellerReviews} />
+                </React.Suspense>
               </div>
               <h3 className="text-lg font-bold text-gray-800 border-b pb-2 mb-2">Detailed Reviews</h3>
               <div className="flex flex-col gap-4">
                 {selectedSellerReviews.map((rev: any, index: number) => (
-                  <ProductReviewCard key={index} item={rev} />
+                  <React.Suspense fallback={<div>Loading Review...</div>} key={index}>
+                    <ProductReviewCard item={rev} />
+                  </React.Suspense>
                 ))}
               </div>
             </div>

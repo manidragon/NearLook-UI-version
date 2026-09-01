@@ -6,13 +6,13 @@
   --stroke2: #D1D5DB;
 
   --text: #1F2937;
-  --muted: #6B7280;
-  --muted2: #9CA3AF;
+  --muted: #4B5563;
+  --muted2: #6B7280;
 
-  --blue: #FB641B; /* Primary Orange */
-  --blue2: #E65100; /* Hover Orange */
+  --blue: #c24100; /* Primary Accessible Orange */
+  --blue2: #a33600; /* Hover Accessible Orange */
 
-  --good: #388E3C;
+  --good: #2e7d32;
   --bad: #DC2626;
 
   --shadow: 0 4px 6px rgba(0,0,0,.05);

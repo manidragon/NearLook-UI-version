@@ -1,6 +1,6 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\components\Navbar\CategorySheet.tsx
 import { Box } from "@mui/material";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { fetchCategories } from "../../../redux/Admin/CategorySlice";
@@ -69,36 +69,65 @@ const CategorySheet = ({
     navigate(`/products/${categoryId}`);
   };
 
+  const [hoveredLevelTwoId, setHoveredLevelTwoId] = useState<string | null>(null);
+
   const levelTwoCategories = getLevelTwoCategories();
+  const activeLevelTwoId = hoveredLevelTwoId && levelTwoCategories.some(c => c._id === hoveredLevelTwoId)
+    ? hoveredLevelTwoId
+    : levelTwoCategories[0]?._id;
+
+  const activeLevelThreeCategories = activeLevelTwoId ? getLevelThreeCategories(activeLevelTwoId) : [];
 
   return (
     <Box className="bg-white/95 backdrop-blur-xl shadow-2xl overflow-y-auto max-h-[85vh] lg:max-h-[70vh] rounded-b-2xl border-t border-gray-100 w-full">
       {loading ? (
         <div className="p-12 text-center text-gray-500 font-medium animate-pulse">Loading categories...</div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 lg:gap-8 p-6 lg:p-10 custom-scrollbar">
-          {levelTwoCategories.map((levelTwoCat) => (
-            <div key={levelTwoCat._id} className="flex flex-col w-full">
-              <p className="text-[#1e293b] text-base lg:text-lg font-bold mb-3 pb-2 border-b border-gray-100 tracking-wide">
-                {levelTwoCat.name}
-              </p>
+        <div className="flex flex-col lg:flex-row p-0 min-h-[400px]">
+          {/* Left Section (20%) - Level 2 Categories */}
+          <div className="w-full lg:w-[20%] bg-gray-50/80 border-r border-gray-100 p-6 lg:p-8">
+            <h3 className="text-[#1e293b] font-bold mb-4 text-lg border-b border-gray-200 pb-2">Categories</h3>
+            <ul className="space-y-1">
+              {levelTwoCategories.map((cat) => (
+                <li key={cat._id}>
+                  <button
+                    onMouseEnter={() => setHoveredLevelTwoId(cat._id)}
+                    className={`w-full text-left px-4 py-2.5 rounded-lg font-medium transition-all duration-200 ${
+                      activeLevelTwoId === cat._id 
+                        ? 'bg-white text-[#FF5A00] shadow-sm border border-orange-100' 
+                        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                    }`}
+                  >
+                    {cat.name}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-              <ul className="space-y-3 mt-1">
-                {getLevelThreeCategories(levelTwoCat._id).map(
-                  (levelThreeCat) => (
-                    <li key={levelThreeCat._id}>
-                      <span
-                        onClick={() => handleCategoryClick(levelThreeCat._id)}
-                        className="text-gray-500 text-sm md:text-base font-medium hover:text-[#FF5A00] cursor-pointer transition-all duration-200 inline-block hover:translate-x-1"
-                      >
-                        {levelThreeCat.name}
-                      </span>
-                    </li>
-                  )
-                )}
-              </ul>
+          {/* Right Section (80%) - Level 3 Categories */}
+          <div className="w-full lg:w-[80%] p-6 lg:p-10 bg-white">
+            <h3 className="text-[#1e293b] font-bold mb-6 text-xl">
+              {levelTwoCategories.find(c => c._id === activeLevelTwoId)?.name}
+            </h3>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-8">
+              {activeLevelThreeCategories.length > 0 ? (
+                activeLevelThreeCategories.map((cat) => (
+                  <div key={cat._id}>
+                    <span
+                      onClick={() => handleCategoryClick(cat._id)}
+                      className="text-gray-500 text-sm md:text-base font-medium hover:text-[#FF5A00] cursor-pointer transition-all duration-200 inline-block hover:translate-x-1"
+                    >
+                      {cat.name}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-400 italic">No subcategories available.</p>
+              )}
             </div>
-          ))}
+          </div>
         </div>
       )}
     </Box>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, Alert, Box, Typography, Chip, IconButton } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, Alert, Box, Typography, Chip, IconButton, Snackbar } from '@mui/material';
 import { Close, SwapHoriz, CloudUpload, Delete } from '@mui/icons-material';
 import { useAppDispatch, useAppSelector } from '../../../redux/Store';
 import { createReplacementRequest, clearReturnError } from '../../../redux/Customer/ReturnSlice';
@@ -94,15 +94,37 @@ const ReplacementRequestForm: React.FC<ReplacementRequestFormProps> = ({
     // ✅ Handle Image Selection
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
-        if (files.length + imageFiles.length > 5) {
-            setFormError('Maximum 5 images allowed');
+        if (files.length + imageFiles.length > 4) {
+            setFormError('Maximum 4 images allowed');
             return;
         }
-        setImageFiles(prev => [...prev, ...files].slice(0, 5));
-        setFormError('');
-        // Clear previous errors when new files selected
-        setUploadErrors({});
-        setUploadProgress({});
+
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        const validExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+        const maxSize = 5 * 1024 * 1024; // 5MB
+
+        const validFiles = files.filter(file => {
+            const extension = file.name.split('.').pop()?.toLowerCase() || '';
+            if (!validTypes.includes(file.type) || !validExtensions.includes(extension)) {
+                setFormError('Invalid file format. Supported: JPEG, JPG, PNG, WebP');
+                return false;
+            }
+            if (file.size > maxSize) {
+                setFormError('Image size exceeds 5MB limit');
+                return false;
+            }
+            return true;
+        });
+
+        if (validFiles.length > 0) {
+            setImageFiles(prev => [...prev, ...validFiles].slice(0, 4));
+            if (validFiles.length === files.length) {
+                setFormError('');
+            }
+            // Clear previous errors when new files selected
+            setUploadErrors({});
+            setUploadProgress({});
+        }
     };
 
     const removeImage = (index: number) => {
@@ -141,6 +163,7 @@ const ReplacementRequestForm: React.FC<ReplacementRequestFormProps> = ({
 
                 const { successful, failed } = await uploadMultipleToCloudinary(
                     imageFiles,
+                    undefined,
                     (fileName, progress) => {
                         setUploadProgress(prev => ({ ...prev, [fileName]: progress }));
                     }
@@ -270,7 +293,6 @@ const ReplacementRequestForm: React.FC<ReplacementRequestFormProps> = ({
                     {/* ✅ Alerts */}
                     {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
                     {successMessage && <Alert severity="success" sx={{ mb: 2 }}>{successMessage}</Alert>}
-                    {formError && <Alert severity="warning" sx={{ mb: 2 }}>{formError}</Alert>}
 
                     <TextField
                         select
@@ -393,7 +415,7 @@ const ReplacementRequestForm: React.FC<ReplacementRequestFormProps> = ({
 
                         <input
                             type="file"
-                            accept="image/*"
+                            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
                             multiple
                             onChange={(e) => {
                                 e.stopPropagation();
@@ -402,7 +424,7 @@ const ReplacementRequestForm: React.FC<ReplacementRequestFormProps> = ({
                             onClick={(e) => e.stopPropagation()}
                             style={{ display: 'none' }}
                             id="replacement-images-upload"
-                            disabled={submitting || loading || uploadingImages || imageFiles.length >= 5}
+                            disabled={submitting || loading || uploadingImages || imageFiles.length >= 4}
                         />
 
                         <label htmlFor="replacement-images-upload">
@@ -410,7 +432,7 @@ const ReplacementRequestForm: React.FC<ReplacementRequestFormProps> = ({
                                 variant="outlined"
                                 component="span"
                                 startIcon={uploadingImages ? <CustomLoader size={16} /> : <CloudUpload />}
-                                disabled={submitting || loading || uploadingImages || imageFiles.length >= 5}
+                                disabled={submitting || loading || uploadingImages || imageFiles.length >= 4}
                                 fullWidth
                                 onClick={(e) => e.stopPropagation()}
                                 sx={{ 
@@ -426,7 +448,7 @@ const ReplacementRequestForm: React.FC<ReplacementRequestFormProps> = ({
                                 {uploadingImages
                                     ? `Uploading ${Object.keys(uploadProgress).length}/${imageFiles.length}...`
                                     : imageFiles.length > 0
-                                        ? `${imageFiles.length} image(s) selected (Max 5)`
+                                        ? `${imageFiles.length} image(s) selected (Max 4)`
                                         : 'Click to upload proof images (Optional)'}
                             </Button>
                         </label>
@@ -533,7 +555,7 @@ const ReplacementRequestForm: React.FC<ReplacementRequestFormProps> = ({
 
                         {/* ✅ Helper text */}
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1, textAlign: 'center' }}>
-                            Supported: JPG, PNG, WebP • Max 5MB each
+                            Supported: JPEG, JPG, PNG, WebP • Max 5MB each
                         </Typography>
                     </Box>
                 </DialogContent>
@@ -568,6 +590,17 @@ const ReplacementRequestForm: React.FC<ReplacementRequestFormProps> = ({
                     </Button>
                 </DialogActions>
             </form>
+
+            <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                open={!!formError}
+                autoHideDuration={4000}
+                onClose={() => setFormError('')}
+                style={{ zIndex: 13000 }}
+            >
+                <Alert onClose={() => setFormError('')} severity="warning" sx={{ width: '100%', boxShadow: 3 }}>
+                    {formError}
+                </Alert>
+            </Snackbar>
         </Dialog>
     );
 };

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Snackbar, Alert } from '@mui/material';
 
 export default function Contact({ seller }: any) {
   const [formData, setFormData] = useState({
@@ -9,11 +10,16 @@ export default function Contact({ seller }: any) {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'warning'>('success');
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.subject || !formData.message) {
-      alert('Please fill out all fields.');
+      setSnackbarMsg('Please fill out all fields.');
+      setSnackbarSeverity('warning');
+      setSnackbarOpen(true);
       return;
     }
 
@@ -35,17 +41,17 @@ export default function Contact({ seller }: any) {
         return res.json();
       })
       .then(() => {
-        alert(
-          `Thank you! Your message has been sent successfully. ${seller?.businessDetails?.businessName} will reply within 2 hours.`
-        );
+        setSnackbarMsg(`Thank you! Your message has been sent successfully. ${seller?.businessDetails?.businessName} will reply within 2 hours.`);
+        setSnackbarSeverity('success');
+        setSnackbarOpen(true);
         setFormData({ name: '', email: '', subject: '', message: '' });
         setIsSubmitting(false);
       })
       .catch(err => {
         console.log('Backend not connected, running in demo mode:', err);
-        alert(
-          `Thank you! Your message has been sent successfully (Demo Mode). ${seller?.businessDetails?.businessName} will reply within 2 hours.`
-        );
+        setSnackbarMsg(`Thank you! Your message has been sent successfully (Demo Mode). ${seller?.businessDetails?.businessName} will reply within 2 hours.`);
+        setSnackbarSeverity('success');
+        setSnackbarOpen(true);
         setFormData({ name: '', email: '', subject: '', message: '' });
         setIsSubmitting(false);
       });
@@ -245,6 +251,11 @@ export default function Contact({ seller }: any) {
           </div>
         </div>
       </div>
+      <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)}>
+        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMsg}
+        </Alert>
+      </Snackbar>
     </section>
   );
 }

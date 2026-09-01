@@ -6,6 +6,7 @@ export const colors=[
     {"name": "Red", "hex": "#FF0000"},
     {"name": "Yellow", "hex": "#FFFF00"},
     {"name": "Black", "hex": "#000000"},
+    {"name": "Mate Black", "hex": "#28282B"},
     {"name": "Purple", "hex": "#800080"},
     {"name": "Navy Blue", "hex": "#000080"},
     {"name": "Maroon", "hex": "#800000"},

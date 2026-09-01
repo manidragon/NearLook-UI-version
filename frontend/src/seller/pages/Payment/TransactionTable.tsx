@@ -33,8 +33,6 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import ClearIcon from '@mui/icons-material/Clear';
-import SortIcon from '@mui/icons-material/Sort';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CheckIcon from '@mui/icons-material/Check';
 
@@ -107,7 +105,7 @@ function MobileTransactionCard({ transaction }: { transaction: Transaction }) {
   return (
     <Paper sx={{ mb: 2, p: 2, bgcolor: 'background.paper', opacity: isCancelled ? 0.7 : 1 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-        <Typography variant="subtitle2" fontWeight="bold">
+        <Typography component="div" variant="subtitle2" fontWeight="bold">
           #{transaction.order?._id?.slice(-8)}
         </Typography>
         <Chip
@@ -150,7 +148,7 @@ function MobileTransactionCard({ transaction }: { transaction: Transaction }) {
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
         💳 {getPaymentMethodLabel(transaction.paymentMethod)}
       </Typography>
-      <IconButton size="small" onClick={() => setOpen(!open)} sx={{ mt: 1 }}>
+      <IconButton size="small" onClick={() => setOpen(!open)} sx={{ mt: 1 }} aria-label={open ? "Collapse details" : "Expand details"}>
         {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
       </IconButton>
       <Collapse in={open}>
@@ -238,7 +236,7 @@ function DesktopTransactionRow({ transaction }: { transaction: Transaction }) {
           </Typography>
         </TableCell>
         <TableCell sx={{ py: 1, px: 1.5 }}>
-          <IconButton size="small" onClick={() => setOpen(!open)}>
+          <IconButton size="small" onClick={() => setOpen(!open)} aria-label={open ? "Collapse details" : "Expand details"}>
             {open ? <KeyboardArrowUpIcon fontSize="small" /> : <KeyboardArrowDownIcon fontSize="small" />}
           </IconButton>
         </TableCell>
@@ -394,7 +392,7 @@ export default function TransactionTable() {
         <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ bgcolor: 'grey.50', borderRadius: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
             <FilterListIcon color="primary" />
-            <Typography variant="h6" fontWeight="bold">Filters & Sorting</Typography>
+            <Typography component="h2" variant="h6" fontWeight="bold">Filters & Sorting</Typography>
             {hasActiveFilters && (
               <Button size="small" onClick={(e) => { e.stopPropagation(); handleClearFilters(); }} color="error" variant="text" sx={{ ml: 'auto' }}>
                 Clear All
@@ -407,7 +405,7 @@ export default function TransactionTable() {
             <Box>
               <FormControl fullWidth size="small">
                 <InputLabel>Payment Method</InputLabel>
-                <Select value={tempFilters.paymentMethod} label="Payment Method" onChange={(e) => setTempFilters({ ...tempFilters, paymentMethod: e.target.value })} startAdornment={<InputAdornment position="start">💳</InputAdornment>}>
+                <Select value={tempFilters.paymentMethod} label="Payment Method" onChange={(e) => setTempFilters({ ...tempFilters, paymentMethod: e.target.value })} startAdornment={<InputAdornment position="start">💳</InputAdornment>} inputProps={{ 'aria-label': 'Payment Method' }}>
                   <MenuItem value="ALL">All Methods</MenuItem>
                   {activeTab === 'ONLINE' && <MenuItem value="RAZORPAY">Razorpay</MenuItem>}
                   <MenuItem value="CASH_ON_DELIVERY">Cash on Delivery</MenuItem>
@@ -418,7 +416,7 @@ export default function TransactionTable() {
             <Box>
               <FormControl fullWidth size="small">
                 <InputLabel>Payment Status</InputLabel>
-                <Select value={tempFilters.paymentStatus} label="Payment Status" onChange={(e) => setTempFilters({ ...tempFilters, paymentStatus: e.target.value })} startAdornment={<InputAdornment position="start">✅</InputAdornment>}>
+                <Select value={tempFilters.paymentStatus} label="Payment Status" onChange={(e) => setTempFilters({ ...tempFilters, paymentStatus: e.target.value })} startAdornment={<InputAdornment position="start">✅</InputAdornment>} inputProps={{ 'aria-label': 'Payment Status' }}>
                   <MenuItem value="ALL">All Status</MenuItem>
                   <MenuItem value="COMPLETED">Completed</MenuItem>
                   <MenuItem value="PENDING">Pending</MenuItem>
@@ -441,7 +439,7 @@ export default function TransactionTable() {
             </Box>
 
             <Box>
-              <Button fullWidth variant="contained" color="primary" onClick={handleApplyFilters} startIcon={<CheckIcon />} sx={{ height: '40px', bgcolor: hasUnappliedChanges ? 'success.main' : 'primary.main', '&:hover': { bgcolor: hasUnappliedChanges ? 'success.dark' : 'primary.dark' } }}>
+              <Button fullWidth variant="contained" onClick={handleApplyFilters} startIcon={<CheckIcon />} sx={{ height: '40px', color: '#fff', bgcolor: hasUnappliedChanges ? '#1b5e20' : '#9a3412', '&:hover': { bgcolor: hasUnappliedChanges ? '#144d18' : '#7c2d12' } }}>
                 Apply Filter
               </Button>
             </Box>
@@ -466,8 +464,7 @@ export default function TransactionTable() {
           <Tabs 
               value={activeTab} 
               onChange={(e, val) => setActiveTab(val)}
-              textColor="primary"
-              indicatorColor="primary"
+              sx={{ '& .MuiTab-root.Mui-selected': { color: '#9a3412' }, '& .MuiTabs-indicator': { backgroundColor: '#9a3412' } }}
               variant="scrollable"
               scrollButtons="auto"
               allowScrollButtonsMobile
@@ -481,7 +478,7 @@ export default function TransactionTable() {
 
       {/* ✅ Desktop Table */}
       {!isMobile && (
-        <TableContainer component={Paper} sx={{ maxHeight: 600, overflow: 'auto', '& .MuiTableHead-root': { position: 'sticky', top: 0, zIndex: 1, backgroundColor: 'primary.main' }, '& .MuiTableHead-root .MuiTableCell-root': { color: 'white', fontWeight: 'bold', fontSize: '0.85rem', py: 1.5, px: 2 } }}>
+        <TableContainer component={Paper} sx={{ maxHeight: 600, overflow: 'auto', '& .MuiTableHead-root': { position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#9a3412' }, '& .MuiTableHead-root .MuiTableCell-root': { color: '#ffffff', fontWeight: 'bold', fontSize: '0.85rem', py: 1.5, px: 2 } }}>
           <Table aria-label="transaction table">
             <TableHead>
               <TableRow>
@@ -562,14 +559,14 @@ export default function TransactionTable() {
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)' }, gap: 2 }}>
           <Box>
             <Typography variant="caption" color="text.secondary">Total Transactions</Typography>
-            <Typography variant="h6" fontWeight="bold">{completedTransactions.length}</Typography>
+            <Typography component="div" variant="h6" fontWeight="bold">{completedTransactions.length}</Typography>
             <Typography variant="caption" color="text.secondary">
               (of {filteredAndSortedTransactions.length} shown)
             </Typography>
           </Box>
           <Box>
             <Typography variant="caption" color="text.secondary">Total Gross</Typography>
-            <Typography variant="h6" fontWeight="bold">
+            <Typography component="div" variant="h6" fontWeight="bold">
               {formatCurrency(totalGross)}
             </Typography>
             <Typography variant="caption" color="text.secondary">
@@ -578,7 +575,7 @@ export default function TransactionTable() {
           </Box>
           <Box>
             <Typography variant="caption" color="text.secondary">Refunded</Typography>
-            <Typography variant="h6" fontWeight="bold" color="error.main">
+            <Typography component="div" variant="h6" fontWeight="bold" color="error.main">
               -{formatCurrency(totalRefunded)}
             </Typography>
             <Typography variant="caption" color="text.secondary">
@@ -587,7 +584,7 @@ export default function TransactionTable() {
           </Box>
           <Box>
             <Typography variant="caption" color="text.secondary">Net Earnings</Typography>
-            <Typography variant="h6" fontWeight="bold" color="success.main">
+            <Typography component="div" variant="h6" fontWeight="bold" color="success.main">
               {formatCurrency(netAfterReturns)}
             </Typography>
             <Typography variant="caption" color="text.secondary">

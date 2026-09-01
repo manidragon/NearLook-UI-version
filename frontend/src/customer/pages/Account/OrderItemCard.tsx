@@ -204,11 +204,11 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({ item, order }) => {
             </Typography>
           )}
           <div className="flex items-center gap-2 mt-2">
-            <Typography className="text-[15px] font-bold text-[#FF5A00]">
+            <Typography className="text-[15px] font-bold text-[#c24100]">
               ₹{(item.sellingPrice || 0).toFixed(0)}
             </Typography>
             {item.quantity && item.quantity > 1 && (
-              <Typography className="text-[12px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+              <Typography className="text-[12px] text-gray-700 bg-gray-100 px-2 py-0.5 rounded-full">
                 Qty: {item.quantity}
               </Typography>
             )}
@@ -245,12 +245,12 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({ item, order }) => {
                 <Typography className="text-[14px] font-medium text-[#212121]">
                   {replacementStatus.label}
                 </Typography>
-                <Typography className="text-[12px] text-[#878787] mt-1">
+                <Typography className="text-[12px] text-gray-600 mt-1">
                   You requested a replacement. Reason: {replacementReq.reason}
                 </Typography>
 
                 <div 
-                  className="flex items-center gap-1 mt-3 text-[#2874F0] hover:text-[#1a5bb8] transition-colors"
+                  className="flex items-center gap-1 mt-3 text-[#1a5bb8] hover:text-[#114088] transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     navigate(`/account/orders/${order._id}/item/${item._id}#review-section`);
@@ -271,14 +271,14 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({ item, order }) => {
               <Typography className="text-[14px] font-medium text-[#212121]">
                 {order.orderStatus === 'CANCELLED' ? 'Cancelled on' : (order.orderStatus === 'DELIVERED' ? 'Delivered on' : 'Expected delivery by')} {order.orderStatus === 'CANCELLED' ? formatDate(order.updatedAt || order.orderDate) : (isSelfPickup && order.pickupTime ? formatDateTime(order.pickupTime) : formatDate(order.deliverDate))}
               </Typography>
-              <Typography className="text-[12px] text-[#878787] mt-1">
+              <Typography className="text-[12px] text-gray-600 mt-1">
                 {order.orderStatus === 'CANCELLED' ? 'Your order has been cancelled' : (isSelfPickup ? 'Self Pickup from store' : 'Your item has been delivered')}
               </Typography>
 
               {/* Rate & Review link for delivered items */}
               {order.orderStatus === 'DELIVERED' && (
                 <div 
-                  className="flex items-center gap-1 mt-3 text-[#2874F0] hover:text-[#1a5bb8] transition-colors"
+                  className="flex items-center gap-1 mt-3 text-[#1a5bb8] hover:text-[#114088] transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     navigate(`/account/orders/${order._id}/item/${item._id}#review-section`);

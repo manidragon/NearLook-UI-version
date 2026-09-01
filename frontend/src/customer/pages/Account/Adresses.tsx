@@ -151,8 +151,8 @@ const Addresses = () => {
             fullWidth
             sx={{ 
               py: 2, 
-              border: '2px dashed #FF5A00', 
-              color: '#FF5A00', 
+              border: '2px dashed #c24100', 
+              color: '#c24100', 
               bgcolor: '#fff9f5',
               borderRadius: 3,
               fontWeight: 600,
@@ -160,9 +160,9 @@ const Addresses = () => {
               fontSize: '15px',
               transition: 'all 0.2s ease',
               '&:hover': {
-                border: '2px dashed #e04f00',
+                border: '2px dashed #a33600',
                 bgcolor: '#fff4ec',
-                color: '#e04f00'
+                color: '#a33600'
               }
             }}
           >

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Stepper, Step, StepLabel, IconButton } from '@mui/material';
+import { handleNameChange, handleNumberChange } from "../../../utils/validationUtils";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useFormik } from 'formik';
 import { useNavigate } from 'react-router-dom';
@@ -90,9 +91,9 @@ const SellerAccountForm = () => {
   };
 
   // Validation checks for each step
-  const isStep1Valid = formik.values.sellerName && formik.values.email && formik.values.mobile;
+  const isStep1Valid = formik.values.sellerName && formik.values.email && formik.values.mobile?.length === 10;
   const isStep2Valid = formik.values.businessDetails.businessName && formik.values.GSTIN;
-  const isStep3Valid = formik.values.pickupAddress.address && formik.values.pickupAddress.city && formik.values.pickupAddress.state && formik.values.pickupAddress.pinCode;
+  const isStep3Valid = formik.values.pickupAddress.address && formik.values.pickupAddress.city && formik.values.pickupAddress.state && formik.values.pickupAddress.pinCode && (!formik.values.pickupAddress.mobile || formik.values.pickupAddress.mobile.length === 10);
   const isStep4Valid = formik.values.bankDetails.accountNumber && formik.values.bankDetails.accountHolderName && formik.values.bankDetails.ifscCode;
 
   const isCurrentStepValid = () => {
@@ -169,9 +170,9 @@ const SellerAccountForm = () => {
             {/* STEP 1: Basic Details */}
             {activeStep === 0 && (
               <>
-                <TextField label="Full Name" name="sellerName" value={formik.values.sellerName} onChange={formik.handleChange} fullWidth />
+                <TextField label="Full Name" name="sellerName" value={formik.values.sellerName} onChange={handleNameChange(formik)} fullWidth />
                 <TextField label="Email Address" name="email" type="email" value={formik.values.email} onChange={formik.handleChange} fullWidth />
-                <TextField label="Mobile Number" name="mobile" value={formik.values.mobile} onChange={formik.handleChange} fullWidth inputProps={{ maxLength: 10 }} />
+                <TextField label="Mobile Number" name="mobile" value={formik.values.mobile} onChange={handleNumberChange(formik)} fullWidth inputProps={{ maxLength: 10 }} />
               </>
             )}
 
@@ -188,11 +189,11 @@ const SellerAccountForm = () => {
               <>
                 <TextField label="Full Address" name="pickupAddress.address" value={formik.values.pickupAddress.address} onChange={formik.handleChange} fullWidth />
                 <Box sx={{ display: 'flex', gap: 2 }}>
-                  <TextField label="City" name="pickupAddress.city" value={formik.values.pickupAddress.city} onChange={formik.handleChange} fullWidth />
-                  <TextField label="State" name="pickupAddress.state" value={formik.values.pickupAddress.state} onChange={formik.handleChange} fullWidth />
+                  <TextField label="City" name="pickupAddress.city" value={formik.values.pickupAddress.city} onChange={handleNameChange(formik)} fullWidth />
+                  <TextField label="State" name="pickupAddress.state" value={formik.values.pickupAddress.state} onChange={handleNameChange(formik)} fullWidth />
                 </Box>
                 <Box sx={{ display: 'flex', gap: 2 }}>
-                  <TextField label="Pin Code" name="pickupAddress.pinCode" value={formik.values.pickupAddress.pinCode} onChange={formik.handleChange} fullWidth />
+                  <TextField label="Pin Code" name="pickupAddress.pinCode" value={formik.values.pickupAddress.pinCode} onChange={handleNumberChange(formik)} fullWidth />
                   <TextField label="Locality" name="pickupAddress.locality" value={formik.values.pickupAddress.locality} onChange={formik.handleChange} fullWidth />
                 </Box>
               </>
@@ -201,8 +202,8 @@ const SellerAccountForm = () => {
             {/* STEP 4: Bank Details */}
             {activeStep === 3 && (
               <>
-                <TextField label="Account Holder Name" name="bankDetails.accountHolderName" value={formik.values.bankDetails.accountHolderName} onChange={formik.handleChange} fullWidth />
-                <TextField label="Account Number" name="bankDetails.accountNumber" value={formik.values.bankDetails.accountNumber} onChange={formik.handleChange} fullWidth />
+                <TextField label="Account Holder Name" name="bankDetails.accountHolderName" value={formik.values.bankDetails.accountHolderName} onChange={handleNameChange(formik)} fullWidth />
+                <TextField label="Account Number" name="bankDetails.accountNumber" value={formik.values.bankDetails.accountNumber} onChange={handleNumberChange(formik)} fullWidth />
                 <TextField label="IFSC Code" name="bankDetails.ifscCode" value={formik.values.bankDetails.ifscCode} onChange={formik.handleChange} fullWidth />
               </>
             )}

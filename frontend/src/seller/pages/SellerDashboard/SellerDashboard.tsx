@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Paper, BottomNavigation, BottomNavigationAction, Avatar, Box } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
@@ -31,15 +31,15 @@ const SellerDashboard = () => {
   const [value, setValue] = useState(currentTab);
 
   return (
-    <div className={`min-h-screen bg-gray-50 flex flex-col ${isChatActive ? 'pb-0' : 'pb-28 lg:pb-0'}`}>
-      <div className={isChatActive ? 'hidden lg:block' : 'block'}>
+    <div className={`h-screen overflow-hidden bg-gray-50 flex flex-col ${isChatActive ? 'pb-0' : 'pb-28 lg:pb-0'}`}>
+      <div className={isChatActive ? 'hidden lg:block shrink-0' : 'block shrink-0'}>
         <Navbar Sidebar={SellerSidebar} />
       </div>
-      <section className="flex-grow lg:flex lg:h-[90vh]">
-        <div className="hidden lg:block h-full border-r border-gray-200 bg-white z-10 relative">
+      <section className="flex-grow flex min-h-0">
+        <div className="hidden lg:block h-full border-r border-gray-200 bg-white z-10 relative shrink-0">
           <SellerSidebar />
         </div>
-        <div className={`w-full lg:flex-1 overflow-y-auto relative z-0 ${isChatActive ? 'p-0 h-[100vh] lg:h-[90vh]' : 'p-4 sm:p-6 lg:p-8 bg-gray-50'}`}>
+        <div className={`w-full flex-1 overflow-y-scroll relative z-0 text-gray-900 ${isChatActive ? 'p-0 h-full' : 'p-4 sm:p-6 lg:p-8 bg-gray-50'}`}>
           <SellerRoutes />
         </div>
       </section>
@@ -94,7 +94,7 @@ const SellerDashboard = () => {
                 label="Account" 
                 icon={
                   logoUrl ? (
-                    <Avatar src={logoUrl} sx={{ width: 26, height: 26, border: value === 3 ? '2px solid' : 'none', borderColor: 'primary.main' }} />
+                    <Avatar alt="Seller Account Logo" src={logoUrl} sx={{ width: 26, height: 26, border: value === 3 ? '2px solid' : 'none', borderColor: 'primary.main' }} />
                   ) : (
                     <AccountCircleIcon />
                   )

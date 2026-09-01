@@ -157,14 +157,14 @@ const WishlistProductCard: React.FC<ProductCardProps> = ({ item }) => {
                   ₹{sellingPrice || 'N/A'}
                 </span>
                 {mrpPrice !== undefined && sellingPrice !== undefined && mrpPrice > sellingPrice && (
-                  <span className="text-[12px] sm:text-xs text-gray-400 line-through font-medium leading-none mb-[2px]">
+                  <span className="text-[12px] sm:text-xs text-gray-600 line-through font-medium leading-none mb-[2px]">
                     ₹{mrpPrice}
                   </span>
                 )}
               </div>
               {mrpPrice !== undefined && sellingPrice !== undefined && mrpPrice > sellingPrice && (
                 <div>
-                  <span className="text-[10px] sm:text-xs font-bold text-green-600 bg-green-50 px-1 rounded">
+                  <span className="text-[10px] sm:text-xs font-bold text-green-800 bg-green-50 px-1 rounded">
                     {Math.round(((mrpPrice - sellingPrice) / mrpPrice) * 100)}% off
                   </span>
                 </div>
@@ -190,6 +190,7 @@ const WishlistProductCard: React.FC<ProductCardProps> = ({ item }) => {
                 className="checkbox" 
                 checked={isInWishlist} 
                 readOnly
+                aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
                 style={{ pointerEvents: 'none' }}
               />
               <div className="svg-container">

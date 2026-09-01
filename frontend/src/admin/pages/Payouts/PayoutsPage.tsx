@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Chip, Dialog, DialogTitle, DialogContent, DialogActions, Typography, Box, Card, useMediaQuery, useTheme, Tabs, Tab, Checkbox } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Chip, Dialog, DialogTitle, DialogContent, DialogActions, Typography, Box, Card, useMediaQuery, useTheme, Tabs, Tab, Checkbox, Snackbar, Alert } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -18,6 +18,9 @@ const PayoutsPage = () => {
     const [triggerLoading, setTriggerLoading] = useState(false);
     const [tabIndex, setTabIndex] = useState(0);
     const [selectedSellers, setSelectedSellers] = useState<string[]>([]);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMsg, setSnackbarMsg] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('info');
 
     useEffect(() => {
         dispatch(fetchAllTransactions());
@@ -35,7 +38,9 @@ const PayoutsPage = () => {
 
     const handleTriggerPayouts = async () => {
         if (selectedSellers.length === 0) {
-            alert("Please select at least one seller to generate payouts.");
+            setSnackbarMsg("Please select at least one seller to generate payouts.");
+            setSnackbarSeverity('warning');
+            setSnackbarOpen(true);
             return;
         }
         setTriggerLoading(true);
@@ -43,9 +48,13 @@ const PayoutsPage = () => {
             await dispatch(triggerPayouts(selectedSellers)).unwrap();
             dispatch(fetchAllTransactions());
             setSelectedSellers([]);
-            alert("Successfully triggered payout generation!");
+            setSnackbarMsg("Successfully triggered payout generation!");
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
         } catch (error) {
-            alert(`Failed to trigger payouts: ${error}`);
+            setSnackbarMsg(`Failed to trigger payouts: ${error}`);
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
         } finally {
             setTriggerLoading(false);
         }
@@ -116,11 +125,11 @@ const PayoutsPage = () => {
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                 <div>
-                    <Typography variant="h4" className="font-bold text-gray-800 flex items-center gap-2">
-                        <AccountBalanceWalletIcon fontSize="large" className="text-[#FF5A00]" />
+                    <Typography variant="h4" className="font-bold text-gray-900 flex items-center gap-2">
+                        <AccountBalanceWalletIcon fontSize="large" sx={{ color: '#C2410C' }} />
                         Seller Transactions & Payouts
                     </Typography>
-                    <Typography variant="body2" className="text-gray-500 mt-1">
+                    <Typography variant="body2" className="text-gray-700 mt-1">
                         Manage and track seller settlements and transactions
                     </Typography>
                 </div>
@@ -128,6 +137,7 @@ const PayoutsPage = () => {
                     <Button
                         variant="outlined"
                         color="inherit"
+                        aria-label="Refresh transactions"
                         onClick={() => dispatch(fetchAllTransactions())}
                         disabled={loading}
                         className="bg-white hover:bg-gray-50 flex-shrink-0 border-gray-300"
@@ -157,7 +167,20 @@ const PayoutsPage = () => {
 
             {/* Tabs */}
             <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-                <Tabs value={tabIndex} onChange={handleTabChange} aria-label="transaction tabs">
+                <Tabs 
+                    value={tabIndex} 
+                    onChange={handleTabChange} 
+                    aria-label="transaction tabs"
+                    sx={{
+                        '& .MuiTab-root.Mui-selected': {
+                            color: '#111827',
+                            fontWeight: 'bold'
+                        },
+                        '& .MuiTab-root': {
+                            color: '#4B5563'
+                        }
+                    }}
+                >
                     <Tab label="Pending Settlement Transactions" />
                     <Tab label="Settled Transactions" />
                 </Tabs>
@@ -176,13 +199,14 @@ const PayoutsPage = () => {
                                             indeterminate={isIndeterminate}
                                             checked={isAllSelected}
                                             onChange={handleSelectAll}
+                                            inputProps={{ 'aria-label': 'Select all sellers' }}
                                         />
                                     </TableCell>
                                 )}
-                                <TableCell className="font-semibold text-gray-600">Seller Name</TableCell>
-                                <TableCell align="center" className="font-semibold text-gray-600">No. of Orders</TableCell>
-                                <TableCell align="right" className="font-semibold text-gray-600">Total Amount (₹)</TableCell>
-                                <TableCell align="center" className="font-semibold text-gray-600">Action</TableCell>
+                                <TableCell className="font-semibold text-gray-900">Seller Name</TableCell>
+                                <TableCell align="center" className="font-semibold text-gray-900">No. of Orders</TableCell>
+                                <TableCell align="right" className="font-semibold text-gray-900">Total Amount (₹)</TableCell>
+                                <TableCell align="center" className="font-semibold text-gray-900">Action</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -195,10 +219,10 @@ const PayoutsPage = () => {
                             ) : groupedTransactions.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={tabIndex === 0 ? 5 : 4} align="center" className="py-16">
-                                        <div className="flex flex-col items-center justify-center text-gray-400">
+                                        <div className="flex flex-col items-center justify-center text-gray-500">
                                             <AccountBalanceWalletIcon sx={{ fontSize: 60, opacity: 0.3 }} className="mb-4" />
-                                            <Typography variant="h6" className="text-gray-500 font-medium">No transactions found</Typography>
-                                            {tabIndex === 0 && <Typography variant="body2" className="mt-1">Click "Generate Payouts" to process pending settlements.</Typography>}
+                                            <Typography variant="h5" className="text-gray-700 font-medium">No transactions found</Typography>
+                                            {tabIndex === 0 && <Typography variant="body2" className="mt-1 text-gray-700">Click "Generate Payouts" to process pending settlements.</Typography>}
                                         </div>
                                     </TableCell>
                                 </TableRow>
@@ -215,16 +239,17 @@ const PayoutsPage = () => {
                                                     color="primary"
                                                     checked={selectedSellers.includes(group.sellerId)}
                                                     onChange={(e) => handleSelectOne(e, group.sellerId)}
+                                                    inputProps={{ 'aria-label': `Select seller ${group.sellerName}` }}
                                                 />
                                             </TableCell>
                                         )}
-                                        <TableCell component="th" scope="row" className="font-medium text-gray-700">
+                                        <TableCell component="th" scope="row" className="font-medium text-gray-900">
                                             {group.sellerName}
                                         </TableCell>
-                                        <TableCell align="center" className="text-gray-700 font-medium">
+                                        <TableCell align="center" className="text-gray-800 font-medium">
                                             {group.noOfOrders}
                                         </TableCell>
-                                        <TableCell align="right" className="font-bold text-gray-800">
+                                        <TableCell align="right" className="font-bold text-gray-900">
                                             ₹{group.totalAmount?.toLocaleString()}
                                         </TableCell>
                                         <TableCell align="center">
@@ -256,7 +281,7 @@ const PayoutsPage = () => {
                 }}
             >
                 <DialogTitle className="flex justify-between items-center bg-white border-b border-gray-100 p-4">
-                    <Typography variant="h6" component="div" className="font-bold text-gray-800">
+                    <Typography variant="h5" component="div" className="font-bold text-gray-900">
                         {tabIndex === 0 ? "Pending" : "Settled"} Transactions for Seller
                     </Typography>
                 </DialogTitle>
@@ -265,10 +290,10 @@ const PayoutsPage = () => {
                         <Table size="small">
                             <TableHead className="bg-gray-50/80">
                                 <TableRow>
-                                    <TableCell className="font-semibold text-gray-600">Customer</TableCell>
-                                    <TableCell align="right" className="font-semibold text-gray-600">Amount (₹)</TableCell>
-                                    <TableCell align="center" className="font-semibold text-gray-600">Payment Status</TableCell>
-                                    <TableCell align="center" className="font-semibold text-gray-600">Date</TableCell>
+                                    <TableCell className="font-semibold text-gray-900">Customer</TableCell>
+                                    <TableCell align="right" className="font-semibold text-gray-900">Amount (₹)</TableCell>
+                                    <TableCell align="center" className="font-semibold text-gray-900">Payment Status</TableCell>
+                                    <TableCell align="center" className="font-semibold text-gray-900">Date</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -306,6 +331,11 @@ const PayoutsPage = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+            <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)}>
+                <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMsg}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };

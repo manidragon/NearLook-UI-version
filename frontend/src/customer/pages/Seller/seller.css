@@ -245,7 +245,7 @@
 
 .seller-page .profile-nav-btn.active {
   background: var(--sp-bg-secondary);
-  color: var(--sp-accent);
+  color: var(--sp-accent-dark);
   box-shadow: var(--sp-shadow-sm);
 }
 

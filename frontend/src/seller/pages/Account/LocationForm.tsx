@@ -1,8 +1,8 @@
 // 📄 File: D:\Mani\Code with Zosh\Backup\source code\frontend\src\seller\pages\Account\LocationForm.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Button, TextField, FormControl, InputLabel, Select, MenuItem, FormHelperText, Alert, Snackbar, Typography } from '@mui/material'; // ✅ FIX 1: Added Typography import
 import MyLocationIcon from '@mui/icons-material/MyLocation';
-import { useAppDispatch } from '../../../redux/Store';
+import { useAppDispatch, useAppSelector } from '../../../redux/Store';
 // ✅ FIX 2: Correct casing + correct action name
 import { updateSeller } from '../../../redux/Seller/sellerSlice'; // ← lowercase 's', and updateSeller
 import CustomLoader from "../../../components/CustomLoader";
@@ -25,6 +25,7 @@ interface LocationFormProps {
 
 const LocationForm: React.FC<LocationFormProps> = ({ onClose }) => {
   const dispatch = useAppDispatch();
+  const sellers = useAppSelector((state: any) => state.sellers);
   const [district, setDistrict] = useState('');
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [address, setAddress] = useState('');
@@ -40,6 +41,21 @@ const LocationForm: React.FC<LocationFormProps> = ({ onClose }) => {
     message: '', 
     severity: 'success' 
   });
+
+  useEffect(() => {
+    if (sellers.profile) {
+      setDistrict(sellers.profile.district || '');
+      if (sellers.profile.location) {
+        setAddress(sellers.profile.location.address || '');
+        if (sellers.profile.location.coordinates && sellers.profile.location.coordinates.length === 2) {
+          setCoordinates({
+            lng: sellers.profile.location.coordinates[0],
+            lat: sellers.profile.location.coordinates[1]
+          });
+        }
+      }
+    }
+  }, [sellers.profile]);
 
   // ✅ Get current location via browser
   const handleGetCurrentLocation = async () => {
@@ -84,11 +100,11 @@ const LocationForm: React.FC<LocationFormProps> = ({ onClose }) => {
         updateData.district = district;
       }
       
-      if (coordinates) {
+      if (coordinates || address) {
         // ✅ GeoJSON format: [longitude, latitude]
         updateData.location = {
           type: 'Point',
-          coordinates: [coordinates.lng, coordinates.lat],  // ✅ [lng, lat] for GeoJSON
+          coordinates: coordinates ? [coordinates.lng, coordinates.lat] : undefined,  // ✅ [lng, lat] for GeoJSON
           ...(address && { address: address.trim() })
         };
       }
@@ -144,31 +160,18 @@ const LocationForm: React.FC<LocationFormProps> = ({ onClose }) => {
       
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-      {/* Optional Address (only shown if coordinates are set) */}
-      {coordinates && (
-        <TextField
-          fullWidth
-          label="Location Address (Optional)"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          placeholder="e.g., 123 Main St, Theni"
-          margin="normal"
-          helperText="Helps customers recognize your location"
-        />
-      )}
+      {/* Optional Address */}
+      <TextField
+        fullWidth
+        label="Location Address (Optional)"
+        value={address}
+        onChange={(e) => setAddress(e.target.value)}
+        placeholder="e.g., 123 Main St, Theni"
+        margin="normal"
+        helperText="Helps customers recognize your location"
+      />
 
-      {/* Coordinates Preview */}
-      {coordinates && (
-        <Box sx={{ bgcolor: 'grey.100', p: 2, borderRadius: 1, mt: 2 }}>
-          <Typography variant="caption" color="text.secondary">Preview:</Typography>
-          <Typography variant="body2" fontWeight="medium">
-            Lat: {coordinates.lat.toFixed(6)}, Lng: {coordinates.lng.toFixed(6)}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            (Stored as GeoJSON: [{coordinates.lng.toFixed(6)}, {coordinates.lat.toFixed(6)}])
-          </Typography>
-        </Box>
-      )}
+
 
       {/* Actions */}
       <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
@@ -179,16 +182,15 @@ const LocationForm: React.FC<LocationFormProps> = ({ onClose }) => {
           onClick={handleSave} 
           variant="contained" 
           fullWidth 
-          // ✅ FIXED: Enable if EITHER district OR coordinates is set
-          disabled={loading || (!district && !coordinates)}
+          // ✅ FIXED: Enable if EITHER district OR coordinates OR address is set
+          disabled={loading || (!district && !coordinates && !address)}
         >
           {loading ? 'Saving...' : 'Save Location'}
         </Button>
       </Box>
 
       {/* Snackbar */}
-      <Snackbar
-        open={snackbar.open}
+      <Snackbar open={snackbar.open}
         autoHideDuration={6000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}

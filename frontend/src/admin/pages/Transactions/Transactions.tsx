@@ -1,4 +1,3 @@
-import React from 'react';
 import { 
     Box, Card, Typography, Grid, Paper, Table, TableBody, 
     TableCell, TableContainer, TableHead, TableRow, Chip, useTheme, alpha 
@@ -26,7 +25,7 @@ const Transactions = () => {
 
     return (
         <Box p={3} sx={{ maxWidth: '100%', overflowX: 'hidden' }}>
-            <Typography variant="h4" fontWeight="bold" color="primary" mb={4}>Transactions & Revenue</Typography>
+            <Typography variant="h4" fontWeight="bold" sx={{ color: '#111827' }} mb={4}>Transactions & Revenue</Typography>
 
             {/* KPI Cards */}
             <Grid container spacing={3} mb={4}>
@@ -52,32 +51,32 @@ const Transactions = () => {
                     <Table sx={{ minWidth: 700 }}>
                         <TableHead sx={{ backgroundColor: alpha(theme.palette.primary.main, 0.05) }}>
                             <TableRow>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Transaction ID</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Date</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Seller</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Customer</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }} align="right">Gross Amount</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }}>Transaction ID</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }}>Date</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }}>Seller</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }}>Customer</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }} align="right">Gross Amount</TableCell>
                                 <TableCell sx={{ fontWeight: 'bold', color: 'success.main' }} align="right">Platform Fee</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }} align="right">Net to Seller</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }} align="right">Net to Seller</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }}>Status</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {mockTransactions.map((row) => (
                                 <TableRow key={row.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                    <TableCell sx={{ fontWeight: '500' }}>{row.id}</TableCell>
-                                    <TableCell>{row.date}</TableCell>
-                                    <TableCell>{row.seller}</TableCell>
-                                    <TableCell>{row.customer}</TableCell>
-                                    <TableCell align="right">${row.amount.toFixed(2)}</TableCell>
+                                    <TableCell sx={{ fontWeight: '500', color: '#111827' }}>{row.id}</TableCell>
+                                    <TableCell sx={{ color: '#374151' }}>{row.date}</TableCell>
+                                    <TableCell sx={{ color: '#374151' }}>{row.seller}</TableCell>
+                                    <TableCell sx={{ color: '#374151' }}>{row.customer}</TableCell>
+                                    <TableCell align="right" sx={{ color: '#374151' }}>${row.amount.toFixed(2)}</TableCell>
                                     <TableCell align="right" sx={{ color: 'success.main', fontWeight: 'bold' }}>+${row.fee.toFixed(2)}</TableCell>
-                                    <TableCell align="right">${row.net.toFixed(2)}</TableCell>
+                                    <TableCell align="right" sx={{ color: '#374151' }}>${row.net.toFixed(2)}</TableCell>
                                     <TableCell>
                                         <Chip 
                                             label={row.status} 
                                             size="small"
                                             color={row.status === 'COMPLETED' ? 'success' : (row.status === 'PENDING' ? 'warning' : 'error')}
-                                            variant="outlined"
+                                            sx={{ fontWeight: 'bold' }}
                                         />
                                     </TableCell>
                                 </TableRow>

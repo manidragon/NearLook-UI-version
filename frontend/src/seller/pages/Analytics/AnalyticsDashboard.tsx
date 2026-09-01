@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Typography, Grid } from '@mui/material';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
+import { Box, Typography, CircularProgress } from '@mui/material';
 import { api } from '../../../Config/Api';
-import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
-  BarChart, Bar, Legend
-} from 'recharts';
+
+const ChartsComponent = lazy(() => import('./ChartsComponent'));
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import PeopleIcon from '@mui/icons-material/People';
@@ -128,7 +126,7 @@ const AnalyticsDashboard = () => {
             <div className="flex flex-row justify-between items-center relative z-10 gap-2">
               <div className="min-w-0 w-full">
                 <p className="text-white/90 font-medium text-[10px] lg:text-xs uppercase tracking-wider mb-1 truncate">{stat.title}</p>
-                <h3 className="text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold truncate">{stat.value}</h3>
+                <p className="text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold truncate">{stat.value}</p>
               </div>
               <div className="bg-white/20 p-2 lg:p-3 rounded-xl backdrop-blur-sm shrink-0">
                 {React.cloneElement(stat.icon, { sx: { fontSize: { xs: 24, lg: 32 } } })}
@@ -139,117 +137,18 @@ const AnalyticsDashboard = () => {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Revenue Area Chart */}
-        <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-bold text-gray-800">Revenue Growth (30 Days)</h2>
-            <span className="px-3 py-1 bg-orange-100 text-[#FF5A00] text-xs font-bold rounded-full">Last 30 Days</span>
-          </div>
-          <div style={{ width: '100%', height: 350 }}>
-            <ResponsiveContainer>
-              <AreaChart
-                data={data.timeSeries}
-                margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
-              >
-                <defs>
-                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#FF5A00" stopOpacity={0.4}/>
-                    <stop offset="95%" stopColor="#FF5A00" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                <XAxis 
-                  dataKey="date" 
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: '#6B7280', fontSize: 12 }}
-                  tickFormatter={(str) => {
-                    const date = new Date(str);
-                    return `${date.getDate()}/${date.getMonth() + 1}`;
-                  }} 
-                  dy={10}
-                />
-                <YAxis 
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: '#6B7280', fontSize: 12 }}
-                  tickFormatter={formatYAxis} 
-                  width={45}
-                />
-                <RechartsTooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}
-                  formatter={(value: any) => [`₹${Number(value).toLocaleString()}`, 'Revenue']}
-                  labelFormatter={(label: any) => new Date(label).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="revenue" 
-                  stroke="#FF5A00" 
-                  strokeWidth={3}
-                  fillOpacity={1} 
-                  fill="url(#colorRevenue)" 
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+      <Suspense fallback={
+        <div className="flex justify-center items-center h-64 w-full">
+          <CircularProgress sx={{ color: '#FF5A00' }} />
         </div>
-
-        {/* Views & Followers Bar Chart */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-bold text-gray-800">Engagement</h2>
-            <select
-              className="bg-blue-50 border border-blue-100 text-blue-700 text-xs font-bold rounded-full focus:ring-blue-500 focus:border-blue-500 block px-3 py-1.5 outline-none cursor-pointer transition-colors hover:bg-blue-100"
-              value={engagementRange}
-              onChange={(e) => setEngagementRange(Number(e.target.value))}
-            >
-              <option value={7}>Last 7 Days</option>
-              <option value={15}>Last 15 Days</option>
-              <option value={30}>Last 30 Days</option>
-            </select>
-          </div>
-          <div style={{ width: '100%', height: 350 }}>
-            <ResponsiveContainer>
-              <BarChart
-                data={data.timeSeries.slice(-engagementRange)} 
-                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-                barSize={12}
-              >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                <XAxis 
-                  dataKey="date" 
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: '#6B7280', fontSize: 12 }}
-                  tickFormatter={(str) => {
-                    const date = new Date(str);
-                    return engagementRange <= 7 
-                      ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()]
-                      : `${date.getDate()}/${date.getMonth() + 1}`;
-                  }} 
-                  dy={10}
-                />
-                <YAxis 
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: '#6B7280', fontSize: 12 }}
-                />
-                <RechartsTooltip 
-                  cursor={{ fill: '#F3F4F6' }}
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}
-                  labelFormatter={(label: any) => new Date(label).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
-                />
-                <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
-                <Bar dataKey="views" name="Profile Views" fill="#3B82F6" radius={[4, 4, 4, 4]} />
-                <Bar dataKey="followers" name="New Followers" fill="#10B981" radius={[4, 4, 4, 4]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-        
-      </div>
+      }>
+        <ChartsComponent 
+          data={data} 
+          engagementRange={engagementRange} 
+          setEngagementRange={setEngagementRange} 
+          formatYAxis={formatYAxis} 
+        />
+      </Suspense>
     </div>
   );
 };

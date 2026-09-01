@@ -8,7 +8,9 @@ import { useNavigate } from 'react-router-dom';
 import { sendLoginSignupOtp, signup } from '../../../redux/Customer/AuthSlice';
 import { useFormik } from 'formik';
 import { Alert, Box, Typography } from '@mui/material';
-
+import { GoogleLogin } from '@react-oauth/google';
+import { jwtDecode } from "jwt-decode";
+import { handleNameChange } from "../../../utils/validationUtils";
 const SignupForm = () => {
   const navigate = useNavigate();
   const [otp, setOtp] = useState("");
@@ -93,7 +95,7 @@ const SignupForm = () => {
           label="Full Name"
           placeholder="e.g. John Doe"
           value={formik.values.name}
-          onChange={formik.handleChange}
+          onChange={handleNameChange(formik)}
           onBlur={formik.handleBlur}
           error={formik.touched.name && Boolean(formik.errors.name)}
           helperText={formik.touched.name ? formik.errors.name as string : undefined}
@@ -179,6 +181,34 @@ const SignupForm = () => {
           )}
         </Box>
       </form>
+
+      {!auth.otpSent && (
+        <div className="mt-6">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+            </div>
+          </div>
+          <div className="mt-6 flex justify-center">
+            <GoogleLogin
+              onSuccess={(credentialResponse) => {
+                const decoded: any = jwtDecode(credentialResponse.credential!);
+                formik.setFieldValue('email', decoded.email);
+                formik.setFieldValue('name', decoded.name || '');
+                dispatch(sendLoginSignupOtp({ email: decoded.email }));
+                setTimer(30);
+                setIsTimerActive(true);
+              }}
+              onError={() => {
+                console.error('Google Login Failed');
+              }}
+            />
+          </div>
+        </div>
+      )}
     </Box>
   );
 };

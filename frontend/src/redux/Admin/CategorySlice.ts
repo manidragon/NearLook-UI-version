@@ -38,7 +38,11 @@ const deduplicateCategories = (categories: Category[]): Category[] => {
 };
 
 // Fetch all categories with hierarchy
-export const fetchCategories = createAsyncThunk(
+export const fetchCategories = createAsyncThunk<
+  Category[],
+  void,
+  { state: { category: CategoryState } }
+>(
   "category/fetchCategories",
   async (_, { rejectWithValue }) => {
     try {
@@ -47,6 +51,14 @@ export const fetchCategories = createAsyncThunk(
       return deduplicateCategories(data.categories || []);
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch categories");
+    }
+  },
+  {
+    condition: (_, { getState }) => {
+      const { category } = getState();
+      if (category.loading || category.categories.length > 0) {
+        return false;
+      }
     }
   }
 );
@@ -154,7 +166,6 @@ const categorySlice = createSlice({
       state.loading = false;
       // ✅ CRITICAL: DEDUPLICATE before storing in Redux
       state.categories = deduplicateCategories(action.payload);
-      state.success = true;
     });
     builder.addCase(fetchCategories.rejected, (state, action) => {
       state.loading = false;
@@ -169,7 +180,6 @@ const categorySlice = createSlice({
     builder.addCase(getCategoriesByLevel.fulfilled, (state, action: PayloadAction<Category[]>) => {
       state.loading = false;
       state.categories = deduplicateCategories(action.payload);
-      state.success = true;
     });
     builder.addCase(getCategoriesByLevel.rejected, (state, action) => {
       state.loading = false;
@@ -184,7 +194,6 @@ const categorySlice = createSlice({
     builder.addCase(getChildCategories.fulfilled, (state, action: PayloadAction<Category[]>) => {
       state.loading = false;
       state.categories = deduplicateCategories(action.payload);
-      state.success = true;
     });
     builder.addCase(getChildCategories.rejected, (state, action) => {
       state.loading = false;

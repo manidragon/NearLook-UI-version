@@ -3,7 +3,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { fetchSellerProducts } from "../../../redux/Seller/sellerProductSlice";
 import { api } from "../../../Config/Api";
-import { Box, Typography, Paper, Chip, Button, Divider, TextField, Snackbar, Alert, Checkbox, Avatar, IconButton, Tooltip, Badge } from '@mui/material';
+import { Box, Typography, Paper, Chip, Button, Divider, TextField, Snackbar, Alert, Checkbox, IconButton, Tooltip, Badge } from '@mui/material';
 import PaletteIcon from "@mui/icons-material/Palette";
 import StorageIcon from "@mui/icons-material/Storage";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -770,9 +770,8 @@ const OfflineSale: React.FC = () => {
                       <Chip
                         label={`₹${product.minPrice} – ₹${product.maxPrice}`}
                         size="small"
-                        color="primary"
                         variant="outlined"
-                        sx={{ fontWeight: 600 }}
+                        sx={{ fontWeight: 800, color: '#c24100', borderColor: '#c24100' }}
                       />
                       <Chip
                         label={`${variants.length} variant${variants.length !== 1 ? "s" : ""}`}
@@ -851,6 +850,7 @@ const OfflineSale: React.FC = () => {
                                   disabled={outOfStock}
                                   color="primary"
                                   size="small"
+                                  inputProps={{ 'aria-label': `Select ${fv.color} ${specLabel(fv.specifications)}` }}
                                 />
                                 <StorageIcon fontSize="small" color={inCart ? "primary" : "action"} />
                                 <Typography variant="body2" fontWeight={600}>
@@ -872,7 +872,7 @@ const OfflineSale: React.FC = () => {
                                     label={`MRP ₹${fv.offer.mrpPrice}`}
                                     size="small"
                                     variant="outlined"
-                                    sx={{ color: "text.disabled", textDecoration: "line-through" }}
+                                    sx={{ color: "text.secondary", textDecoration: "line-through", borderColor: "grey.400" }}
                                   />
                                 )}
                               </Box>
@@ -939,7 +939,7 @@ const OfflineSale: React.FC = () => {
               sx={{
                 px: 3,
                 py: 2,
-                bgcolor: "primary.main",
+                bgcolor: "#1e293b",
                 display: "flex",
                 alignItems: "center",
                 gap: 1,

@@ -40,6 +40,9 @@ export default function MapSearch() {
   const [radius, setRadius] = useState(50); // Default 50km
   const navigate = useNavigate();
 
+  const defaultCenter: [number, number] = [28.6139, 77.2090]; // Default to New Delhi
+  const mapCenter = userLocation || defaultCenter;
+
   useEffect(() => {
     // 1. Get User Location
     if ("geolocation" in navigator) {
@@ -113,48 +116,50 @@ export default function MapSearch() {
     <div className="flex flex-col lg:flex-row h-[calc(100vh-140px)]">
       {/* LEFT PANEL: Map */}
       <div className="w-full lg:w-2/3 h-1/2 lg:h-full relative">
-        {userLocation ? (
-          <MapContainer 
-            center={userLocation} 
-            zoom={13} 
-            style={{ height: "100%", width: "100%", zIndex: 1 }}
-          >
-            <ChangeView center={userLocation} />
-            <TileLayer
-              url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            />
+        <MapContainer 
+          center={mapCenter} 
+          zoom={userLocation ? 13 : 5} 
+          style={{ height: "100%", width: "100%", zIndex: 1 }}
+        >
+          {userLocation && <ChangeView center={userLocation} />}
+          <TileLayer
+            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
 
-            {/* User Marker */}
+          {/* User Marker */}
+          {userLocation && (
             <Marker position={userLocation} icon={userMarkerIcon}>
               <Popup>
                 <strong>You are here</strong>
               </Popup>
             </Marker>
+          )}
 
-            {/* Seller Markers */}
-            {Object.values(sellerGroups).map((group: any, idx) => (
-              <Marker key={idx} position={[group.lat, group.lng]} icon={customMarkerIcon}>
-                <Popup className="custom-popup">
-                  <div className="p-2">
-                    <h3 className="font-bold text-[#FF5A00]">{group.businessName || group.sellerName}</h3>
-                    <p className="text-xs text-gray-600 mb-2">{group.products.length} products available here</p>
-                    <Button 
-                      size="small" 
-                      variant="outlined" 
-                      onClick={() => navigate(`/seller-profile/${group.sellerId}`)}
-                      sx={{ borderColor: '#FF5A00', color: '#FF5A00', width: '100%' }}
-                    >
-                      Visit Store
-                    </Button>
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
-          </MapContainer>
-        ) : (
-          <div className="flex items-center justify-center h-full bg-gray-100">
-            <CustomLoader sx={{ color: '#FF5A00' }} />
+          {/* Seller Markers */}
+          {Object.values(sellerGroups).map((group: any, idx) => (
+            <Marker key={idx} position={[group.lat, group.lng]} icon={customMarkerIcon}>
+              <Popup className="custom-popup">
+                <div className="p-2">
+                  <h3 className="font-bold text-[#FF5A00]">{group.businessName || group.sellerName}</h3>
+                  <p className="text-xs text-gray-600 mb-2">{group.products.length} products available here</p>
+                  <Button 
+                    size="small" 
+                    variant="outlined" 
+                    onClick={() => navigate(`/seller-profile/${group.sellerId}`)}
+                    sx={{ borderColor: '#FF5A00', color: '#FF5A00', width: '100%' }}
+                  >
+                    Visit Store
+                  </Button>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+
+        {!userLocation && loading && (
+          <div className="absolute inset-0 z-[2000] flex items-center justify-center bg-white/40 backdrop-blur-sm">
+            <CustomLoader sx={{ color: '#c24100' }} />
           </div>
         )}
 
@@ -164,7 +169,7 @@ export default function MapSearch() {
              size="small" 
              variant={radius === 10 ? "contained" : "outlined"}
              onClick={() => handleRadiusChange(10)}
-             sx={{ bgcolor: radius === 10 ? '#FF5A00' : 'transparent', color: radius === 10 ? 'white' : '#FF5A00' }}
+             sx={{ bgcolor: radius === 10 ? '#c24100' : 'transparent', color: radius === 10 ? 'white' : '#c24100', borderColor: '#c24100' }}
            >
              10 km
            </Button>
@@ -172,7 +177,7 @@ export default function MapSearch() {
              size="small" 
              variant={radius === 50 ? "contained" : "outlined"}
              onClick={() => handleRadiusChange(50)}
-             sx={{ bgcolor: radius === 50 ? '#FF5A00' : 'transparent', color: radius === 50 ? 'white' : '#FF5A00' }}
+             sx={{ bgcolor: radius === 50 ? '#c24100' : 'transparent', color: radius === 50 ? 'white' : '#c24100', borderColor: '#c24100' }}
            >
              50 km
            </Button>
@@ -184,7 +189,7 @@ export default function MapSearch() {
         <div className="p-5 bg-white/95 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b border-gray-100">
           <h2 className="text-xl font-bold text-gray-800">Nearby Products</h2>
           <p className="text-sm text-gray-500 mt-1">
-            Found <span className="font-semibold text-[#FF5A00]">{products.length}</span> products within {radius}km
+            Found <span className="font-semibold text-[#c24100]">{products.length}</span> products within {radius}km
           </p>
         </div>
 

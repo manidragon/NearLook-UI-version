@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { 
     Box, Card, Typography, Table, TableBody, TableCell, TableContainer, 
     TableHead, TableRow, Paper, Avatar, InputBase, alpha, useTheme
@@ -37,7 +37,7 @@ const UsersList = () => {
                 gap={2}
                 mb={4}
             >
-                <Typography variant="h4" fontWeight="bold" color="primary">Users Management</Typography>
+                <Typography variant="h4" fontWeight="bold" sx={{ color: '#111827' }}>Users Management</Typography>
                 
                 {/* Search Bar */}
                 <Box 

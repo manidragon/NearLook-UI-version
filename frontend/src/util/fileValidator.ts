@@ -7,7 +7,11 @@
  * @param maxSizeMb The maximum allowed size in Megabytes (default 3)
  * @returns Array of Files that passed the validation
  */
-export const validateImageSize = (files: FileList | File[] | null | undefined, maxSizeMb = 3): File[] => {
+export const validateImageSize = (
+  files: FileList | File[] | null | undefined, 
+  maxSizeMb = 3,
+  onError?: (msg: string) => void
+): File[] => {
   if (!files) return [];
   
   const fileArray = Array.from(files);
@@ -22,9 +26,13 @@ export const validateImageSize = (files: FileList | File[] | null | undefined, m
     const isValidType = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/webp';
 
     if (!isValidExtension || !isValidType) {
-      alert(`File "${file.name}" has an unsupported format. Only JPG, JPEG, PNG, and WebP are allowed.`);
+      const msg = `File "${file.name}" has an unsupported format. Only JPG, JPEG, PNG, and WebP are allowed.`;
+      if (onError) onError(msg);
+      else console.warn(msg);
     } else if (file.size > maxSizeBytes) {
-      alert(`File "${file.name}" is larger than ${maxSizeMb}MB and will not be uploaded.`);
+      const msg = `File "${file.name}" is larger than ${maxSizeMb}MB and will not be uploaded.`;
+      if (onError) onError(msg);
+      else console.warn(msg);
     } else {
       validFiles.push(file);
     }

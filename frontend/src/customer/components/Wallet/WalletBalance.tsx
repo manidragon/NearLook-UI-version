@@ -1,11 +1,10 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\components\Wallet\WalletBalance.tsx
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, IconButton, Popover, List, ListItem, ListItemIcon, ListItemText, Divider, Chip, Alert } from '@mui/material';
+import { Box, Typography, Popover, List, ListItem, ListItemIcon, ListItemText, Divider, Alert } from '@mui/material';
 import { AccountBalanceWallet, ArrowUpward, ArrowDownward } from '@mui/icons-material';
 import { useAppDispatch, useAppSelector } from '../../../redux/Store';
 import { fetchUserReturns } from '../../../redux/Customer/ReturnSlice';
 import { api } from '../../../Config/Api';
-import type { WalletTransaction } from '../../../types/orderTypes';
 import dayjs from 'dayjs';
 import CustomLoader from "../../../components/CustomLoader";
 
@@ -249,7 +248,7 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({ compact = false }) => {
           <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>
             Available Balance
           </Typography>
-          <Typography variant="h3" fontWeight="800" sx={{ mt: 0.5 }}>
+          <Typography component="p" variant="h3" fontWeight="800" sx={{ mt: 0.5 }}>
             ₹{walletBalance.toFixed(0)}
           </Typography>
         </Box>
@@ -257,7 +256,7 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({ compact = false }) => {
 
       {/* 📜 Transactions Section Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" fontWeight="bold">
+        <Typography component="h2" variant="h6" fontWeight="bold">
           Recent Transactions
         </Typography>
         {loading && recentTransactions.length > 0 && (
@@ -287,9 +286,9 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({ compact = false }) => {
       ) : (
         /* ✅ Transaction List */
         <List sx={{ bgcolor: 'white', borderRadius: 4, p: 0, boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}>
-          {recentTransactions.map((tx) => (
+          {recentTransactions.map((tx, index) => (
             <React.Fragment key={tx._id || tx.referenceId}>
-              <ListItem sx={{ py: 1.5, px: { xs: 1.5, sm: 2 } }}>
+              <ListItem divider={index !== recentTransactions.length - 1} sx={{ py: 1.5, px: { xs: 1.5, sm: 2 } }}>
                 <ListItemIcon sx={{ minWidth: { xs: 44, sm: 52 } }}>
                   <Box sx={{
                     width: { xs: 32, sm: 40 }, height: { xs: 32, sm: 40 }, borderRadius: '50%',
@@ -322,6 +321,7 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({ compact = false }) => {
                   }
                 />
                 <Typography
+                  component="p"
                   variant="h6"
                   fontWeight="bold"
                   color={tx.type === 'CREDIT' ? 'success.main' : 'error.main'}
@@ -330,7 +330,7 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({ compact = false }) => {
                   {tx.type === 'CREDIT' ? '+' : '-'}₹{tx.amount.toFixed(0)}
                 </Typography>
               </ListItem>
-              <Divider />
+              {/* Divider removed in favor of ListItem divider prop for a11y */}
             </React.Fragment>
           ))}
         </List>

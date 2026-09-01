@@ -11,15 +11,40 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    />
+    <link rel="preconnect" href="https://res.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://res.cloudinary.com" />
+    <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
     />
-
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
 
     <title>Near Look</title>
+    <style>
+      /* Base reset */
+      body, html { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background-color: #F1F3F6; }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Fast, route-agnostic initial loader to prevent FCP delays and Layout Shifts -->
+      <div style="display: flex; flex-direction: column; height: 100vh; width: 100vw; background: #fff; align-items: center; justify-content: center;">
+        <div style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #FF5A00; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <span style="margin-top: 16px; font-family: sans-serif; font-size: 14px; color: #333;">Loading Near Look...</span>
+        <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

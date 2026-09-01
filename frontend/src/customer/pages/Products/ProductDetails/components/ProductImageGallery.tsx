@@ -1,4 +1,3 @@
-import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import React from 'react';
 import { Box, Modal, Typography } from '@mui/material';
 import ZoomableImage from '../ZoomableImage';
@@ -283,6 +282,9 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
                 className="lumen-mediaFrame__img"
                 alt={productTitle}
                 loading="eager"
+                fetchPriority="high"
+                width="600"
+                height="600"
                 src={displayImages[selectedImage]}
                 onError={(e) => handleImageError(e, '600')}
                 style={isZooming ? {
@@ -298,6 +300,8 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
                 className="lumen-mediaFrame__img"
                 alt="No image"
                 loading="eager"
+                width="600"
+                height="600"
                 src={PLACEHOLDER_600}
               />
             )}
@@ -312,6 +316,7 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
                 id="wishlist-checkbox"
                 checked={isWishlisted} 
                 onChange={onToggleWishlist} 
+                aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
               />
               <div className="svg-container">
                   <svg viewBox="0 0 24 24" className="svg-outline" xmlns="http://www.w3.org/2000/svg">
@@ -354,14 +359,14 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
                   onClick={() => setSelectedImage(index)}
                 >
                   <span className="lumen-thumb__frame">
-                    <img alt={`Thumb ${index + 1}`} loading="lazy" src={item} onError={(e) => handleImageError(e, '50')} />
+                    <img alt={`Thumb ${index + 1}`} width="100" height="100" loading="lazy" src={item} onError={(e) => handleImageError(e, '50')} />
                   </span>
                 </button>
               ))
             ) : (
                <button className="lumen-thumb is-active" type="button">
                   <span className="lumen-thumb__frame">
-                    <img alt="Thumb 1" loading="lazy" src={PLACEHOLDER_50} />
+                    <img alt="Thumb 1" width="100" height="100" loading="lazy" src={PLACEHOLDER_50} />
                   </span>
                 </button>
             )}

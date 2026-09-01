@@ -6,12 +6,17 @@ require('dotenv').config();
 
 const connectDB = async () => {
   try {
+    console.log("Attempting to connect to MongoDB...");
+    console.log("MongoDB URI:", process.env.MONGO_URI ? "URI is defined" : "URI is MISSING");
+    
     const conn = await mongoose.connect(process.env.MONGO_URI);
-
-
+    
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    
     DataInitializationService.initializeAdminUser();
   } catch (error) {
-    console.error(`Error: ${error.message}`);
+    console.error(`MongoDB Connection Error:`, error);
+    console.error(`Error Message: ${error.message}`);
     process.exit(1); 
   }
 };

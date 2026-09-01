@@ -1,5 +1,4 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\admin\components\CategoryManagement\CategoryManagement.tsx
-
 import { useEffect, useState } from "react";
 import {
   Box,
@@ -17,10 +16,7 @@ import {
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import {
   fetchCategories,
-  createCategory,
-  updateCategory,
   deleteCategory,
-  getCategoriesByLevel,
 } from "../../../redux/Admin/CategorySlice";
 import CategoryTable from "./CategoryTable";
 import CreateCategoryForm from "./CreateCategoryForm";
@@ -235,12 +231,11 @@ const CategoryManagement = () => {
 
   return (
     <Box sx={{ maxWidth: 1400, margin: "0 auto", p: { xs: 1, sm: 2, md: 3 } }}>
-      <Snackbar
+      <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} 
         open={snackbar.open}
         autoHideDuration={5000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         TransitionComponent={Slide}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert 
           severity={snackbar.severity} 
@@ -272,15 +267,19 @@ const CategoryManagement = () => {
         </Typography>
         <Button
           variant="contained"
-          color="primary"
           onClick={() => setOpenCreateModal(true)}
           sx={{ 
+            bgcolor: '#b33f00',
+            color: 'white',
             py: 1.5, 
             px: 3, 
             borderRadius: '12px',
             textTransform: 'none',
             fontWeight: 600,
             boxShadow: '0 4px 14px 0 rgba(255, 90, 0, 0.39)',
+            '&:hover': {
+              bgcolor: '#9a3412',
+            }
           }}
         >
           + Create New Category
@@ -309,7 +308,9 @@ const CategoryManagement = () => {
               textTransform: 'none',
               fontSize: '0.95rem',
               py: 2,
-            }
+              '&.Mui-selected': { color: '#b33f00' }
+            },
+            '& .MuiTabs-indicator': { backgroundColor: '#b33f00' }
           }}
         >
           <Tab label="Level 1 Categories (Main)" />

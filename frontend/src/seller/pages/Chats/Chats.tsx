@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Box, Paper, Typography, TextField, IconButton, List, ListItem, ListItemButton, ListItemText, ListItemAvatar, Avatar, Divider, Fade, useTheme, useMediaQuery } from '@mui/material';
+import { useEffect, useState, useRef } from 'react';
+import { Box, Paper, Typography, TextField, IconButton, List, ListItemButton, ListItemText, ListItemAvatar, Avatar, Fade } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useAppDispatch, useAppSelector } from '../../../redux/Store';
@@ -93,11 +93,14 @@ export default function Chats() {
           <Typography variant="h6" fontWeight="700" color="text.primary">
             Customer Chats
           </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontSize: '0.8rem', fontStyle: 'italic' }}>
+            Note: Chats are automatically deleted after 15 days.
+          </Typography>
         </Box>
         <List sx={{ p: 1 }}>
           {chat.chats.map((c, index) => (
             <Fade in={true} key={c._id} style={{ transitionDelay: `${index * 50}ms` }}>
-              <Box>
+              <Box component="li">
                 <ListItemButton 
                   selected={chat.currentChat?._id === c._id}
                   onClick={() => dispatch(setCurrentChat(c))}
@@ -144,7 +147,7 @@ export default function Chats() {
             </Fade>
           ))}
           {chat.chats.length === 0 && (
-            <Box sx={{ p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: 0.6 }}>
+            <Box component="li" sx={{ p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: 0.6 }}>
               <Typography variant="body1" color="text.secondary" fontWeight="500">
                 No conversations yet
               </Typography>

@@ -135,6 +135,9 @@ export interface Product {
   // ✅✅✅ Variants array with offers (PRIMARY structure)
   variants?: ProductVariant[];
   
+  // ✅ Product highlights (product-level specifications)
+  highlights?: Record<string, any>;
+
   // ✅ Aggregated helper fields (for filtering/SEO)
   availableColors?: string[];
   availableSpecs?: Record<string, string[]>;

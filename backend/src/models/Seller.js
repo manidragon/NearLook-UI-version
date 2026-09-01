@@ -142,11 +142,7 @@ location: {
         holidayMode: { type: Boolean, default: false },
         promotions: [{ type: String }]
     },
-    payoutSchedule: {
-        type: String,
-        enum: ['DAILY', 'WEEKLY', 'BI_WEEKLY'],
-        default: 'WEEKLY'
-    },
+
     performanceMetrics: {
         cancellationRate: { type: Number, default: 0 },
         returnRate: { type: Number, default: 0 },

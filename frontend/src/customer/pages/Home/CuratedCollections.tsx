@@ -37,7 +37,7 @@ export default function CuratedCollections() {
         className="relative group rounded-xl overflow-hidden shadow-sm cursor-pointer h-[250px] md:h-[400px]"
       >
         <img 
-          src={secureUrl(collections[0].imageUrl)} 
+          src={secureUrl(collections[0].imageUrl, 800)} 
           alt={collections[0].title} 
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
@@ -56,7 +56,7 @@ export default function CuratedCollections() {
             className="relative group rounded-xl overflow-hidden shadow-sm cursor-pointer flex-1"
           >
             <img 
-              src={secureUrl(collection.imageUrl)} 
+              src={secureUrl(collection.imageUrl, 500)} 
               alt={collection.title} 
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />

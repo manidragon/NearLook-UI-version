@@ -31,7 +31,7 @@ const SmilarProduct = () => {
   return (
     <div>
       {products.loading ? (
-        <div className="flex justify-center py-10">
+        <div className="flex justify-center items-center py-10 min-h-[400px]">
           <CustomLoader />
         </div>
       ) : productsToRender.length > 0 ? (

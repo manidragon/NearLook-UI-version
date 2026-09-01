@@ -1,5 +1,5 @@
-// D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\pages\BecomeSeller\BecomeSellerFormStep1.tsx
 import { Box, TextField } from "@mui/material";
+import { handleNumberChange } from "../../../utils/validationUtils";
 
 const BecomeSellerFormStep1 = ({ formik }: any) => {
     return (
@@ -13,7 +13,7 @@ const BecomeSellerFormStep1 = ({ formik }: any) => {
                     name="mobile"
                     label="Mobile"
                     value={formik.values.mobile}
-                    onChange={formik.handleChange}
+                    onChange={handleNumberChange(formik)}
                     onBlur={formik.handleBlur}
                     error={formik.touched.mobile && Boolean(formik.errors.mobile)}
                     helperText={formik.touched.mobile && formik.errors.mobile}

@@ -60,7 +60,7 @@ export default function SellerProfile() {
     return (
       <Box
         sx={{
-          height: "60vh",
+          minHeight: "100vh",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -83,7 +83,7 @@ export default function SellerProfile() {
   const themeStyles = {
     "--sp-accent": themeColor,
     "--sp-accent-light": `color-mix(in srgb, ${themeColor} 80%, white)`,
-    "--sp-accent-dark": `color-mix(in srgb, ${themeColor} 80%, black)`,
+    "--sp-accent-dark": `color-mix(in srgb, ${themeColor} 50%, black)`,
     "--sp-accent-bg": `color-mix(in srgb, ${themeColor} 12%, transparent)`,
     "--sp-accent-bg-strong": `color-mix(in srgb, ${themeColor} 20%, transparent)`,
     "--sp-accent-gradient": `linear-gradient(135deg, ${themeColor}, color-mix(in srgb, ${themeColor} 70%, white))`,

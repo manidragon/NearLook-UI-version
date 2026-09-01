@@ -4,6 +4,8 @@
 
 html, body {
   font-family: 'Inter', sans-serif;
+  background-color: #f9fafb;
+  color: #111827;
 }
 
 /* Fix Snackbar visibility behind bottom navigation on mobile */
@@ -37,4 +39,9 @@ html, body {
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: #94a3b8;
+}
+
+/* Fix accessibility contrast warning for invisible slick slider text */
+.slick-arrow {
+  font-size: 0;
 }

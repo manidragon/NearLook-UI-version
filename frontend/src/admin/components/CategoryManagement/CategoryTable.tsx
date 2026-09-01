@@ -134,8 +134,8 @@ const CategoryTable: React.FC<CategoryTableProps> = ({
                     <Chip
                       label={category.order || 'N/A'}
                       size="small"
-                      color="primary"
                       variant="outlined"
+                      sx={{ color: '#b33f00', borderColor: '#b33f00' }}
                     />
                   </StyledTableCell>
                 )}

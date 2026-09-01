@@ -1,5 +1,5 @@
 import Alert from "../../../components/CustomAlert";
-import { Divider, Snackbar, Box, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Snackbar, Box, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { useEffect, useState } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import Order from './Order';
@@ -11,6 +11,7 @@ import Addresses from './Adresses';
 import ProfileNavigation from './ProfileNavigation';
 import WalletBalance from '../../components/Wallet/WalletBalance';
 import CustomerChats from './CustomerChats';
+import FollowedSellersProducts from './FollowedSellersProducts';
 
 
 const Profile = () => {
@@ -60,7 +61,7 @@ const Profile = () => {
                 onClick={() => navigate('/account')} 
                 className="flex items-center gap-2 p-4 bg-white border-b border-gray-100 cursor-pointer"
               >
-                <span className="text-[#FF5A00] font-bold">← Back to Menu</span>
+                <span className="text-[#c24100] font-bold">← Back to Menu</span>
               </div>
             )}
 
@@ -72,11 +73,12 @@ const Profile = () => {
               <Route path='/saved-card' element={<SavedCards />} />
               <Route path='/addresses' element={<Addresses />} />
               <Route path='/chats' element={<CustomerChats />} />
+              <Route path='/following' element={<FollowedSellersProducts />} />
               <Route
                 path='/wallet'
                 element={
                   <Box sx={{ maxWidth: 600, mx: 'auto', p: 4 }}>
-                    <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
+                    <Typography component="h1" variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
                       💳 My Wallet
                     </Typography>
                     <WalletBalance compact={false} />

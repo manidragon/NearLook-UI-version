@@ -4,25 +4,23 @@ import { ThemeProvider } from '@emotion/react';
 import customeTheme from './Theme/customeTheme';
 import { useEffect } from 'react';
 import { Route, Routes, useNavigate, useLocation } from 'react-router-dom';
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import { useAppDispatch, useAppSelector } from './redux/Store';
 import { fetchSellerProfile } from './redux/Seller/sellerSlice';
 import { fetchUserProfile, fetchUserAddresses } from './redux/Customer/UserSlice';
 import { fetchUserCart as fetchCart } from './redux/Customer/CartSlice';
 import { getWishlistByUserId as fetchWishlist } from './redux/Customer/WishlistSlice';
-import { createHomeCategories } from './redux/Customer/Customer/AsyncThunk';
-import { homeCategories } from './data/homeCategories';
+import { fetchHomePageData } from './redux/Customer/Customer/AsyncThunk';
 import { Box } from '@mui/material';
 import CustomLoader from "./components/CustomLoader";
-
-// Lazy-load major route sections to drastically reduce initial bundle size
-const CustomerRoutes = React.lazy(() => import('./routes/CustomerRoutes'));
-const SellerDashboard = React.lazy(() => import('./seller/pages/SellerDashboard/SellerDashboard'));
-const AdminDashboard = React.lazy(() => import('./admin/pages/Dashboard/Dashboard'));
-const SellerAccountVerification = React.lazy(() => import('./seller/pages/SellerAccountVerification'));
-const SellerAccountVerified = React.lazy(() => import('./seller/pages/SellerAccountVerified'));
-const BecomeSeller = React.lazy(() => import('./customer/pages/BecomeSeller/BecomeSeller'));
-const AdminAuth = React.lazy(() => import('./admin/pages/Auth/AdminAuth'));
+import { lazy } from 'react';
+const AdminDashboard = lazy(() => import('./admin/pages/Dashboard/Dashboard'));
+const CustomerRoutes = lazy(() => import('./routes/CustomerRoutes'));
+const SellerDashboard = lazy(() => import('./seller/pages/SellerDashboard/SellerDashboard'));
+const SellerAccountVerification = lazy(() => import('./seller/pages/SellerAccountVerification'));
+const SellerAccountVerified = lazy(() => import('./seller/pages/SellerAccountVerified'));
+const BecomeSeller = lazy(() => import('./customer/pages/BecomeSeller/BecomeSeller'));
+const AdminAuth = lazy(() => import('./admin/pages/Auth/AdminAuth'));
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -45,7 +43,7 @@ function App() {
   const user = useAppSelector((state) => state.user);
   const seller = useAppSelector((state) => state.sellers.profile);
   useEffect(() => {
-    dispatch(createHomeCategories(homeCategories));
+    dispatch(fetchHomePageData());
   }, [dispatch]);
   // 🔑 Fetch public data (safe)
   useEffect(() => {
@@ -95,7 +93,7 @@ function App() {
       <div className='App min-h-screen relative'>
         {/* Full Project Radial Background */}
         <div className="fixed inset-0 -z-[100] w-full h-full bg-white [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#FF5A00_100%)]" />
-        
+
         <ScrollToTop />
         <Suspense fallback={
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -103,9 +101,7 @@ function App() {
           </Box>
         }>
           <Routes>
-            {seller && seller.role === "ROLE_SELLER" && (
-              <Route path='/seller/*' element={<SellerDashboard />} />
-            )}
+            <Route path='/seller/*' element={<SellerDashboard />} />
             {/* ✅ FIXED: Check auth.role instead of user.user?.role */}
             {auth.role === "ROLE_ADMIN" && (
               <Route path='/admin/*' element={<AdminDashboard />} />

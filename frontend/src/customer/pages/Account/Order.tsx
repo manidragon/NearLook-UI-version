@@ -112,7 +112,7 @@ const Order = () => {
           variant="fullWidth"
           sx={{
             '& .MuiTab-root': { py: 2, fontWeight: 600 },
-            '& .Mui-selected': { color: '#FF5A00 !important' },
+            '& .Mui-selected': { color: '#c24100 !important' },
             '& .MuiTabs-indicator': { backgroundColor: '#FF5A00' }
           }}
         >

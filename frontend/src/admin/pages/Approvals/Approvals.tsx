@@ -140,8 +140,8 @@ const Approvals = () => {
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabValue} onChange={handleTabChange} aria-label="approval tabs">
-          <Tab label="All Products" />
-          <Tab label="All Offers" />
+          <Tab label="All Products" sx={{ '&.Mui-selected': { color: '#C2410C' }, color: '#4B5563', fontWeight: 'bold' }} />
+          <Tab label="All Offers" sx={{ '&.Mui-selected': { color: '#C2410C' }, color: '#4B5563', fontWeight: 'bold' }} />
         </Tabs>
       </Box>
 
@@ -155,25 +155,25 @@ const Approvals = () => {
                 <Table>
                   <TableHead sx={{ bgcolor: '#f9fafb' }}>
                     <TableRow>
-                      <TableCell>Image</TableCell>
-                      <TableCell>Title</TableCell>
-                      <TableCell>Seller</TableCell>
-                      <TableCell>Category</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell align="center">Actions</TableCell>
+                      <TableCell sx={{ color: '#111827', fontWeight: 'bold' }}>Image</TableCell>
+                      <TableCell sx={{ color: '#111827', fontWeight: 'bold' }}>Title</TableCell>
+                      <TableCell sx={{ color: '#111827', fontWeight: 'bold' }}>Seller</TableCell>
+                      <TableCell sx={{ color: '#111827', fontWeight: 'bold' }}>Category</TableCell>
+                      <TableCell sx={{ color: '#111827', fontWeight: 'bold' }}>Status</TableCell>
+                      <TableCell align="center" sx={{ color: '#111827', fontWeight: 'bold' }}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {products.map((p: any) => (
                       <TableRow key={p._id} hover>
-                        <TableCell>
+                        <TableCell sx={{ color: '#111827' }}>
                           {p.variants && p.variants[0] && p.variants[0].images && p.variants[0].images.length > 0 && (
                             <img src={p.variants[0].images[0]} alt={p.title} width={50} height={50} style={{ objectFit: 'contain', borderRadius: 4, cursor: 'pointer' }} onClick={() => openDetailsModal(p, 'product')} />
                           )}
                         </TableCell>
-                        <TableCell sx={{ maxWidth: 250, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={p.title}>{p.title}</TableCell>
-                        <TableCell>{p.seller?.businessDetails?.businessName}</TableCell>
-                        <TableCell>{p.category?.name}</TableCell>
+                        <TableCell sx={{ color: '#111827', maxWidth: 250, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={p.title}>{p.title}</TableCell>
+                        <TableCell sx={{ color: '#111827' }}>{p.seller?.businessDetails?.businessName}</TableCell>
+                        <TableCell sx={{ color: '#111827' }}>{p.category?.name}</TableCell>
                         <TableCell>
                           <Chip 
                             label={p.approvalStatus} 
@@ -183,7 +183,7 @@ const Approvals = () => {
                           />
                         </TableCell>
                         <TableCell align="center">
-                          <Button variant="outlined" size="small" onClick={() => openDetailsModal(p, 'product')} sx={{ mr: 1 }}>View</Button>
+                          <Button variant="outlined" size="small" onClick={() => openDetailsModal(p, 'product')} sx={{ mr: 1, color: '#111827', borderColor: '#d1d5db' }}>View</Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -199,38 +199,38 @@ const Approvals = () => {
                 <Table>
                   <TableHead sx={{ bgcolor: '#f9fafb' }}>
                     <TableRow>
-                      <TableCell>Image</TableCell>
-                      <TableCell>Product Title</TableCell>
-                      <TableCell>Variant</TableCell>
-                      <TableCell>Seller</TableCell>
-                      <TableCell>Price</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell align="center">Actions</TableCell>
+                      <TableCell sx={{ color: '#111827', fontWeight: 'bold' }}>Image</TableCell>
+                      <TableCell sx={{ color: '#111827', fontWeight: 'bold' }}>Product Title</TableCell>
+                      <TableCell sx={{ color: '#111827', fontWeight: 'bold' }}>Variant</TableCell>
+                      <TableCell sx={{ color: '#111827', fontWeight: 'bold' }}>Seller</TableCell>
+                      <TableCell sx={{ color: '#111827', fontWeight: 'bold' }}>Price</TableCell>
+                      <TableCell sx={{ color: '#111827', fontWeight: 'bold' }}>Status</TableCell>
+                      <TableCell align="center" sx={{ color: '#111827', fontWeight: 'bold' }}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {offers.map((o: any) => (
                       <TableRow key={o.offer._id} hover>
-                        <TableCell>
+                        <TableCell sx={{ color: '#111827' }}>
                           {o.product.images && o.product.images[0] && (
                             <img src={o.product.images[0]} alt={o.product.title} width={50} height={50} style={{ objectFit: 'contain', borderRadius: 4, cursor: 'pointer' }} onClick={() => openDetailsModal(o, 'offer')} />
                           )}
                         </TableCell>
-                        <TableCell sx={{ maxWidth: 200, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={o.product.title}>{o.product.title}</TableCell>
-                        <TableCell>
-                          <Typography variant="body2" fontWeight="500">{o.color}</Typography>
+                        <TableCell sx={{ color: '#111827', maxWidth: 200, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={o.product.title}>{o.product.title}</TableCell>
+                        <TableCell sx={{ color: '#111827' }}>
+                          <Typography variant="body2" fontWeight="500" sx={{ color: '#111827' }}>{o.color}</Typography>
                           {o.specifications && Object.keys(o.specifications).length > 0 && (
                             <Box sx={{ mt: 0.5 }}>
                               {Object.entries(o.specifications).map(([key, val]) => (
-                                <Typography key={key} variant="caption" display="block" color="text.secondary">
+                                <Typography key={key} variant="caption" display="block" sx={{ color: '#4B5563' }}>
                                   {key}: {String(val)}
                                 </Typography>
                               ))}
                             </Box>
                           )}
                         </TableCell>
-                        <TableCell>{o.offer.seller?.businessDetails?.businessName}</TableCell>
-                        <TableCell>₹{o.offer.sellingPrice}</TableCell>
+                        <TableCell sx={{ color: '#111827' }}>{o.offer.seller?.businessDetails?.businessName}</TableCell>
+                        <TableCell sx={{ color: '#111827' }}>₹{o.offer.sellingPrice}</TableCell>
                         <TableCell>
                           <Chip 
                             label={o.offer.approvalStatus} 
@@ -240,7 +240,7 @@ const Approvals = () => {
                           />
                         </TableCell>
                         <TableCell align="center">
-                          <Button variant="outlined" size="small" onClick={() => openDetailsModal(o, 'offer')} sx={{ mr: 1 }}>View</Button>
+                          <Button variant="outlined" size="small" onClick={() => openDetailsModal(o, 'offer')} sx={{ mr: 1, color: '#111827', borderColor: '#d1d5db' }}>View</Button>
                         </TableCell>
                       </TableRow>
                     ))}

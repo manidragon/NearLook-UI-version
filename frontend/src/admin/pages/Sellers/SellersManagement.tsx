@@ -4,7 +4,6 @@ import {
     TableHead, TableRow, Paper, Chip, Avatar, Button, useTheme, alpha,
     FormControl, Select, MenuItem, Menu, IconButton, Rating, Collapse
 } from '@mui/material';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useAppDispatch, useAppSelector } from '../../../redux/Store';
@@ -46,38 +45,43 @@ const SellerRow = ({ seller, accountStatuses, getStatusColor, handleUpdateSeller
                         aria-label="expand row"
                         size="small"
                         onClick={() => setOpen(!open)}
+                        sx={{ color: '#111827' }}
                     >
                         {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                     </IconButton>
                 </TableCell>
                 <TableCell>
                     <Box display="flex" alignItems="center" gap={2}>
-                        <Avatar variant="rounded" sx={{ bgcolor: theme.palette.primary.main }}>
+                        <Avatar 
+                            variant="rounded" 
+                            sx={{ bgcolor: theme.palette.primary.main, color: '#fff' }}
+                            alt={seller.businessDetails?.businessName || seller.sellerName || 'Seller'}
+                        >
                             {(seller.businessDetails?.businessName || seller.sellerName)?.charAt(0) || 'S'}
                         </Avatar>
                         <Box>
-                            <Typography variant="body1" fontWeight="500">{seller.businessDetails?.businessName || seller.sellerName}</Typography>
+                            <Typography variant="body1" fontWeight="500" sx={{ color: '#111827' }}>{seller.businessDetails?.businessName || seller.sellerName}</Typography>
                             <Box display="flex" alignItems="center" gap={0.5}>
                                 <Rating value={seller.averageRating || 0} readOnly size="small" precision={0.5} />
-                                <Typography variant="caption" color="text.secondary">({seller.numRatings || seller.totalReviews || 0})</Typography>
+                                <Typography variant="caption" sx={{ color: '#4B5563' }}>({seller.numRatings || seller.totalReviews || 0})</Typography>
                             </Box>
                         </Box>
                     </Box>
                 </TableCell>
                 <TableCell>
-                    <Typography variant="body2">{seller.email}</Typography>
-                    <Typography variant="caption" color="text.secondary">{seller.mobile}</Typography>
+                    <Typography variant="body2" sx={{ color: '#111827' }}>{seller.email}</Typography>
+                    <Typography variant="caption" sx={{ color: '#4B5563' }}>{seller.mobile}</Typography>
                 </TableCell>
                 <TableCell>
-                    <Typography variant="body2" fontWeight="500">{seller.businessDetails?.businessName || 'N/A'}</Typography>
-                    <Typography variant="caption" color="text.secondary">GSTIN: {seller.GSTIN}</Typography>
+                    <Typography variant="body2" fontWeight="500" sx={{ color: '#111827' }}>{seller.businessDetails?.businessName || 'N/A'}</Typography>
+                    <Typography variant="caption" sx={{ color: '#4B5563' }}>GSTIN: {seller.GSTIN}</Typography>
                 </TableCell>
                 <TableCell>
                     <Chip 
                         label={accountStatuses.find((s: any) => s.status === seller.accountStatus)?.title || seller.accountStatus} 
                         size="small"
                         color={getStatusColor(seller.accountStatus || '')}
-                        variant="outlined"
+                        sx={{ fontWeight: 'bold' }}
                     />
                 </TableCell>
                 <TableCell align="right">
@@ -86,7 +90,7 @@ const SellerRow = ({ seller, accountStatuses, getStatusColor, handleUpdateSeller
                         size="small"
                         onClick={handleClick}
                         endIcon={<KeyboardArrowDownIcon />}
-                        sx={{ textTransform: 'none', borderRadius: 2 }}
+                        sx={{ textTransform: 'none', borderRadius: 2, bgcolor: '#111827', color: 'white', '&:hover': { bgcolor: '#374151' } }}
                     >
                         Change Status
                     </Button>
@@ -115,33 +119,32 @@ const SellerRow = ({ seller, accountStatuses, getStatusColor, handleUpdateSeller
                             </Typography>
                             <Box display="flex" gap={4} mt={2}>
                                 <Box flex={1}>
-                                    <Typography variant="subtitle2" fontWeight="bold" color="text.secondary" gutterBottom>
+                                    <Typography variant="subtitle2" fontWeight="bold" sx={{ color: '#4B5563' }} gutterBottom>
                                         Bank & Payouts
                                     </Typography>
-                                    <Box mb={1}><Typography variant="body2"><strong>Account Name:</strong> {seller.bankDetails?.accountHolderName || 'N/A'}</Typography></Box>
-                                    <Box mb={1}><Typography variant="body2"><strong>Account No:</strong> {seller.bankDetails?.accountNumber || 'N/A'}</Typography></Box>
-                                    <Box mb={1}><Typography variant="body2"><strong>IFSC Code:</strong> {seller.bankDetails?.ifscCode || 'N/A'}</Typography></Box>
-                                    <Box mb={1}><Typography variant="body2"><strong>UPI ID:</strong> {seller.bankDetails?.upiId || 'N/A'}</Typography></Box>
-                                    <Box><Typography variant="body2"><strong>Payout Schedule:</strong> {seller.payoutSchedule || 'WEEKLY'}</Typography></Box>
+                                    <Box mb={1}><Typography variant="body2" sx={{ color: '#111827' }}><strong>Account Name:</strong> {seller.bankDetails?.accountHolderName || 'N/A'}</Typography></Box>
+                                    <Box mb={1}><Typography variant="body2" sx={{ color: '#111827' }}><strong>Account No:</strong> {seller.bankDetails?.accountNumber || 'N/A'}</Typography></Box>
+                                    <Box mb={1}><Typography variant="body2" sx={{ color: '#111827' }}><strong>IFSC Code:</strong> {seller.bankDetails?.ifscCode || 'N/A'}</Typography></Box>
+                                    <Box mb={1}><Typography variant="body2" sx={{ color: '#111827' }}><strong>UPI ID:</strong> {seller.bankDetails?.upiId || 'N/A'}</Typography></Box>
                                 </Box>
                                 <Box flex={1}>
-                                    <Typography variant="subtitle2" fontWeight="bold" color="text.secondary" gutterBottom>
+                                    <Typography variant="subtitle2" fontWeight="bold" sx={{ color: '#4B5563' }} gutterBottom>
                                         Business & Compliance
                                     </Typography>
-                                    <Box mb={1}><Typography variant="body2"><strong>Address:</strong> {seller.businessDetails?.businessAddress || 'N/A'}</Typography></Box>
-                                    <Box mb={1}><Typography variant="body2"><strong>Email:</strong> {seller.businessDetails?.businessEmail || 'N/A'}</Typography></Box>
-                                    <Box mb={1}><Typography variant="body2"><strong>Mobile:</strong> {seller.businessDetails?.businessMobile || 'N/A'}</Typography></Box>
-                                    <Box mb={1}><Typography variant="body2"><strong>Business Type:</strong> {seller.businessType || 'SOLE_PROPRIETOR'}</Typography></Box>
-                                    <Box><Typography variant="body2"><strong>PAN:</strong> {seller.PAN || 'N/A'}</Typography></Box>
+                                    <Box mb={1}><Typography variant="body2" sx={{ color: '#111827' }}><strong>Address:</strong> {seller.businessDetails?.businessAddress || 'N/A'}</Typography></Box>
+                                    <Box mb={1}><Typography variant="body2" sx={{ color: '#111827' }}><strong>Email:</strong> {seller.businessDetails?.businessEmail || 'N/A'}</Typography></Box>
+                                    <Box mb={1}><Typography variant="body2" sx={{ color: '#111827' }}><strong>Mobile:</strong> {seller.businessDetails?.businessMobile || 'N/A'}</Typography></Box>
+                                    <Box mb={1}><Typography variant="body2" sx={{ color: '#111827' }}><strong>Business Type:</strong> {seller.businessType || 'SOLE_PROPRIETOR'}</Typography></Box>
+                                    <Box><Typography variant="body2" sx={{ color: '#111827' }}><strong>PAN:</strong> {seller.PAN || 'N/A'}</Typography></Box>
                                 </Box>
                                 <Box flex={1}>
-                                    <Typography variant="subtitle2" fontWeight="bold" color="text.secondary" gutterBottom>
+                                    <Typography variant="subtitle2" fontWeight="bold" sx={{ color: '#4B5563' }} gutterBottom>
                                         Operations & Fulfillment
                                     </Typography>
-                                    <Box mb={1}><Typography variant="body2"><strong>Mode:</strong> {seller.fulfillmentMode || 'SELF_SHIP'}</Typography></Box>
-                                    <Box mb={1}><Typography variant="body2"><strong>Handling Time:</strong> {seller.handlingTime || 2} Days</Typography></Box>
+                                    <Box mb={1}><Typography variant="body2" sx={{ color: '#111827' }}><strong>Mode:</strong> {seller.fulfillmentMode || 'SELF_SHIP'}</Typography></Box>
+                                    <Box mb={1}><Typography variant="body2" sx={{ color: '#111827' }}><strong>Handling Time:</strong> {seller.handlingTime || 2} Days</Typography></Box>
                                     <Box mb={1}>
-                                        <Typography variant="body2">
+                                        <Typography variant="body2" sx={{ color: '#111827' }}>
                                             <strong>SLA Compliance:</strong> {seller.performanceMetrics?.dispatchSlaCompliance || 100}%
                                         </Typography>
                                     </Box>
@@ -194,8 +197,8 @@ const SellersManagement = () => {
                 mb={4}
             >
                 <Box>
-                    <Typography variant="h4" fontWeight="bold" color="primary">Sellers & Payouts</Typography>
-                    <Typography variant="body2" color="text.secondary">Manage seller verification, adjust statuses, and monitor details.</Typography>
+                    <Typography variant="h4" fontWeight="bold" sx={{ color: '#111827' }}>Sellers & Payouts</Typography>
+                    <Typography variant="body2" sx={{ color: '#4B5563' }}>Manage seller verification, adjust statuses, and monitor details.</Typography>
                 </Box>
 
                 <FormControl size="small" sx={{ minWidth: 200, width: { xs: '100%', sm: 'auto' } }}>
@@ -203,6 +206,7 @@ const SellersManagement = () => {
                         value={accountStatus}
                         onChange={handleAccountStatusChange}
                         displayEmpty
+                        inputProps={{ 'aria-label': 'Filter sellers by status' }}
                         sx={{ 
                             borderRadius: 2, 
                             backgroundColor: theme.palette.background.paper,
@@ -252,11 +256,11 @@ const SellersManagement = () => {
                         <TableHead sx={{ backgroundColor: alpha(theme.palette.primary.main, 0.05) }}>
                             <TableRow>
                                 <TableCell padding="checkbox" />
-                                <TableCell sx={{ fontWeight: 'bold' }}>Seller Info</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Contact</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Business</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }} align="right">Actions</TableCell>
+                                <TableCell sx={{ color: '#111827', fontWeight: 'bold' }}>Seller Info</TableCell>
+                                <TableCell sx={{ color: '#111827', fontWeight: 'bold' }}>Contact</TableCell>
+                                <TableCell sx={{ color: '#111827', fontWeight: 'bold' }}>Business</TableCell>
+                                <TableCell sx={{ color: '#111827', fontWeight: 'bold' }}>Status</TableCell>
+                                <TableCell sx={{ color: '#111827', fontWeight: 'bold' }} align="right">Actions</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>

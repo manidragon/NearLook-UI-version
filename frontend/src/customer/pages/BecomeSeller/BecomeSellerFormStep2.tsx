@@ -2,6 +2,7 @@
 import React from "react";
 import TextField from "../../../components/CustomTextField";
 import { Grid } from "@mui/material";
+import { handleNameChange, handleNumberChange } from "../../../utils/validationUtils";
 
 interface BecomeSellerFormStep2Props {
   formik: any; // Replace 'any' with the correct type for formik instance
@@ -29,8 +30,9 @@ const BecomeSellerFormStep2: React.FC<BecomeSellerFormStep2Props> = ({ formik })
             name="pickupAddress.mobile"
             label="Mobile"
             value={formik.values.pickupAddress.mobile}
-            onChange={formik.handleChange}
+            onChange={handleNumberChange(formik)}
             onBlur={formik.handleBlur}
+            inputProps={{ maxLength: 10 }}
             error={formik.touched.mobile && Boolean(formik.errors.mobile)}
             helperText={formik.touched.mobile && formik.errors.mobile}
           />
@@ -77,7 +79,7 @@ const BecomeSellerFormStep2: React.FC<BecomeSellerFormStep2Props> = ({ formik })
             name="pickupAddress.city"
             label="City"
             value={formik.values.pickupAddress.city}
-            onChange={formik.handleChange}
+            onChange={handleNameChange(formik)}
             onBlur={formik.handleBlur}
             error={formik.touched.pickupAddress?.city && Boolean(formik.errors.pickupAddress?.city)}
             helperText={formik.touched.pickupAddress?.city && formik.errors.pickupAddress?.city}
@@ -89,7 +91,7 @@ const BecomeSellerFormStep2: React.FC<BecomeSellerFormStep2Props> = ({ formik })
             name="pickupAddress.state"
             label="State"
             value={formik.values.pickupAddress.state}
-            onChange={formik.handleChange}
+            onChange={handleNameChange(formik)}
             onBlur={formik.handleBlur}
             error={formik.touched.pickupAddress?.state && Boolean(formik.errors.pickupAddress?.state)}
             helperText={formik.touched.pickupAddress?.state && formik.errors.pickupAddress?.state}

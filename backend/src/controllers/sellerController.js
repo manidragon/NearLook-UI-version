@@ -6,6 +6,7 @@ const VerificationCode = require("../models/VerificationCode");
 const SellerService = require("../services/SellerService");
 const VerificationService = require("../services/VerificationService");
 const generateOTP = require("../utils/generateOtp");
+const { generateOtpTemplate } = require("../utils/emailTemplates");
 const jwtProvider = require("../utils/jwtProvider");
 const { sendVerificationEmail } = require("../utils/sendEmail");
 
@@ -314,6 +315,12 @@ class SellerController {
       const { email } = req.body;
       const otp = generateOTP();
       await VerificationService.createVerificationCode(otp, email);
+      
+      const subject = "Near Look Seller Login/Signup OTP";
+      const text = `Your login OTP is - ${otp}`;
+      const html = generateOtpTemplate(otp);
+      await sendVerificationEmail(email, subject, text, html);
+
       return res.status(200).json({ message: "OTP sent successfully" });
     } catch (err) {
       return res.status(500).json({ error: err.message });
@@ -399,7 +406,7 @@ class SellerController {
       const User = require("../models/User"); // Import here to avoid circular dep if any
 
       // Check if already following to prevent duplicate counts
-      const isFollowing = user.followedSellers && user.followedSellers.includes(sellerId);
+      const isFollowing = user.followedSellers && user.followedSellers.some(id => id.toString() === sellerId.toString());
       
       if (action === "follow" && isFollowing) {
         const seller = await Seller.findById(sellerId);
@@ -421,13 +428,16 @@ class SellerController {
       }
 
       // Update Seller
-      const seller = await Seller.findByIdAndUpdate(
-        sellerId,
-        { $inc: { "performanceMetrics.followersCount": increment } },
-        { new: true }
-      );
-
+      let seller = await Seller.findById(sellerId);
       if (!seller) return res.status(404).json({ message: "Seller not found" });
+      
+      if (!seller.performanceMetrics) {
+        seller.performanceMetrics = { followersCount: 0 };
+      }
+      
+      seller.performanceMetrics.followersCount = Math.max(0, (seller.performanceMetrics.followersCount || 0) + increment);
+      await seller.save();
+
       res.status(200).json({ followers: seller.performanceMetrics.followersCount });
     } catch (error) {
       res.status(500).json({ message: error.message });

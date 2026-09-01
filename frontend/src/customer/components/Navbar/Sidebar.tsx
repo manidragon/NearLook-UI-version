@@ -61,7 +61,7 @@ const Sidebar = ({ toggleDrawer }: SidebarProps) => {
         {user.user ? (
           <div className="flex items-center gap-3 p-4 bg-white rounded-2xl shadow-sm border border-gray-100">
             {user.user.profilePicture ? (
-               <img src={secureUrl(user.user.profilePicture)} className="w-12 h-12 rounded-full object-cover shadow-sm border border-gray-50" alt="Profile" />
+               <img src={secureUrl(user.user.profilePicture, 100)} className="w-12 h-12 rounded-full object-cover shadow-sm border border-gray-50" alt="Profile" />
             ) : (
                <AccountCircleIcon sx={{ fontSize: 48, color: '#9ca3af' }} />
             )}
@@ -78,9 +78,9 @@ const Sidebar = ({ toggleDrawer }: SidebarProps) => {
           <div 
             onClick={() => {
               closeDrawer();
-              // In the Navbar it opens auth modal, but here we can just close drawer, maybe they can login from the bottom bar
+              window.dispatchEvent(new Event('open-login-modal'));
             }}
-            className="flex items-center gap-3 p-4 bg-white rounded-2xl shadow-sm border border-gray-100"
+            className="flex items-center gap-3 p-4 bg-white rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
           >
             <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
                <AccountCircleIcon sx={{ fontSize: 28, color: '#9ca3af' }} />

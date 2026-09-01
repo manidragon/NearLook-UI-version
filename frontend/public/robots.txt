@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /seller-account-verified
+Disallow: /verify-seller
+Allow: /
+
+Sitemap: https://nearlook.com/sitemap.xml

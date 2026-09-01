@@ -10,9 +10,8 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Button from "../../../components/NeonButton";
-import { Box, Menu, MenuItem, styled, Chip, Typography, Tabs, Tab, FormControl, InputLabel, Select } from "@mui/material";
+import { Box, Menu, MenuItem, styled, Chip, Typography, Tabs, Tab, FormControl, InputLabel, Select, TablePagination } from "@mui/material";
 
-import ScheduleIcon from '@mui/icons-material/Schedule';
 import { useAppDispatch, useAppSelector } from '../../../redux/Store';
 import { fetchSellerOrders, updateOrderStatus } from '../../../redux/Seller/sellerOrderSlice';
 import { type Order, type OrderItem } from '../../../types/orderTypes';
@@ -140,14 +139,14 @@ const getVariantSpecs = (orderItem: OrderItem): { label: string; value: string }
 };
 
 const orderStatusColor: Record<string, { color: string; label: string }> = {
-  PENDING: { color: '#FFA500', label: 'Pending' },
-  PLACED: { color: '#F5BCBA', label: 'Ordered' },
-  CONFIRMED: { color: '#FFA500', label: 'Packed / Confirmed' },
-  READY_FOR_PICKUP: { color: '#FF8C00', label: 'Ready for Pickup' },
-  SHIPPED: { color: '#1E90FF', label: 'Shipped' },
-  ARRIVING: { color: '#1E90FF', label: 'Out for Delivery' },
-  DELIVERED: { color: '#32CD32', label: 'Delivered / Picked Up' },
-  CANCELLED: { color: '#FF0000', label: 'Cancelled' }
+  PENDING: { color: '#c24100', label: 'Pending' },
+  PLACED: { color: '#1976D2', label: 'Ordered' },
+  CONFIRMED: { color: '#c24100', label: 'Packed / Confirmed' },
+  READY_FOR_PICKUP: { color: '#c24100', label: 'Ready for Pickup' },
+  SHIPPED: { color: '#1565C0', label: 'Shipped' },
+  ARRIVING: { color: '#1565C0', label: 'Out for Delivery' },
+  DELIVERED: { color: '#2E7D32', label: 'Delivered / Picked Up' },
+  CANCELLED: { color: '#d32f2f', label: 'Cancelled' }
 };
 
 interface StatusOption {
@@ -157,31 +156,31 @@ interface StatusOption {
 }
 
 const deliveryOrderStatus: StatusOption[] = [
-  { color: '#F5BCBA', label: 'Ordered', value: 'PLACED' },
-  { color: '#FFA500', label: 'Packed', value: 'CONFIRMED' },
-  { color: '#1E90FF', label: 'Shipped', value: 'SHIPPED' },
-  { color: '#1E90FF', label: 'Out for Delivery', value: 'ARRIVING' },
-  { color: '#32CD32', label: 'Delivered', value: 'DELIVERED' },
-  { color: '#FF0000', label: 'Cancelled', value: 'CANCELLED' },
+  { color: '#1976D2', label: 'Ordered', value: 'PLACED' },
+  { color: '#c24100', label: 'Packed', value: 'CONFIRMED' },
+  { color: '#1565C0', label: 'Shipped', value: 'SHIPPED' },
+  { color: '#1565C0', label: 'Out for Delivery', value: 'ARRIVING' },
+  { color: '#2E7D32', label: 'Delivered', value: 'DELIVERED' },
+  { color: '#d32f2f', label: 'Cancelled', value: 'CANCELLED' },
 ];
 
 const pickupOrderStatus: StatusOption[] = [
-  { color: '#F5BCBA', label: 'Ordered', value: 'PLACED' },
-  { color: '#FFA500', label: 'Confirmed', value: 'CONFIRMED' },
-  { color: '#FF8C00', label: 'Ready for Pickup', value: 'READY_FOR_PICKUP' },
-  { color: '#32CD32', label: 'Picked Up', value: 'DELIVERED' },
-  { color: '#FF0000', label: 'Cancelled', value: 'CANCELLED' },
+  { color: '#1976D2', label: 'Ordered', value: 'PLACED' },
+  { color: '#c24100', label: 'Confirmed', value: 'CONFIRMED' },
+  { color: '#c24100', label: 'Ready for Pickup', value: 'READY_FOR_PICKUP' },
+  { color: '#2E7D32', label: 'Picked Up', value: 'DELIVERED' },
+  { color: '#d32f2f', label: 'Cancelled', value: 'CANCELLED' },
 ];
 
 const filterOrderStatus: StatusOption[] = [
-  { color: '#FFA500', label: 'Pending', value: 'PENDING' },
-  { color: '#F5BCBA', label: 'Ordered', value: 'PLACED' },
-  { color: '#FFA500', label: 'Packed / Confirmed', value: 'CONFIRMED' },
-  { color: '#1E90FF', label: 'Shipped', value: 'SHIPPED' },
-  { color: '#1E90FF', label: 'Out for Delivery', value: 'ARRIVING' },
-  { color: '#FF8C00', label: 'Ready for Pickup', value: 'READY_FOR_PICKUP' },
-  { color: '#32CD32', label: 'Delivered / Picked Up', value: 'DELIVERED' },
-  { color: '#FF0000', label: 'Cancelled', value: 'CANCELLED' }
+  { color: '#c24100', label: 'Pending', value: 'PENDING' },
+  { color: '#1976D2', label: 'Ordered', value: 'PLACED' },
+  { color: '#c24100', label: 'Packed / Confirmed', value: 'CONFIRMED' },
+  { color: '#1565C0', label: 'Shipped', value: 'SHIPPED' },
+  { color: '#1565C0', label: 'Out for Delivery', value: 'ARRIVING' },
+  { color: '#c24100', label: 'Ready for Pickup', value: 'READY_FOR_PICKUP' },
+  { color: '#2E7D32', label: 'Delivered / Picked Up', value: 'DELIVERED' },
+  { color: '#d32f2f', label: 'Cancelled', value: 'CANCELLED' }
 ];
 
 interface OrderRowProps {
@@ -342,11 +341,24 @@ export default function OrderTable() {
   // ✅ Use useMemo for anchorEl to prevent recreation
   const [anchorEl, setAnchorEl] = React.useState<{ [key: string]: HTMLElement | null }>({});
   
-  // ✅ Tab state
   const [currentTab, setCurrentTab] = React.useState(0);
+
+  // ✅ Pagination state
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
+    setPage(0); // Reset page when switching tabs
+  };
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   // ✅ useCallback for handlers (prevents recreation on every render)
@@ -429,6 +441,16 @@ export default function OrderTable() {
     [filteredAndSortedOrders]
   );
 
+  const paginatedSelfPickupOrders = React.useMemo(
+    () => selfPickupOrders.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+    [selfPickupOrders, page, rowsPerPage]
+  );
+  
+  const paginatedDeliveryOrders = React.useMemo(
+    () => deliveryOrders.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+    [deliveryOrders, page, rowsPerPage]
+  );
+
   // ✅ Loading state
   if (sellerOrder.loading) {
     return (
@@ -489,7 +511,11 @@ export default function OrderTable() {
           variant="scrollable"
           scrollButtons="auto"
           allowScrollButtonsMobile
-          sx={{ '& .MuiTab-root': { fontWeight: 600 } }}
+          sx={{ 
+            '& .MuiTab-root': { fontWeight: 600 },
+            '& .MuiTab-root.Mui-selected': { color: '#c24100' },
+            '& .MuiTabs-indicator': { backgroundColor: '#c24100' }
+          }}
         >
           <Tab label={`Delivery Orders (${deliveryOrders.length})`} />
           <Tab label={`Self Pickup Orders (${selfPickupOrders.length})`} />
@@ -500,8 +526,9 @@ export default function OrderTable() {
       {currentTab === 0 && (
         <Box>
           {deliveryOrders.length > 0 ? (
-            <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #e2e8f0', borderRadius: 2, overflowX: 'auto' }}>
-              <Table sx={{ minWidth: 900 }} aria-label="delivery orders">
+            <>
+              <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #e2e8f0', borderRadius: 2, overflowX: 'auto' }}>
+                <Table sx={{ minWidth: 900 }} aria-label="delivery orders">
                 <TableHead>
                   <TableRow>
                     <StyledTableCell>Order Id</StyledTableCell>
@@ -512,7 +539,7 @@ export default function OrderTable() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {deliveryOrders.map((order: Order) => (
+                  {paginatedDeliveryOrders.map((order: Order) => (
                     <OrderRow
                       key={order._id}
                       item={order}
@@ -526,6 +553,16 @@ export default function OrderTable() {
                 </TableBody>
               </Table>
             </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={deliveryOrders.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+            </>
           ) : (
             <Box className='text-center py-10 bg-white rounded-md shadow-sm border border-gray-100'>
               <Typography color="text.secondary">No delivery orders found</Typography>
@@ -538,8 +575,9 @@ export default function OrderTable() {
       {currentTab === 1 && (
         <Box>
           {selfPickupOrders.length > 0 ? (
-            <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #e2e8f0', borderRadius: 2, overflowX: 'auto' }}>
-              <Table sx={{ minWidth: 900 }} aria-label="self pickup orders">
+            <>
+              <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #e2e8f0', borderRadius: 2, overflowX: 'auto' }}>
+                <Table sx={{ minWidth: 900 }} aria-label="self pickup orders">
                 <TableHead>
                   <TableRow>
                     <StyledTableCell>Order Id</StyledTableCell>
@@ -550,7 +588,7 @@ export default function OrderTable() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {selfPickupOrders.map((order: Order) => (
+                  {paginatedSelfPickupOrders.map((order: Order) => (
                     <OrderRow
                       key={order._id}
                       item={order}
@@ -564,6 +602,16 @@ export default function OrderTable() {
                 </TableBody>
               </Table>
             </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={selfPickupOrders.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+            </>
           ) : (
             <Box className='text-center py-10 bg-white rounded-md shadow-sm border border-gray-100'>
               <Typography color="text.secondary">No self pickup orders found</Typography>

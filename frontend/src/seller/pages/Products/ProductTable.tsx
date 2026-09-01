@@ -25,7 +25,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import Dialog from '@mui/material/Dialog';
 import UpdateProductForm from './UpdateProductForm';
-import { type Product, type ProductVariant } from '../../../types/productTypes';
+import { type Product} from '../../../types/productTypes';
 import type { Category } from '../../../types/categoryTypes';
 import CustomLoader from "../../../components/CustomLoader";
 
@@ -94,12 +94,14 @@ interface RowProps {
   onDelete: (productId: string) => void;
   getCategoryName: (categoryId: any) => string;
   isCatalogOffer?: boolean;
+  onError?: (msg: string) => void;
 }
 
 // ============================================
 // ✅ Row Component - Enhanced for Catalog Offers
 // ============================================
-function Row({ row, onEdit, onDelete, getCategoryName, isCatalogOffer = false }: RowProps) {
+function Row(props: RowProps) {
+  const { row, onEdit, onDelete, getCategoryName, isCatalogOffer = false, onError } = props;
   const [open, setOpen] = React.useState(false);
   const [isFeatured, setIsFeatured] = React.useState(row.isFeatured || false);
   const dispatch = useAppDispatch();
@@ -307,8 +309,8 @@ function Row({ row, onEdit, onDelete, getCategoryName, isCatalogOffer = false }:
             <Chip
               label={`${Object.keys(variantsByColor).length} color${Object.keys(variantsByColor).length > 1 ? 's' : ''}`}
               size="small"
-              color="primary"
               variant="outlined"
+              style={{ color: '#c24100', borderColor: '#c24100' }}
             />
             <Typography variant="caption" color="text.secondary">
               {row.variants?.length || 0} variant{row.variants?.length !== 1 ? 's' : ''}
@@ -348,7 +350,7 @@ function Row({ row, onEdit, onDelete, getCategoryName, isCatalogOffer = false }:
                     })).unwrap()
                     .catch((err: any) => {
                       setIsFeatured(!newStatus); // Revert on failure
-                      alert(err.message || err || 'Failed to update featured status');
+                      if (onError) onError(err.message || err || 'Failed to update featured status');
                     });
                   }} 
                   size="small"
@@ -662,16 +664,15 @@ export default function ProductTable() {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
           <Box>
             <Typography variant="h4" fontWeight="bold">Products</Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{ color: '#475569' }}>
               Manage your independent products and catalog offers
             </Typography>
           </Box>
           <Button
             variant="contained"
-            color="primary"
             onClick={() => window.location.href = '/seller/add-product'}
             startIcon={<AddPhotoAlternateIcon />}
-            sx={{ whiteSpace: 'nowrap' }}
+            sx={{ whiteSpace: 'nowrap', bgcolor: '#c24100', '&:hover': { bgcolor: '#9e3400' } }}
           >
             Add New
           </Button>
@@ -684,7 +685,11 @@ export default function ProductTable() {
             variant="scrollable"
             scrollButtons="auto"
             allowScrollButtonsMobile
-            sx={{ '& .MuiTab-root': { fontWeight: 600 } }}
+            sx={{ 
+              '& .MuiTab-root': { fontWeight: 600 },
+              '& .Mui-selected': { color: '#c24100 !important' },
+              '& .MuiTabs-indicator': { backgroundColor: '#c24100' }
+            }}
           >
             <Tab
               label={
@@ -692,11 +697,11 @@ export default function ProductTable() {
                   <Typography variant="body2" fontWeight={activeTab === 0 ? 'bold' : 'normal'}>
                     🛍️ My Products
                   </Typography>
-                  <Chip label={myProducts.length} size="small" color="primary" variant="outlined" />
+                  <Chip label={myProducts.length} size="small" variant="outlined" style={{ color: '#c24100', borderColor: '#c24100' }} />
                 </Box>
               }
-              id="products-tab-0"
-              aria-controls="products-tabpanel-0"
+              id="product-tab-0"
+              aria-controls="product-tabpanel-0"
             />
             <Tab
               label={
@@ -704,11 +709,11 @@ export default function ProductTable() {
                   <Typography variant="body2" fontWeight={activeTab === 1 ? 'bold' : 'normal'}>
                     📦 Catalog Offers
                   </Typography>
-                  <Chip label={catalogOffers.length} size="small" color="info" variant="outlined" />
+                  <Chip label={catalogOffers.length} size="small" variant="outlined" style={{ color: '#1565C0', borderColor: '#1565C0' }} />
                 </Box>
               }
-              id="products-tab-1"
-              aria-controls="products-tabpanel-1"
+              id="product-tab-1"
+              aria-controls="product-tabpanel-1"
             />
           </Tabs>
         </Box>
@@ -811,6 +816,7 @@ export default function ProductTable() {
                         onDelete={handleDeleteClick}
                         getCategoryName={getCategoryName}
                         isCatalogOffer={false}
+                        onError={(msg) => { setSnackbarMessage(msg); setSnackbarSeverity('error'); setSnackbarOpen(true); }}
                       />
                     ))}
                   </TableBody>
@@ -861,6 +867,7 @@ export default function ProductTable() {
                         onDelete={handleDeleteClick}
                         getCategoryName={getCategoryName}
                         isCatalogOffer={true}
+                        onError={(msg) => { setSnackbarMessage(msg); setSnackbarSeverity('error'); setSnackbarOpen(true); }}
                       />
                     ))}
                   </TableBody>

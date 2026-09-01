@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { fetchSellerProducts, updateProduct } from "../../../redux/Seller/sellerProductSlice";
-import { Box, Typography, Paper, Chip, TextField, Button, Snackbar, Alert, Divider, Tooltip, Badge } from '@mui/material';
+import { Box, Typography, Paper, Chip, TextField, Button, Snackbar, Alert, Divider, Tooltip, Skeleton } from '@mui/material';
 import PaletteIcon from "@mui/icons-material/Palette";
 import StorageIcon from "@mui/icons-material/Storage";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -275,7 +275,10 @@ const StockRow: React.FC<{
 const LowStockPanel: React.FC<{ items: LowStockItem[] }> = ({ items }) => {
   const [open, setOpen] = useState(false);
 
-  if (items.length === 0) return null;
+  // ✅ ALWAYS render the button container to prevent vertical Layout Shift (CLS) when data loads
+  const buttonColor = items.length > 0 ? "warning" : "inherit";
+  const buttonTextColor = items.length > 0 ? "#f97316" : "text.secondary";
+  const buttonBorderColor = items.length > 0 ? "#f97316" : "grey.300";
 
   return (
     <Box sx={{ position: "relative" }}>
@@ -283,24 +286,24 @@ const LowStockPanel: React.FC<{ items: LowStockItem[] }> = ({ items }) => {
       <Tooltip title="View low stock items">
         <Button
           variant="outlined"
-          color="warning"
+          color={buttonColor as any}
           size="small"
-          onClick={() => setOpen((p) => !p)}
+          onClick={() => items.length > 0 && setOpen((p) => !p)}
           startIcon={<WarningAmberIcon />}
           sx={{
-            borderColor: "#f97316",
-            color: "#f97316",
+            borderColor: buttonBorderColor,
+            color: buttonTextColor,
             fontWeight: 700,
             borderRadius: 2,
             px: 2,
-            "&:hover": { borderColor: "#ea580c", bgcolor: "#fff7ed" },
+            "&:hover": { borderColor: items.length > 0 ? "#ea580c" : "grey.300", bgcolor: items.length > 0 ? "#fff7ed" : "transparent" },
           }}
         >
           Low Stock
           <Box
             sx={{
               ml: 1,
-              bgcolor: "#ef4444",
+              bgcolor: items.length > 0 ? "#ef4444" : "grey.400",
               color: "#fff",
               borderRadius: "50%",
               width: 20,
@@ -582,9 +585,30 @@ const Stock: React.FC = () => {
 
   if (loading && (!products || products.length === 0)) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "60vh" }}>
-        <CustomLoader />
-        <Typography sx={{ ml: 2 }}>Loading products…</Typography>
+      <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 900, mx: "auto", minHeight: '80vh' }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            mb: 1,
+            gap: 2,
+            flexWrap: "wrap",
+          }}
+        >
+          <Typography variant="h5" fontWeight={700}>
+            📦 Stock Management
+          </Typography>
+          <LowStockPanel items={[]} />
+        </Box>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+          Quickly update stock quantities per color and variant.
+        </Typography>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3, bgcolor: "grey.100" }} />
+          ))}
+        </Box>
       </Box>
     );
   }
@@ -598,7 +622,7 @@ const Stock: React.FC = () => {
   }
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 900, mx: "auto" }}>
+    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 900, mx: "auto", minHeight: '80vh' }}>
 
       {/* ── Page Header: Title + Low Stock Button ── */}
       <Box
@@ -626,7 +650,7 @@ const Stock: React.FC = () => {
       {products.map((product: any) => {
         const colorVariants = drafts[product._id] || [];
         const isSaving = saving[product._id];
-        const isCollapsed = !!collapsed[product._id];
+        const isCollapsed = collapsed[product._id] !== false; // Default to true (collapsed) if undefined
 
         return (
           <Paper
@@ -683,13 +707,12 @@ const Stock: React.FC = () => {
               {/* Update Button */}
               <Button
                 variant="contained"
-                color="primary"
                 onClick={() => handleUpdate(product._id)}
                 disabled={isSaving}
                 startIcon={
                   isSaving ? <CustomLoader size={16} color="inherit" /> : <CheckCircleIcon />
                 }
-                sx={{ borderRadius: 2, px: 3, py: { xs: 1, sm: 0.75 }, width: { xs: '100%', sm: 'auto' } }}
+                sx={{ bgcolor: '#c24100', '&:hover': { bgcolor: '#9e3400' }, color: 'white', borderRadius: 2, px: 3, py: { xs: 1, sm: 0.75 }, width: { xs: '100%', sm: 'auto' } }}
               >
                 {isSaving ? "Saving…" : "Update Stock"}
               </Button>

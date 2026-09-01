@@ -7,6 +7,7 @@ import {
   Typography,
   Box,
   Alert,
+  Snackbar,
   CircularProgress,
   Card,
   CardMedia,
@@ -17,6 +18,7 @@ import {
   Select,
   FormHelperText,
   Autocomplete,
+  Portal,
 } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { updateCategory } from "../../../redux/Admin/CategorySlice";
@@ -70,6 +72,9 @@ const UpdateCategoryForm: React.FC<UpdateCategoryFormProps> = ({
   const [parentCategories, setParentCategories] = useState<Category[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<number>(category.level);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('info');
   const [imageUrl, setImageUrl] = useState<string | null>(category.image || null);
   const [uploading, setUploading] = useState(false);
 
@@ -82,11 +87,15 @@ const UpdateCategoryForm: React.FC<UpdateCategoryFormProps> = ({
         setImageUrl(result.url);
         formik.setFieldValue("image", result.url);
       } else {
-        alert(result.error || "Failed to upload image. Please try again.");
+        setSnackbarMsg(result.error || "Failed to upload image. Please try again.");
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
       }
     } catch (error) {
       console.error("Image upload failed:", error);
-      alert("Failed to upload image. Please try again.");
+      setSnackbarMsg("Failed to upload image. Please try again.");
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
     } finally {
       setUploading(false);
     }
@@ -96,6 +105,26 @@ const UpdateCategoryForm: React.FC<UpdateCategoryFormProps> = ({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // ✅ Strict validation for file format and size
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      const allowedExtensions = /\.(jpg|jpeg|png|webp)$/i;
+
+      if (!allowedTypes.includes(file.type) || !allowedExtensions.test(file.name)) {
+        setSnackbarMsg("Invalid file format. Only JPEG, JPG, PNG, and WebP are allowed.");
+        setSnackbarSeverity('warning');
+        setSnackbarOpen(true);
+        e.target.value = ''; // Reset input
+        return;
+      }
+
+      if (file.size > 3 * 1024 * 1024) { // 3MB limit
+        setSnackbarMsg("File size exceeds 3MB limit.");
+        setSnackbarSeverity('warning');
+        setSnackbarOpen(true);
+        e.target.value = ''; // Reset input
+        return;
+      }
+
       setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -196,11 +225,11 @@ const UpdateCategoryForm: React.FC<UpdateCategoryFormProps> = ({
       {/* Image Upload Field (All levels) */}
       <Box>
         <Typography variant="subtitle1" gutterBottom>
-          Category Image (Optional) <span style={{ fontWeight: 'normal', color: '#6b7280', fontSize: '0.8rem' }}>(Supported: JPEG, JPG, PNG, WebP. Max: 3MB)</span>
+          Category Image (Optional) <span style={{ fontWeight: 'normal', color: '#6b7280', fontSize: '0.8rem' }}>(Supported: JPEG, JPG, PNG, WebP. Max: 5MB)</span>
           </Typography>
           <input
             type="file"
-            accept="image/*"
+            accept="image/jpeg, image/png, image/webp"
             onChange={handleImageChange}
             style={{ display: 'none' }}
             id="image-upload"
@@ -359,6 +388,13 @@ const UpdateCategoryForm: React.FC<UpdateCategoryFormProps> = ({
           {loading ? "Updating..." : "Update Category"}
         </Button>
       </Box>
+      <Portal>
+        <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)}>
+          <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+            {snackbarMsg}
+          </Alert>
+        </Snackbar>
+      </Portal>
     </Box>
   );
 };

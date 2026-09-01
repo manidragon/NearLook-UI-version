@@ -1,22 +1,24 @@
-// D:\Mani\Code with Zosh\Backup\source code\frontend\src\routes\AdminRoutes.tsx
-import { Route, Routes } from 'react-router-dom'
-import DashboardOverview from '../admin/pages/Dashboard/DashboardOverview'
-import Coupon from '../admin/pages/Coupon/Coupon'
-import CouponForm from '../admin/pages/Coupon/CreateCouponForm'
-import GridTable from '../admin/pages/HomePage/GridTable'
-import ShopByCategoryTable from '../admin/pages/HomePage/ShopByCategoryTable'
-import Deal from '../admin/pages/HomePage/Deal'
-import CategoryManagement from '../admin/components/CategoryManagement/CategoryManagment'
-import CategoryAttributeManagement from '../admin/pages/CategoryAttributes/CategoryAttributeManagement';
-import UsersList from '../admin/pages/Users/UsersList';
-import Transactions from '../admin/pages/Transactions/Transactions';
-import AllProducts from '../admin/pages/Products/AllProducts';
-import SellersManagement from '../admin/pages/Sellers/SellersManagement';
-import GlobalOrders from '../admin/pages/Orders/GlobalOrders';
-import SupportTickets from '../admin/pages/Support/SupportTickets';
-import ReviewsModeration from '../admin/pages/Reviews/ReviewsModeration';
-import Approvals from '../admin/pages/Approvals/Approvals';
+import { Route, Routes } from 'react-router-dom';
+import { lazy } from 'react';
 import PayoutsPage from '../admin/pages/Payouts/PayoutsPage';
+const GridTable = lazy(() => import('../admin/pages/HomePage/GridTable'));
+
+const DashboardOverview = lazy(() => import('../admin/pages/Dashboard/DashboardOverview'));
+const Coupon = lazy(() => import('../admin/pages/Coupon/Coupon'));
+const CouponForm = lazy(() => import('../admin/pages/Coupon/CreateCouponForm'));
+const ShopByCategoryTable = lazy(() => import('../admin/pages/HomePage/ShopByCategoryTable'));
+const Deal = lazy(() => import('../admin/pages/HomePage/Deal'));
+const CategoryManagement = lazy(() => import('../admin/components/CategoryManagement/CategoryManagment'));
+const CategoryAttributeManagement = lazy(() => import('../admin/pages/CategoryAttributes/CategoryAttributeManagement'));
+const UsersList = lazy(() => import('../admin/pages/Users/UsersList'));
+const Transactions = lazy(() => import('../admin/pages/Transactions/Transactions'));
+const AllProducts = lazy(() => import('../admin/pages/Products/AllProducts'));
+const SellersManagement = lazy(() => import('../admin/pages/Sellers/SellersManagement'));
+const GlobalOrders = lazy(() => import('../admin/pages/Orders/GlobalOrders'));
+const SupportTickets = lazy(() => import('../admin/pages/Support/SupportTickets'));
+const ReviewsModeration = lazy(() => import('../admin/pages/Reviews/ReviewsModeration'));
+const Approvals = lazy(() => import('../admin/pages/Approvals/Approvals'));
+// Eagerly load PayoutsPage to fix LCP Element render delay for this specific page
 
 const AdminRoutes = () => {
   return (

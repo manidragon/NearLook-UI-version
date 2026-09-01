@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { sendVerificationEmail } = require('../utils/sendEmail');
 const generateOTP = require('../utils/generateOtp');
+const { generateOtpTemplate } = require('../utils/emailTemplates');
 const VerificationCode = require('../models/VerificationCode');
 const User = require('../models/User');
 const Cart = require('../models/Cart');
@@ -18,10 +19,11 @@ class AuthService {
     const verificationCode = new VerificationCode({ otp, email });
     await verificationCode.save();
 
-    // Optional: send email
-    // const subject = "Near Look Login/Signup OTP";
-    // const text = `Your login OTP is - ${otp}`;
-    // await sendVerificationEmail(email, subject, text);
+    // Send email
+    const subject = "Near Look Login/Signup OTP";
+    const text = `Your login OTP is - ${otp}`;
+    const html = generateOtpTemplate(otp);
+    await sendVerificationEmail(email, subject, text, html);
   }
 
   async createUser(req) {

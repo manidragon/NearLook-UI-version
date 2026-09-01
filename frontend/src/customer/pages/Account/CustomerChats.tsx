@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Box, Typography, TextField, IconButton, List, ListItem, ListItemButton, ListItemText, ListItemAvatar, Avatar, Divider, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Typography, TextField, IconButton, List, ListItem, ListItemButton, ListItemText, ListItemAvatar, Avatar, useMediaQuery, useTheme } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useAppDispatch, useAppSelector } from '../../../redux/Store';
@@ -87,8 +87,11 @@ export default function CustomerChats() {
           bgcolor: 'white'
         }}>
           <Box sx={{ p: 3, borderBottom: 1, borderColor: 'grey.100' }}>
-            <Typography variant="h5" fontWeight="bold">
+            <Typography component="h1" variant="h5" fontWeight="bold">
               Messages
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontSize: '0.8rem', fontStyle: 'italic' }}>
+              Note: Chats are automatically deleted after 15 days.
             </Typography>
           </Box>
           <List sx={{ p: 0 }}>
@@ -97,27 +100,29 @@ export default function CustomerChats() {
             const logo = c.seller?.businessDetails?.logo;
             return (
               <React.Fragment key={c._id}>
-                <ListItemButton 
-                  selected={chat.currentChat?._id === c._id}
-                  onClick={() => dispatch(setCurrentChat(c))}
-                  sx={{
-                    px: 3, py: 2,
-                    '&.Mui-selected': { bgcolor: '#fff3ec', borderRight: '3px solid #FF5A00' },
-                    '&:hover': { bgcolor: '#fff9f5' }
-                  }}
-                >
-                  <ListItemAvatar>
-                    <Avatar src={logo} alt={sellerName}>
-                      {sellerName.charAt(0)}
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText 
-                    primary={sellerName} 
-                    secondary={c.lastMessage?.content || 'No messages yet'} 
-                    secondaryTypographyProps={{ noWrap: true }}
-                  />
-                </ListItemButton>
-                {index < chat.chats.length - 1 && <Divider />}
+                <ListItem disablePadding divider={index < chat.chats.length - 1}>
+                  <ListItemButton 
+                    selected={chat.currentChat?._id === c._id}
+                    onClick={() => dispatch(setCurrentChat(c))}
+                    sx={{
+                      px: 3, py: 2,
+                      width: '100%',
+                      '&.Mui-selected': { bgcolor: '#fff3ec', borderRight: '3px solid #FF5A00' },
+                      '&:hover': { bgcolor: '#fff9f5' }
+                    }}
+                  >
+                    <ListItemAvatar>
+                      <Avatar src={logo} alt={sellerName}>
+                        {sellerName.charAt(0)}
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText 
+                      primary={sellerName} 
+                      secondary={c.lastMessage?.content || 'No messages yet'} 
+                      secondaryTypographyProps={{ noWrap: true }}
+                    />
+                  </ListItemButton>
+                </ListItem>
               </React.Fragment>
             );
           })}
@@ -208,7 +213,7 @@ export default function CustomerChats() {
               <div className="w-24 h-24 mb-4 bg-orange-50 rounded-full flex items-center justify-center">
                 <SendIcon sx={{ fontSize: 40, color: '#FF5A00', opacity: 0.5 }} />
               </div>
-              <Typography variant="h6" color="text.secondary" fontWeight="500">
+              <Typography component="h2" variant="h6" color="text.secondary" fontWeight="500">
                 Your Messages
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1, maxWidth: 300 }}>

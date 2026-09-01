@@ -4,6 +4,9 @@ const AddressService = require('../services/AddressService');
 const getUserAddresses = async (req, res) => {
   try {
     // req.user is attached by authMiddleware
+    if (!req.user) {
+      return res.status(200).json([]); // Return empty for guests
+    }
     const addresses = await AddressService.getUserAddresses(req.user._id);
     return res.status(200).json(addresses);
   } catch (error) {

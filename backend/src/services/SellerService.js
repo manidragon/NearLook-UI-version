@@ -72,7 +72,7 @@ class SellerService {
     fulfillmentMode: sellerData.fulfillmentMode,
     handlingTime: sellerData.handlingTime,
     storefront: sellerData.storefront,
-    payoutSchedule: sellerData.payoutSchedule,
+
     performanceMetrics: sellerData.performanceMetrics,
     // ✅ ONLY include location if we have VALID coordinates
     ...(locationData && { location: locationData }),

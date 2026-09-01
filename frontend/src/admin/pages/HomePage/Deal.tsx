@@ -30,7 +30,7 @@ const Deal = () => {
                 <Typography variant="h3" className="font-bold text-gray-900 mb-2 tracking-tight">
                     Deal Management
                 </Typography>
-                <Typography variant="subtitle1" className="text-gray-500">
+                <Typography variant="subtitle1" component="p" className="text-gray-500">
                     Manage your promotional deals and categories with ease.
                 </Typography>
             </Box>

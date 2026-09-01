@@ -19,6 +19,7 @@ import {
   CardMedia,
   IconButton,
   Autocomplete,
+  Portal,
 } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { createCategory } from "../../../redux/Admin/CategorySlice";
@@ -68,6 +69,9 @@ const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
   const [parentCategories, setParentCategories] = useState<Category[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<number>(1);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('info');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -84,7 +88,9 @@ const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
       }
     } catch (error) {
       console.error("Image upload failed:", error);
-      alert("Failed to upload image. Please try again.");
+      setSnackbarMsg("Failed to upload image. Please try again.");
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
     } finally {
       setUploading(false);
     }
@@ -94,6 +100,26 @@ const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // ✅ Strict validation for file format and size
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      const allowedExtensions = /\.(jpg|jpeg|png|webp)$/i;
+
+      if (!allowedTypes.includes(file.type) || !allowedExtensions.test(file.name)) {
+        setSnackbarMsg("Invalid file format. Only JPEG, JPG, PNG, and WebP are allowed.");
+        setSnackbarSeverity('warning');
+        setSnackbarOpen(true);
+        e.target.value = ''; // Reset input
+        return;
+      }
+
+      if (file.size > 3 * 1024 * 1024) { // 3MB limit
+        setSnackbarMsg("File size exceeds 3MB limit.");
+        setSnackbarSeverity('warning');
+        setSnackbarOpen(true);
+        e.target.value = ''; // Reset input
+        return;
+      }
+
       setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -197,11 +223,11 @@ const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
     }
   }, [selectedLevel, formik.values.parentCategory, categories]);
 
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  
   useEffect(() => {
     if (error) {
       console.error('Category creation error:', error);
+      setSnackbarMsg(error);
+      setSnackbarSeverity('error');
       setSnackbarOpen(true);
       const timer = setTimeout(() => {
         dispatch({ type: "category/resetCategoryState" });
@@ -235,29 +261,14 @@ const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
         Create New Category
       </Typography>
 
-      <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        open={snackbarOpen}
-        autoHideDuration={5000}
-        onClose={() => setSnackbarOpen(false)}
-        TransitionComponent={Slide}
-      >
-        <Alert 
-          severity="error" 
-          onClose={() => setSnackbarOpen(false)}
-          sx={{ width: '100%' }}
-        >
-          {error}
-        </Alert>
-      </Snackbar>
-
       {/* Image Upload Field (All levels) */}
       <div className="flex flex-col gap-2">
         <label className="text-sm font-medium text-gray-700">
-          Category Image (Optional) <span style={{ fontWeight: 'normal', color: '#6b7280', fontSize: '0.8rem' }}>(Supported: JPEG, JPG, PNG, WebP. Max: 3MB)</span>
+          Category Image (Optional) <span style={{ fontWeight: 'normal', color: '#6b7280', fontSize: '0.8rem' }}>(Supported: JPEG, JPG, PNG, WebP. Max: 5MB)</span>
         </label>
         <input
           type="file"
-          accept="image/*"
+          accept="image/jpeg, image/png, image/webp"
           onChange={handleImageChange}
           className="hidden"
           id="image-upload-create"
@@ -411,6 +422,13 @@ const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
           {uploading ? "Uploading Image..." : loading ? "Creating..." : "Create Category"}
         </Button>
       </Box>
+      <Portal>
+        <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)}>
+          <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+            {snackbarMsg}
+          </Alert>
+        </Snackbar>
+      </Portal>
     </Box>
   );
 };

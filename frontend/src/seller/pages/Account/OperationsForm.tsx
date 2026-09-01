@@ -16,14 +16,12 @@ const OperationsForm = ({ onClose }: OperationsFormProps) => {
     initialValues: {
       fulfillmentMode: profile?.fulfillmentMode || "SELF_SHIP",
       handlingTime: profile?.handlingTime || 2,
-      payoutSchedule: profile?.payoutSchedule || "WEEKLY",
       minFreeDelivery: profile?.minFreeDelivery ?? 500,
     },
     onSubmit: (values) => {
       const updatedData = {
         fulfillmentMode: values.fulfillmentMode,
         handlingTime: values.handlingTime,
-        payoutSchedule: values.payoutSchedule,
         minFreeDelivery: values.minFreeDelivery,
       };
 
@@ -58,21 +56,6 @@ const OperationsForm = ({ onClose }: OperationsFormProps) => {
         value={formik.values.handlingTime}
         onChange={formik.handleChange}
       />
-
-      <FormControl fullWidth>
-        <InputLabel>Payout Schedule</InputLabel>
-        <Select
-          name="payoutSchedule"
-          value={formik.values.payoutSchedule}
-          onChange={formik.handleChange}
-          label="Payout Schedule"
-        >
-          <MenuItem value="DAILY">Daily</MenuItem>
-          <MenuItem value="WEEKLY">Weekly</MenuItem>
-          <MenuItem value="BI_WEEKLY">Bi-Weekly</MenuItem>
-          <MenuItem value="MONTHLY">Monthly</MenuItem>
-        </Select>
-      </FormControl>
 
       <MuiTextField
         fullWidth

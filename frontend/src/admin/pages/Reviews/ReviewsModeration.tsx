@@ -39,14 +39,19 @@ const ReviewsModeration = () => {
     return (
         <Box p={3}>
             <Box mb={4}>
-                <Typography variant="h4" fontWeight="bold" color="primary">Reviews Moderation</Typography>
-                <Typography variant="body2" color="text.secondary">Review, approve, or delete product reviews and seller ratings.</Typography>
+                <Typography variant="h4" fontWeight="bold" sx={{ color: '#111827' }}>Reviews Moderation</Typography>
+                <Typography variant="body2" sx={{ color: '#4B5563' }}>Review, approve, or delete product reviews and seller ratings.</Typography>
             </Box>
 
             <Tabs 
                 value={tabIndex} 
                 onChange={handleTabChange} 
-                sx={{ mb: 2 }}
+                sx={{ 
+                    mb: 2,
+                    '& .MuiTab-root': { color: '#4B5563', fontWeight: 'bold' },
+                    '& .Mui-selected': { color: '#C2410C !important' },
+                    '& .MuiTabs-indicator': { backgroundColor: '#C2410C' }
+                }}
                 variant="scrollable"
                 scrollButtons="auto"
                 allowScrollButtonsMobile
@@ -60,32 +65,32 @@ const ReviewsModeration = () => {
                     <Table sx={{ minWidth: 900 }}>
                         <TableHead sx={{ backgroundColor: alpha(theme.palette.primary.main, 0.05) }}>
                             <TableRow>
-                                <TableCell sx={{ fontWeight: 'bold' }}>{tabIndex === 0 ? 'Product' : 'Seller'}</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>User</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Rating</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Comment</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Date</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }} align="right">Actions</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }}>{tabIndex === 0 ? 'Product' : 'Seller'}</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }}>User</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }}>Rating</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }}>Comment</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }}>Date</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#111827' }} align="right">Actions</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {(tabIndex === 0 ? productReviews : sellerReviews)?.map((review: any) => (
                                 <TableRow key={review._id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                    <TableCell sx={{ fontWeight: '500' }}>
+                                    <TableCell sx={{ fontWeight: '500', color: '#111827' }}>
                                         {tabIndex === 0 
                                             ? review.product?.title || 'Unknown Product'
                                             : review.seller?.sellerName || 'Unknown Seller'}
                                     </TableCell>
-                                    <TableCell>{review.user?.fullName || review.user?.email || 'Guest'}</TableCell>
+                                    <TableCell sx={{ color: '#374151' }}>{review.user?.fullName || review.user?.email || 'Guest'}</TableCell>
                                     <TableCell>
                                         <Rating value={review.rating} readOnly size="small" />
                                     </TableCell>
-                                    <TableCell sx={{ maxWidth: 300, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    <TableCell sx={{ maxWidth: 300, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: '#374151' }}>
                                         {review.reviewText}
                                     </TableCell>
-                                    <TableCell>{new Date(review.createdAt).toLocaleDateString()}</TableCell>
+                                    <TableCell sx={{ color: '#374151' }}>{new Date(review.createdAt).toLocaleDateString()}</TableCell>
                                     <TableCell align="right">
-                                        <IconButton color="primary" onClick={() => handleViewReview(review)}>
+                                        <IconButton sx={{ color: '#C2410C' }} onClick={() => handleViewReview(review)} aria-label={`View review from ${review.user?.fullName || 'user'}`}>
                                             <VisibilityIcon />
                                         </IconButton>
                                     </TableCell>
@@ -105,44 +110,44 @@ const ReviewsModeration = () => {
                     {selectedReview && (
                         <Grid container spacing={3}>
                             <Grid size={{ xs: 12, md: 6 }}>
-                                <Typography variant="h6" fontWeight="bold" mb={2}>
+                                <Typography variant="h6" fontWeight="bold" sx={{ color: '#111827' }} mb={2}>
                                     {tabIndex === 0 ? 'Product Info' : 'Seller Info'}
                                 </Typography>
                                 {tabIndex === 0 ? (
                                     <>
-                                        <Typography variant="body2" mb={1}><strong>Product:</strong> {selectedReview.product?.title || 'Unknown'}</Typography>
-                                        <Typography variant="body2" mb={1}><strong>Brand:</strong> {selectedReview.product?.brand || 'N/A'}</Typography>
+                                        <Typography variant="body2" sx={{ color: '#374151' }} mb={1}><strong>Product:</strong> {selectedReview.product?.title || 'Unknown'}</Typography>
+                                        <Typography variant="body2" sx={{ color: '#374151' }} mb={1}><strong>Brand:</strong> {selectedReview.product?.brand || 'N/A'}</Typography>
                                     </>
                                 ) : (
                                     <>
-                                        <Typography variant="body2" mb={1}><strong>Seller Name:</strong> {selectedReview.seller?.sellerName || 'Unknown'}</Typography>
-                                        <Typography variant="body2" mb={1}><strong>Business:</strong> {selectedReview.seller?.businessDetails?.businessName || 'N/A'}</Typography>
+                                        <Typography variant="body2" sx={{ color: '#374151' }} mb={1}><strong>Seller Name:</strong> {selectedReview.seller?.sellerName || 'Unknown'}</Typography>
+                                        <Typography variant="body2" sx={{ color: '#374151' }} mb={1}><strong>Business:</strong> {selectedReview.seller?.businessDetails?.businessName || 'N/A'}</Typography>
                                     </>
                                 )}
 
                                 <Divider sx={{ my: 2 }} />
-                                <Typography variant="h6" fontWeight="bold" mb={2}>Reviewer Info</Typography>
-                                <Typography variant="body2" mb={1}><strong>Name:</strong> {selectedReview.user?.fullName || 'Guest'}</Typography>
-                                <Typography variant="body2" mb={1}><strong>Email:</strong> {selectedReview.user?.email || 'N/A'}</Typography>
-                                <Typography variant="body2" mb={1}><strong>Date:</strong> {new Date(selectedReview.createdAt).toLocaleString()}</Typography>
+                                <Typography variant="h6" fontWeight="bold" sx={{ color: '#111827' }} mb={2}>Reviewer Info</Typography>
+                                <Typography variant="body2" sx={{ color: '#374151' }} mb={1}><strong>Name:</strong> {selectedReview.user?.fullName || 'Guest'}</Typography>
+                                <Typography variant="body2" sx={{ color: '#374151' }} mb={1}><strong>Email:</strong> {selectedReview.user?.email || 'N/A'}</Typography>
+                                <Typography variant="body2" sx={{ color: '#374151' }} mb={1}><strong>Date:</strong> {new Date(selectedReview.createdAt).toLocaleString()}</Typography>
                             </Grid>
 
                             <Grid size={{ xs: 12, md: 6 }}>
-                                <Typography variant="h6" fontWeight="bold" mb={2}>Rating & Feedback</Typography>
+                                <Typography variant="h6" fontWeight="bold" sx={{ color: '#111827' }} mb={2}>Rating & Feedback</Typography>
                                 <Box display="flex" alignItems="center" mb={2}>
-                                    <Typography variant="body2" fontWeight="bold" mr={1}>Rating:</Typography>
+                                    <Typography variant="body2" sx={{ color: '#374151' }} fontWeight="bold" mr={1}>Rating:</Typography>
                                     <Rating value={selectedReview.rating} readOnly />
                                 </Box>
-                                <Typography variant="body2" fontWeight="bold" mb={1}>Comment:</Typography>
+                                <Typography variant="body2" sx={{ color: '#374151' }} fontWeight="bold" mb={1}>Comment:</Typography>
                                 <Paper variant="outlined" sx={{ p: 2, bgcolor: alpha(theme.palette.primary.main, 0.02), minHeight: 100 }}>
-                                    <Typography variant="body2">{selectedReview.reviewText || 'No comment provided.'}</Typography>
+                                    <Typography variant="body2" sx={{ color: '#374151' }}>{selectedReview.reviewText || 'No comment provided.'}</Typography>
                                 </Paper>
                             </Grid>
 
                             {selectedReview.productImages && selectedReview.productImages.length > 0 && (
                                 <Grid size={12}>
                                     <Divider sx={{ my: 2 }} />
-                                    <Typography variant="h6" fontWeight="bold" mb={2}>Review Images</Typography>
+                                    <Typography variant="h6" fontWeight="bold" sx={{ color: '#111827' }} mb={2}>Review Images</Typography>
                                     <Box display="flex" gap={2} flexWrap="wrap">
                                         {selectedReview.productImages.map((img: string, index: number) => (
                                             <Box 
@@ -167,7 +172,7 @@ const ReviewsModeration = () => {
                             {selectedReview.images && selectedReview.images.length > 0 && (
                                 <Grid size={12}>
                                     <Divider sx={{ my: 2 }} />
-                                    <Typography variant="h6" fontWeight="bold" mb={2}>Review Images</Typography>
+                                    <Typography variant="h6" fontWeight="bold" sx={{ color: '#111827' }} mb={2}>Review Images</Typography>
                                     <Box display="flex" gap={2} flexWrap="wrap">
                                         {selectedReview.images.map((img: string, index: number) => (
                                             <Box 

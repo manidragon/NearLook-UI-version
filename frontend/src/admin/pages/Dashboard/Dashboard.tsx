@@ -17,10 +17,10 @@ const AdminDashboard = () => {
     setOpenSnackbar(false);
   }
   useEffect(() => {
-    if (deal.dealCreated || deal.dealUpdated ||deal.error || admin.categoryUpdated) {
+    if (deal.dealCreated || deal.dealUpdated ||deal.error || admin.categoryUpdated || admin.categoryDeleted) {
       setOpenSnackbar(true)
     }
-  }, [deal.dealCreated, deal.dealUpdated, deal.error,admin.categoryUpdated])
+  }, [deal.dealCreated, deal.dealUpdated, deal.error, admin.categoryUpdated, admin.categoryDeleted])
   return (
     <>
       <div className="min-h-screen">
@@ -46,7 +46,7 @@ const AdminDashboard = () => {
           variant="filled"
           sx={{ width: '100%' }}
         >
-          {deal.error ? deal.error : deal.dealCreated ? "Deal created successfully" : deal.dealUpdated ? "deal updated successfully" : admin.categoryUpdated?"Category Updated successfully": ""}
+          {deal.error ? deal.error : deal.dealCreated ? "Deal created successfully" : deal.dealUpdated ? "deal updated successfully" : admin.categoryDeleted ? "Banner deleted successfully" : admin.categoryUpdated ? "Category Updated successfully" : ""}
         </Alert>
       </Snackbar>
     </>

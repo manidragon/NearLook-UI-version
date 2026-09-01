@@ -98,13 +98,13 @@ const Footer = () => {
                 {topCategories.length > 0 ? (
                   topCategories.map((cat: any) => (
                     <li key={cat._id}>
-                      <Link to={`/products/${cat.categoryId}`} className="text-sm text-gray-400 hover:text-orange-500 hover:translate-x-2 transition-all inline-block">
+                      <Link to={`/products/${cat.categoryId || cat._id}`} className="text-sm text-gray-400 hover:text-orange-500 hover:translate-x-2 transition-all inline-block">
                         {cat.name}
                       </Link>
                     </li>
                   ))
                 ) : (
-                  <div className="text-sm text-gray-500">Loading categories...</div>
+                  <li className="text-sm text-gray-500">Loading categories...</li>
                 )}
               </ul>
             </div>
@@ -116,55 +116,56 @@ const Footer = () => {
                 <span className="absolute -bottom-2 left-0 w-12 h-1 bg-gradient-to-r from-orange-500 to-transparent"></span>
               </h2>
               <ul className="space-y-3">
-                {["Delivery Info", "Legal Notice", "Terms & Conditions", "About Us", "Secure Payment", "Privacy Policy"].map((link, i) => (
-                  <li key={i}>
-                    <Link to="/" className="text-sm text-gray-400 hover:text-orange-500 hover:translate-x-2 transition-all inline-block">
-                      {link}
-                    </Link>
-                  </li>
-                ))}
+                <li>
+                  <Link to="/shipping-policy" className="text-sm text-gray-400 hover:text-orange-500 hover:translate-x-2 transition-all inline-block">
+                    Shipping Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/refund-policy" className="text-sm text-gray-400 hover:text-orange-500 hover:translate-x-2 transition-all inline-block">
+                    Cancellation & Refund Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/terms-and-conditions" className="text-sm text-gray-400 hover:text-orange-500 hover:translate-x-2 transition-all inline-block">
+                    Terms & Conditions
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/privacy-policy" className="text-sm text-gray-400 hover:text-orange-500 hover:translate-x-2 transition-all inline-block">
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/contact-us" className="text-sm text-gray-400 hover:text-orange-500 hover:translate-x-2 transition-all inline-block">
+                    Contact Us
+                  </Link>
+                </li>
               </ul>
             </div>
 
-            {/* NEWSLETTER */}
+            {/* BECOME A SELLER */}
             <div className="flex flex-col space-y-6">
               <h2 className="text-lg font-bold text-white uppercase tracking-wider relative inline-block">
-                Newsletter
+                Become a Seller
                 <span className="absolute -bottom-2 left-0 w-12 h-1 bg-gradient-to-r from-orange-500 to-transparent"></span>
               </h2>
               <p className="text-sm text-gray-400 leading-relaxed">
-                Subscribe to get updates on our latest offers and exclusive discounts.
+                Join our platform to reach millions of customers and grow your business with NearLook.
               </p>
-              <form className="mt-2" onSubmit={(e) => e.preventDefault()}>
-                <div className="flex flex-col xl:flex-row w-full gap-2">
-                  <input
-                    type="email"
-                    className="flex-1 rounded-lg bg-white/5 border border-white/10 focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all outline-none px-4 py-3 text-sm text-white placeholder-gray-500 min-w-0"
-                    placeholder="Enter your email address"
-                  />
-                  <button
-                    type="submit"
-                    className="bg-orange-500 hover:bg-orange-600 transition-colors px-5 py-3 rounded-lg text-sm font-semibold text-white shadow-lg shadow-orange-500/20 whitespace-nowrap shrink-0 w-full xl:w-auto"
-                  >
-                    Subscribe
-                  </button>
+              <div className="mt-2">
+                <Link
+                  to="/become-seller"
+                  className="inline-flex items-center justify-center bg-orange-700 hover:bg-orange-800 transition-colors px-6 py-3 rounded-lg text-sm font-semibold text-white shadow-lg shadow-orange-700/20 whitespace-nowrap w-full sm:w-auto"
+                >
+                  Register Now
+                </Link>
+                <div className="mt-4 text-xs text-gray-500">
+                  Already a seller? <Link to="/become-seller" className="text-orange-500 hover:underline">Login here</Link>
                 </div>
-                <FormControlLabel
-                  className="mt-4 text-gray-400 select-none"
-                  control={
-                    <Checkbox
-                      defaultChecked
-                      size="small"
-                      sx={{
-                        color: "#4B5563",
-                        "&.Mui-checked": { color: "#F97316" },
-                      }}
-                    />
-                  }
-                  label={<span className="text-xs">I agree to the terms and privacy policy</span>}
-                />
-              </form>
+              </div>
             </div>
+
           </div>
         </div>
 
@@ -176,13 +177,19 @@ const Footer = () => {
             </p>
 
             <ul className="flex items-center gap-4">
-              {[FaFacebookF, AiOutlineYoutube, FaPinterestP, FaInstagram].map((Icon, index) => (
+              {[
+                { Icon: FaFacebookF, name: "Facebook" },
+                { Icon: AiOutlineYoutube, name: "YouTube" },
+                { Icon: FaPinterestP, name: "Pinterest" },
+                { Icon: FaInstagram, name: "Instagram" }
+              ].map((social, index) => (
                 <li key={index}>
                   <a
                     href="#"
+                    aria-label={social.name}
                     className="w-9 h-9 rounded-full bg-white/5 hover:bg-orange-500 border border-white/10 hover:border-orange-500 inline-flex items-center justify-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-orange-500/20 group"
                   >
-                    <Icon className="text-sm text-gray-400 group-hover:text-white transition-colors" />
+                    <social.Icon className="text-sm text-gray-400 group-hover:text-white transition-colors" />
                   </a>
                 </li>
               ))}

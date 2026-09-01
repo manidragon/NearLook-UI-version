@@ -1,6 +1,6 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { Button, TextField, Typography, Box, DialogActions, Autocomplete } from '@mui/material';
+import { Button, TextField, Typography, Box, DialogActions, Autocomplete, Snackbar, Alert, Portal } from '@mui/material';
 import {
   CloudUpload as CloudUploadIcon,
   AddPhotoAlternate as AddPhotoAlternateIcon,
@@ -9,7 +9,7 @@ import {
 } from "@mui/icons-material";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { updateHomeCategory, createHomeCategory } from "../../../redux/Admin/AdminSlice";
-import { getCategoriesByLevel } from "../../../redux/Admin/CategorySlice";
+import { getCategoriesByLevel, fetchCategories } from "../../../redux/Admin/CategorySlice";
 import type { HomeCategory } from "../../../types/homeDataTypes";
 import React, { useState, useEffect } from "react";
 import { uploadToCloudinary } from "../../../util/uploadToCloudnary";
@@ -38,14 +38,18 @@ const UpdateHomeCategoryForm = ({
   const categoryState = useAppSelector((state) => state.category);
   const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('info');
   const [previewImage, setPreviewImage] = useState<string>(category?.image || "");
 
-  // Fetch level 3 categories on mount
+  // Fetch all categories on mount to resolve parent names
   useEffect(() => {
-    dispatch(getCategoriesByLevel(3));
+    dispatch(fetchCategories());
   }, [dispatch]);
 
-  const level3Categories = categoryState.categories || [];
+  const allCategories = categoryState.categories || [];
+  const level3Categories = allCategories.filter((c: any) => c.level === 3);
 
   const formik = useFormik({
     initialValues: {
@@ -70,7 +74,9 @@ const UpdateHomeCategoryForm = ({
             }
           } catch (error) {
             console.error("Image upload failed:", error);
-            alert("Failed to upload image. Please try again.");
+            setSnackbarMsg("Failed to upload image. Please try again.");
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
             setUploading(false);
             return; // Stop form submission if image upload fails
           }
@@ -108,6 +114,26 @@ const UpdateHomeCategoryForm = ({
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // ✅ Strict validation for file format and size
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    const allowedExtensions = /\.(jpg|jpeg|png|webp)$/i;
+
+    if (!allowedTypes.includes(file.type) || !allowedExtensions.test(file.name)) {
+      setSnackbarMsg("Invalid file format. Only JPEG, JPG, PNG, and WebP are allowed.");
+      setSnackbarSeverity('warning');
+      setSnackbarOpen(true);
+      event.target.value = ''; // Reset input
+      return;
+    }
+
+    if (file.size > 7 * 1024 * 1024) { // 7MB limit
+      setSnackbarMsg("File size exceeds 7MB limit.");
+      setSnackbarSeverity('warning');
+      setSnackbarOpen(true);
+      event.target.value = ''; // Reset input
+      return;
+    }
+
     // Store the file to be uploaded on form submission
     setSelectedFile(file);
     
@@ -131,7 +157,7 @@ const UpdateHomeCategoryForm = ({
       {/* Image Upload Section */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-          Banner Image * <span style={{ fontWeight: 'normal', color: '#6b7280', fontSize: '0.8rem' }}>(Supported: JPEG, JPG, PNG, WebP. Max: 3MB)</span>
+          Banner Image * <span style={{ fontWeight: 'normal', color: '#6b7280', fontSize: '0.8rem' }}>(Supported: JPEG, JPG, PNG, WebP. Max: 7MB)</span>
         </Typography>
         <Button
           variant="outlined"
@@ -158,7 +184,7 @@ const UpdateHomeCategoryForm = ({
           <input
             type="file"
             hidden
-            accept="image/*"
+            accept="image/jpeg, image/png, image/webp"
             onChange={handleImageUpload}
           />
         </Button>
@@ -194,18 +220,29 @@ const UpdateHomeCategoryForm = ({
           fullWidth
           id="categoryId"
           options={level3Categories}
-          getOptionLabel={(option: any) => 
-            option.name ? `${option.name} (${option.categoryId})` : option.categoryId || option
-          }
-          isOptionEqualToValue={(option: any, value: any) => 
-            (option.categoryId || option) === (value.categoryId || value)
-          }
+          getOptionLabel={(option: any) => {
+            if (typeof option === 'string') return option;
+            let parentName = 'Unknown Parent';
+            if (option.parentCategory) {
+              const parentObj = option.parentCategory.name 
+                ? option.parentCategory 
+                : allCategories.find((c: any) => c._id === option.parentCategory);
+              parentName = parentObj?.name || 'Unknown Parent';
+            }
+            return option.name ? `${option.name} (${parentName})` : option.categoryId || option._id || '';
+          }}
+          isOptionEqualToValue={(option: any, value: any) => {
+            const optVal = option.categoryId || option._id || option;
+            const valVal = value.categoryId || value._id || value;
+            return optVal === valVal;
+          }}
           value={
-            level3Categories.find((c: any) => c.categoryId === formik.values.categoryId) || 
+            level3Categories.find((c: any) => (c.categoryId || c._id) === formik.values.categoryId) || 
             (formik.values.categoryId ? { categoryId: formik.values.categoryId, name: formik.values.categoryId } : null)
           }
           onChange={(_, newValue: any) => {
-            formik.setFieldValue("categoryId", newValue ? newValue.categoryId : "");
+            const val = newValue ? (newValue.categoryId || newValue._id) : "";
+            formik.setFieldValue("categoryId", val);
           }}
           renderInput={(params) => (
             <TextField
@@ -298,6 +335,13 @@ const UpdateHomeCategoryForm = ({
           )}
         </Button>
       </DialogActions>
+      <Portal>
+        <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)}>
+          <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+            {snackbarMsg}
+          </Alert>
+        </Snackbar>
+      </Portal>
     </Box>
   );
 };

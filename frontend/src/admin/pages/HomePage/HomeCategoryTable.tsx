@@ -1,7 +1,6 @@
 import * as React from "react";
-import Alert from "../../../components/CustomAlert";
 import Button from "../../../components/NeonButton";
-import { Box, IconButton, Modal, Snackbar, Typography } from "@mui/material";
+import { Box, IconButton, Modal, Typography } from "@mui/material";
 import type { HomeCategory } from "../../../types/homeDataTypes";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -11,6 +10,7 @@ import UpdateHomeCategoryForm from "./UpdateHomeCategoryForm";
 import { useAppSelector, useAppDispatch } from "../../../redux/Store";
 import { resetCategoryUpdated, deleteHomeCategory } from "../../../redux/Admin/AdminSlice";
 import { getAllDeals } from "../../../redux/Admin/DealSlice";
+import { secureUrl } from "../../../utils/secureUrl";
 
 const modalStyle = {
   position: "absolute",
@@ -32,9 +32,6 @@ function HomeCategoryTable({categories, section}:{categories:HomeCategory[] | un
   const [isCreateMode, setIsCreateMode] = React.useState(false);
   const dispatch = useAppDispatch();
   const adminState = useAppSelector((state) => state.admin);
-  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
-  const [snackbarMessage, setSnackbarMessage] = React.useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = React.useState<'success' | 'error'>('success');
 
   const handleOpen = (category: HomeCategory | null, createMode: boolean = false) => () => {
     setSelectedCategory(category);
@@ -47,9 +44,6 @@ function HomeCategoryTable({categories, section}:{categories:HomeCategory[] | un
     setSelectedCategory(null);
     setIsCreateMode(false);
     if (adminState.categoryUpdated) {
-      setSnackbarMessage(isCreateMode ? 'Category created successfully!' : 'Category updated successfully!');
-      setSnackbarSeverity('success');
-      setSnackbarOpen(true);
       dispatch(resetCategoryUpdated());
     }
   };
@@ -61,19 +55,10 @@ function HomeCategoryTable({categories, section}:{categories:HomeCategory[] | un
         if (section === 'DEALS') {
           dispatch(getAllDeals());
         }
-        setSnackbarMessage('Category deleted successfully!');
-        setSnackbarSeverity('success');
-        setSnackbarOpen(true);
       } catch (error) {
-        setSnackbarMessage('Failed to delete category');
-        setSnackbarSeverity('error');
-        setSnackbarOpen(true);
+        console.error('Error deleting category:', error);
       }
     }
-  };
-
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
   };
 
   return (
@@ -164,7 +149,7 @@ function HomeCategoryTable({categories, section}:{categories:HomeCategory[] | un
                         {category.image ? (
                           <img 
                             className="w-full h-full object-cover" 
-                            src={category.image} 
+                            src={secureUrl(category.image)} 
                             alt={category.description || 'Category Image'} 
                           />
                         ) : (
@@ -180,6 +165,7 @@ function HomeCategoryTable({categories, section}:{categories:HomeCategory[] | un
                     <td className="py-4 px-6 text-right">
                       <div className="flex justify-end gap-2 transition-opacity duration-200">
                         <IconButton 
+                          aria-label="Edit"
                           onClick={handleOpen(category)} 
                           size="small" 
                           className="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors"
@@ -187,6 +173,7 @@ function HomeCategoryTable({categories, section}:{categories:HomeCategory[] | un
                           <EditIcon fontSize="small" />
                         </IconButton>
                         <IconButton 
+                          aria-label="Delete"
                           onClick={() => handleDelete(category._id!)} 
                           size="small" 
                           className="bg-red-50 hover:bg-red-100 text-red-600 transition-colors"
@@ -213,17 +200,6 @@ function HomeCategoryTable({categories, section}:{categories:HomeCategory[] | un
           />
         </Box>
       </Modal>
-
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={4000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }

@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Button from "../../../components/NeonButton";
-import TextField from "../../../components/CustomTextField";;
+import TextField from "../../../components/CustomTextField";
+import { handleNameChange, handleNumberChange } from "../../../utils/validationUtils";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { updateSeller } from "../../../redux/Seller/sellerSlice";
 
@@ -21,11 +22,13 @@ const BankDetailsForm = ({ onClose }: UpdateDetailsFormProps) => {
       accountHolderName: "",
       accountNumber: "",
       ifscCode: "",
+      upiId: "",
     },
     validationSchema: Yup.object({
       accountHolderName: Yup.string().required("Account Holder Name is required"),
       accountNumber: Yup.string().required("Account Number is required"),
       ifscCode: Yup.string().required("IFSC Code is required"),
+      upiId: Yup.string().required("UPI ID is required"),
     }),
     onSubmit: async (values) => {
       setIsSubmitting(true);
@@ -52,6 +55,7 @@ const BankDetailsForm = ({ onClose }: UpdateDetailsFormProps) => {
         accountHolderName: sellers.profile.bankDetails?.accountHolderName || "",
         accountNumber: sellers.profile.bankDetails?.accountNumber || "",
         ifscCode: sellers.profile.bankDetails?.ifscCode || "",
+        upiId: sellers.profile.bankDetails?.upiId || "",
       });
     }
   }, [sellers.profile]);
@@ -68,7 +72,7 @@ const BankDetailsForm = ({ onClose }: UpdateDetailsFormProps) => {
           name="accountHolderName"
           label="Account Holder Name"
           value={formik.values.accountHolderName}
-          onChange={formik.handleChange}
+          onChange={handleNameChange(formik)}
           error={formik.touched.accountHolderName && Boolean(formik.errors.accountHolderName)}
           helperText={formik.touched.accountHolderName && formik.errors.accountHolderName}
         />
@@ -78,7 +82,7 @@ const BankDetailsForm = ({ onClose }: UpdateDetailsFormProps) => {
           name="accountNumber"
           label="Account Number"
           value={formik.values.accountNumber}
-          onChange={formik.handleChange}
+          onChange={handleNumberChange(formik)}
           error={formik.touched.accountNumber && Boolean(formik.errors.accountNumber)}
           helperText={formik.touched.accountNumber && formik.errors.accountNumber}
         />
@@ -91,6 +95,16 @@ const BankDetailsForm = ({ onClose }: UpdateDetailsFormProps) => {
           onChange={formik.handleChange}
           error={formik.touched.ifscCode && Boolean(formik.errors.ifscCode)}
           helperText={formik.touched.ifscCode && formik.errors.ifscCode}
+        />
+        <TextField
+          fullWidth
+          id="upiId"
+          name="upiId"
+          label="UPI ID"
+          value={formik.values.upiId}
+          onChange={formik.handleChange}
+          error={formik.touched.upiId && Boolean(formik.errors.upiId)}
+          helperText={formik.touched.upiId && formik.errors.upiId}
         />
         <Button
           sx={{ py: ".9rem" }}

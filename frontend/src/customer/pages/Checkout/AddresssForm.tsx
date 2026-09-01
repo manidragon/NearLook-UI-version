@@ -7,6 +7,7 @@ import { useAppDispatch } from '../../../redux/Store';
 import { addAddress } from '../../../redux/Customer/UserSlice'; // ✅ Changed to addAddress
 import type { Address } from '../../../types/addressTypes';
 import CustomLoader from "../../../components/CustomLoader";
+import { handleNameChange, handleNumberChange } from "../../../utils/validationUtils";
 
 // Validation schema
 const ContactSchema = Yup.object().shape({
@@ -97,7 +98,7 @@ const AddressForm: React.FC<AddressFormProp> = ({ handleClose, onSuccess }) => {
               name="name"
               label="Name *"
               value={formik.values.name}
-              onChange={formik.handleChange}
+              onChange={handleNameChange(formik)}
               onBlur={formik.handleBlur}
               error={formik.touched.name && Boolean(formik.errors.name)}
               helperText={formik.touched.name && formik.errors.name}
@@ -110,7 +111,7 @@ const AddressForm: React.FC<AddressFormProp> = ({ handleClose, onSuccess }) => {
               name="mobile"
               label="Mobile *"
               value={formik.values.mobile}
-              onChange={formik.handleChange}
+              onChange={handleNumberChange(formik)}
               onBlur={formik.handleBlur}
               error={formik.touched.mobile && Boolean(formik.errors.mobile)}
               helperText={formik.touched.mobile && formik.errors.mobile}
@@ -124,7 +125,7 @@ const AddressForm: React.FC<AddressFormProp> = ({ handleClose, onSuccess }) => {
               name="pinCode"
               label="Pin Code *"
               value={formik.values.pinCode}
-              onChange={formik.handleChange}
+              onChange={handleNumberChange(formik)}
               onBlur={formik.handleBlur}
               error={formik.touched.pinCode && Boolean(formik.errors.pinCode)}
               helperText={formik.touched.pinCode && formik.errors.pinCode}
@@ -165,7 +166,7 @@ const AddressForm: React.FC<AddressFormProp> = ({ handleClose, onSuccess }) => {
               name="city"
               label="City *"
               value={formik.values.city}
-              onChange={formik.handleChange}
+              onChange={handleNameChange(formik)}
               onBlur={formik.handleBlur}
               error={formik.touched.city && Boolean(formik.errors.city)}
               helperText={formik.touched.city && formik.errors.city}
@@ -178,7 +179,7 @@ const AddressForm: React.FC<AddressFormProp> = ({ handleClose, onSuccess }) => {
               name="state"
               label="State *"
               value={formik.values.state}
-              onChange={formik.handleChange}
+              onChange={handleNameChange(formik)}
               onBlur={formik.handleBlur}
               error={formik.touched.state && Boolean(formik.errors.state)}
               helperText={formik.touched.state && formik.errors.state}

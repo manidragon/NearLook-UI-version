@@ -5,6 +5,8 @@ import * as Yup from "yup";
 import { TextField, Button } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { updateSeller } from "../../../redux/Seller/sellerSlice";
+import { api } from "../../../Config/Api";
+import { handleNameChange, handleNumberChange } from "../../../utils/validationUtils";
 
 interface UpdateDetailsFormProps {
   onClose: () => void;
@@ -62,7 +64,7 @@ const PersonalDetailsForm = ({ onClose }: UpdateDetailsFormProps) => {
                     name="sellerName"
                     label="Seller Name"
                     value={formik.values.sellerName}
-                    onChange={formik.handleChange}
+                    onChange={handleNameChange(formik)}
                     error={formik.touched.sellerName && Boolean(formik.errors.sellerName)}
                     helperText={formik.touched.sellerName && formik.errors.sellerName}
                 />
@@ -82,7 +84,7 @@ const PersonalDetailsForm = ({ onClose }: UpdateDetailsFormProps) => {
                     name="mobile"
                     label="Mobile"
                     value={formik.values.mobile}
-                    onChange={formik.handleChange}
+                    onChange={handleNumberChange(formik)}
                     error={formik.touched.mobile && Boolean(formik.errors.mobile)}
                     helperText={formik.touched.mobile && formik.errors.mobile}
                     inputProps={{ maxLength: 10 }}

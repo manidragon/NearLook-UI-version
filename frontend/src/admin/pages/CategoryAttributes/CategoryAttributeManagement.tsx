@@ -42,13 +42,11 @@ import {
   Delete as DeleteIcon,
   Add as AddIcon,
   DragIndicator as DragIcon,
-  Save as SaveIcon,
   Cancel as CancelIcon,
   Refresh as RefreshIcon,
   Info as InfoIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
-  Restore as RestoreIcon,
 } from '@mui/icons-material';
 import { useAppDispatch, useAppSelector } from '../../../redux/Store';
 import {
@@ -562,15 +560,14 @@ const CategoryAttributeManagement: React.FC = () => {
           </Grid>
           <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3 }} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', lg: 'flex-end' }, alignItems: 'center', gap: 1 }}>
             <Tooltip title="Refresh attributes">
-              <span>
-                <IconButton
-                  onClick={handleRefresh}
-                  disabled={!selectedCategoryId || loading}
-                  sx={{ bgcolor: 'rgba(0,0,0,0.04)' }}
-                >
-                  <RefreshIcon />
-                </IconButton>
-              </span>
+              <IconButton
+                aria-label="Refresh attributes"
+                onClick={handleRefresh}
+                disabled={!selectedCategoryId || loading}
+                sx={{ bgcolor: 'rgba(0,0,0,0.04)' }}
+              >
+                <RefreshIcon />
+              </IconButton>
             </Tooltip>
             <Button
               variant="contained"
@@ -621,7 +618,9 @@ const CategoryAttributeManagement: React.FC = () => {
               '& .MuiTab-root': {
                 fontWeight: 600,
                 textTransform: 'none',
-              }
+                '&.Mui-selected': { color: '#b33f00' }
+              },
+              '& .MuiTabs-indicator': { backgroundColor: '#b33f00' }
             }}
           >
             <Tab label={`All (${attributes.length})`} />
@@ -713,12 +712,15 @@ const CategoryAttributeManagement: React.FC = () => {
                                 <Chip
                                   label={attr.type}
                                   size="small"
-                                  color={
+                                  sx={
                                     attr.type === 'select'
-                                      ? 'primary'
-                                      : attr.type === 'number'
-                                        ? 'secondary'
-                                        : 'default'
+                                      ? { bgcolor: '#b33f00', color: 'white' }
+                                      : undefined
+                                  }
+                                  color={
+                                    attr.type === 'number'
+                                      ? 'secondary'
+                                      : 'default'
                                   }
                                 />
                               </TableCell>

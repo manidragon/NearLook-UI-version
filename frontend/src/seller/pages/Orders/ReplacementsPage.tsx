@@ -4,8 +4,8 @@ import {
   Box, Typography, Paper, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Chip, Button,
   IconButton, Dialog, DialogTitle, DialogContent,
-  DialogActions, TextField, Alert,
-  Tab, Tabs, Badge, Grid, Divider
+  DialogActions, TextField, Alert, Snackbar,
+  Tab, Tabs, Badge, Grid
 } from '@mui/material';
 import {
   SwapHoriz, CheckCircle, Cancel, LocalShipping,
@@ -49,6 +49,9 @@ const ReplacementsPage: React.FC = () => {
   const [trackingNumber, setTrackingNumber] = useState('');
   const [reviewNotes, setReviewNotes] = useState('');
   const [rejectReason, setRejectReason] = useState('');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
 
   // Fetch replacements on mount
   useEffect(() => {
@@ -152,10 +155,14 @@ const ReplacementsPage: React.FC = () => {
   try {
     await dispatch(markReplacementCompleted({ returnId, jwt }));
     dispatch(fetchSellerReplacements(jwt));  // Refresh list
-    alert('Replacement marked as completed successfully!');
+    setSnackbarMsg('Replacement marked as completed successfully!');
+    setSnackbarSeverity('success');
+    setSnackbarOpen(true);
   } catch (error) {
     console.error('Failed to mark as completed:', error);
-    alert('Failed to mark as completed');
+    setSnackbarMsg('Failed to mark as completed');
+    setSnackbarSeverity('error');
+    setSnackbarOpen(true);
   }
 };
 
@@ -183,14 +190,6 @@ const ReplacementsPage: React.FC = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
-        <CustomLoader />
-      </Box>
-    );
-  }
-
   return (
     <Box sx={{ p: 3 }}>
       {/* Header */}
@@ -205,11 +204,11 @@ const ReplacementsPage: React.FC = () => {
       {/* Stats Cards */}
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 2, mb: 4 }}>
         <Paper elevation={0} sx={{ p: 3, bgcolor: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 3 }}>
-          <Typography variant="h3" fontWeight="bold" color="warning.main">{pendingReplacements.length}</Typography>
+          <Typography variant="h3" fontWeight="bold" sx={{ color: '#c24100' }}>{pendingReplacements.length}</Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontWeight: 500 }}>Pending Approval</Typography>
         </Paper>
         <Paper elevation={0} sx={{ p: 3, bgcolor: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 3 }}>
-          <Typography variant="h3" fontWeight="bold" color="info.main">{inProgressReplacements.length}</Typography>
+          <Typography variant="h3" fontWeight="bold" sx={{ color: '#1565C0' }}>{inProgressReplacements.length}</Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontWeight: 500 }}>In Progress</Typography>
         </Paper>
         <Paper elevation={0} sx={{ p: 3, bgcolor: '#e0e7ff', border: '1px solid #c7d2fe', borderRadius: 3 }}>
@@ -226,13 +225,18 @@ const ReplacementsPage: React.FC = () => {
       <Tabs 
         value={selectedTab} 
         onChange={(e, val) => setSelectedTab(val)} 
-        sx={{ mb: 2, '& .MuiTab-root': { fontWeight: 600 } }}
+        sx={{ 
+          mb: 2, 
+          '& .MuiTab-root': { fontWeight: 600 },
+          '& .MuiTab-root.Mui-selected': { color: '#c24100' },
+          '& .MuiTabs-indicator': { backgroundColor: '#c24100' }
+        }}
         variant="scrollable"
         scrollButtons="auto"
         allowScrollButtonsMobile
       >
-        <Tab label={<Badge badgeContent={pendingReplacements.length} color="warning">Pending</Badge>} />
-        <Tab label={<Badge badgeContent={inProgressReplacements.length} color="info">In Progress</Badge>} />
+        <Tab label={<Badge badgeContent={pendingReplacements.length} sx={{ '& .MuiBadge-badge': { bgcolor: '#c24100', color: 'white' } }}>Pending</Badge>} />
+        <Tab label={<Badge badgeContent={inProgressReplacements.length} sx={{ '& .MuiBadge-badge': { bgcolor: '#1565C0', color: 'white' } }}>In Progress</Badge>} />
         <Tab label={<Badge badgeContent={shippedReplacements.length} color="primary">Shipped</Badge>} />
         <Tab label={<Badge badgeContent={completedReplacements.length} color="success">Completed</Badge>} />
       </Tabs>
@@ -262,6 +266,16 @@ const ReplacementsPage: React.FC = () => {
           </TableHead>
           <TableBody>
             {(() => {
+              if (loading) {
+                return (
+                  <TableRow>
+                    <TableCell colSpan={8} align="center" sx={{ py: 10 }}>
+                      <CustomLoader />
+                    </TableCell>
+                  </TableRow>
+                );
+              }
+
               const tabData = [pendingReplacements, inProgressReplacements, shippedReplacements, completedReplacements];
               const currentData = tabData[selectedTab] || [];
 
@@ -300,7 +314,7 @@ const ReplacementsPage: React.FC = () => {
                   </TableCell>
                   <TableCell><Typography variant="body2">{replacement.reason}</Typography></TableCell>
                   <TableCell>
-                    <Chip label={getStatusLabel(replacement.status)} color={getStatusColor(replacement.status) as any} size="small" />
+                    <Chip label={getStatusLabel(replacement.status)} color={getStatusColor(replacement.status) as any} size="small" variant="outlined" sx={{ fontWeight: 'bold' }} />
                   </TableCell>
                   <TableCell><Typography variant="caption">{new Date(replacement.createdAt).toLocaleDateString()}</Typography></TableCell>
                   <TableCell>
@@ -683,6 +697,12 @@ const ReplacementsPage: React.FC = () => {
           <Button onClick={handleShipReplacement} variant="contained" color="primary">Confirm Shipment</Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)}>
+        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMsg}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

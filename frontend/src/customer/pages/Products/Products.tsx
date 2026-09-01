@@ -2,15 +2,14 @@
 import React, { useState, useEffect, useMemo } from "react";
 import ProductCard from "./ProductCard/ProductCard";
 import FilterSection from "./FilterSection";
-import { Box, Divider, FormControl, IconButton, InputLabel, MenuItem, Pagination, Select, type SelectChangeEvent, useMediaQuery, useTheme, Typography, Drawer as MuiDrawer } from '@mui/material';
+import { Box, FormControl, IconButton, MenuItem, Pagination, Select, type SelectChangeEvent, useMediaQuery, useTheme, Typography, Drawer as MuiDrawer } from '@mui/material';
 
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import LocalMallIcon from '@mui/icons-material/LocalMall';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { useParams, useSearchParams, useNavigate } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { fetchCategories } from "../../../redux/Admin/CategorySlice";
 import type { Category } from "../../../types/categoryTypes";
@@ -25,7 +24,6 @@ const Products = () => {
   const [showFilter, setShowFilter] = useState(false);
   const { categoryId } = useParams(); // MongoDB ObjectId from URL
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
   const products = useAppSelector((state) => state.products);
   const categoryState = useAppSelector((state) => state.category);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -48,13 +46,14 @@ const Products = () => {
         (cat: Category) => cat._id === id
       );
 
-      return category?.categoryId;
+      // ✅ Use _id since categoryId (slug) is removed from Category model
+      return category?._id;
     };
   }, [categoryState.categories]);
 
   // ✅ Compute slug ONLY for FilterSection (category attributes API)
   const categorySlug = useMemo(() => {
-    return getCategorySlugFromId(categoryId);
+    return getCategorySlugFromId(categoryId) || categoryId;
   }, [categoryId, getCategorySlugFromId]);
 
   // ✅ Get category name for display
@@ -117,13 +116,6 @@ useEffect(() => {
 
   const validSort = sort && ['price_low', 'price_high'].includes(sort) ? sort : '';
   
-  console.log('📡 [PRODUCTS] Sending filters to API:', {
-    category: categoryId,
-    sort: validSort,
-    page: page - 1,
-    locationFilter,  // ✅ Log location filter
-    filters: allFilterParams
-  });
 
   // ✅ Send ALL filters to API
   dispatch(getAllProducts({ 
@@ -213,6 +205,7 @@ useEffect(() => {
                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#f97316', borderWidth: '2px' },
                     '& .MuiSelect-icon': { color: '#9ca3af' }
                   }}
+                  inputProps={{ 'aria-label': 'Sort By' }}
                 >
                   <MenuItem value=""><em>Sort By</em></MenuItem>
                   <MenuItem value={"price_low"}>Price: Low to High</MenuItem>

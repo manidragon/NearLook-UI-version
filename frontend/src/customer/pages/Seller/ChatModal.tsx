@@ -99,7 +99,12 @@ export default function ChatModal({ sellerId, sellerName, themeColor = '#1976d2'
         justifyContent: 'space-between', 
         alignItems: 'center' 
       }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1.1rem' }}>{sellerName}</Typography>
+        <Box>
+          <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1.1rem', lineHeight: 1.2 }}>{sellerName}</Typography>
+          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)', fontStyle: 'italic', display: 'block', mt: 0.5 }}>
+            Chats are automatically deleted after 15 days.
+          </Typography>
+        </Box>
         <IconButton size="small" onClick={onClose} sx={{ color: 'white', bgcolor: 'rgba(255,255,255,0.2)', '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' } }}>
           <CloseIcon fontSize="small" />
         </IconButton>
