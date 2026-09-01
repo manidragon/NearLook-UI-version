@@ -6,6 +6,7 @@ import React, {
   useRef,
 } from 'react';
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\pages\Products\ProductDetails\ProductDetails.tsx
+import SEO from '../../../../components/SEO';
 import { Box, Snackbar, Alert, Chip, Typography, Grid, Paper, Card, CardContent, Drawer, IconButton } from '@mui/material';
 import CloseIcon from "@mui/icons-material/Close";
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
@@ -1381,6 +1382,13 @@ const ProductDetails = () => {
   const context = { windowWidth: typeof window !== 'undefined' ? window.innerWidth : 1200 };
   return (
     <>
+      {product && (
+        <SEO 
+          title={`${product.title} - NearLook`} 
+          description={product.description || "Buy this product on NearLook"} 
+          image={product.images && product.images.length > 0 ? product.images[0] : undefined}
+        />
+      )}
       <div className="!py-2">
         <div className="container mx-auto px-4 sm:px-10 lg:px-20 pt-4">
           <Breadcrumbs aria-label="breadcrumb">

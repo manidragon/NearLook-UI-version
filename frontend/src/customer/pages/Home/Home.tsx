@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import TopBrand from './TopBrands/Grid'
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
+import SEO from '../../../components/SEO';
 import Button from "../../../components/NeonButton";
 import CustomLoader from "../../../components/CustomLoader";
 import React, { Suspense } from 'react';
@@ -88,6 +89,10 @@ const Home = () => {
     }
     return (
         <>
+            <SEO 
+                title="NearLook | Your Premium Marketplace" 
+                description="Discover and buy amazing products from multiple vendors near you on NearLook." 
+            />
             <div className='bg-[#F1F3F6] min-h-screen pb-10 relative'>
                 <div className="max-w-[1400px] mx-auto px-2 space-y-4">
                     {/* Top Brands Grid */}
