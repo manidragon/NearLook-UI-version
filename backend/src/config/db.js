@@ -17,6 +17,8 @@ const connectDB = async () => {
   } catch (error) {
     console.error(`MongoDB Connection Error:`, error);
     console.error(`Error Message: ${error.message}`);
+    console.log("Holding the server open for 60 seconds so you can read this error in Coolify Runtime Logs...");
+    await new Promise(resolve => setTimeout(resolve, 60000));
     process.exit(1); 
   }
 };
