@@ -1,5 +1,19 @@
 require('dotenv').config();
 
+process.on('uncaughtException', async (err) => {
+  console.error("FATAL UNCAUGHT EXCEPTION:", err);
+  console.log("Holding server open for 60 seconds so you can read this error in Coolify Runtime Logs...");
+  await new Promise(r => setTimeout(r, 60000));
+  process.exit(1);
+});
+
+process.on('unhandledRejection', async (err) => {
+  console.error("FATAL UNHANDLED REJECTION:", err);
+  console.log("Holding server open for 60 seconds so you can read this error in Coolify Runtime Logs...");
+  await new Promise(r => setTimeout(r, 60000));
+  process.exit(1);
+});
+
 const express = require('express');
 const cloudinary = require('cloudinary').v2;
 
