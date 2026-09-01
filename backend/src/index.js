@@ -70,7 +70,16 @@ io.on('connection', (socket) => {
   });
 });
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://nearlook.in',
+    'https://www.nearlook.in',
+    'http://localhost:5173', // For local development
+    'http://localhost:3000'
+  ],
+  methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(bodyParser.json());
 
 app.use((req, res, next) => {

@@ -25,7 +25,8 @@ export default function Contact({ seller }: any) {
 
     setIsSubmitting(true);
 
-    fetch('http://localhost:8080/api/enquiries/create', {
+    const API_URL = import.meta.env.VITE_API_URL || "https://api.nearlook.in";
+    fetch(`${API_URL}/api/enquiries/create`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

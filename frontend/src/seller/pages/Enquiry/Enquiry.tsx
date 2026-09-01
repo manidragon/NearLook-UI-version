@@ -33,8 +33,9 @@ export default function Enquiry() {
       }
 
       // 1. Fetch enquiries directly using the JWT
+      const API_URL = import.meta.env.VITE_API_URL || "https://api.nearlook.in";
       const enquiryRes = await fetch(
-        "http://localhost:8080/api/enquiries/seller",
+        `${API_URL}/api/enquiries/seller`,
         {
           headers: {
             Authorization: `Bearer ${jwt}`,

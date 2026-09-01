@@ -4,7 +4,7 @@ import axios from 'axios';
 import type { ProductVariantPayload, ProductOfferPayload } from '../../seller/pages/Products/types/productFormTypes';
 
 // ✅ API base URL - adjust based on your config
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.nearlook.in';
 
 // ✅✅✅ UPDATED: Catalog offer interface for multi-seller support
 export interface CatalogOffer {

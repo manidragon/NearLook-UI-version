@@ -68,7 +68,7 @@ export const useCatalogSearch = (
 
     try {
       const jwt = localStorage.getItem('jwt');
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.nearlook.in';
 
       const response = await fetch(
         `${API_BASE_URL}/api/catalog/search?q=${encodeURIComponent(searchQuery)}&limit=10`,

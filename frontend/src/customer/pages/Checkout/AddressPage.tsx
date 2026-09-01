@@ -122,7 +122,8 @@ useEffect(() => {
         try {
             setWalletLoading(true);
             const jwt = localStorage.getItem('jwt') || '';
-            const response = await axios.get('http://localhost:8080/api/wallet', {
+            const API_URL = import.meta.env.VITE_API_URL || "https://api.nearlook.in";
+            const response = await axios.get(`${API_URL}/api/wallet`, {
                 headers: { Authorization: `Bearer ${jwt}` }
             });
             // ✅ Handle different response structures
@@ -189,7 +190,8 @@ useEffect(() => {
                 try {
                     // ✅ Notify backend to verify payment & create actual orders
                     const verifyResp = await axios.get(
-                        `http://localhost:8080/api/payment/${response.razorpay_payment_id}?paymentLinkId=${paymentOrderId}`,
+                        const API_URL = import.meta.env.VITE_API_URL || "https://api.nearlook.in";
+                        `${API_URL}/api/payment/${response.razorpay_payment_id}?paymentLinkId=${paymentOrderId}`,
                         {
                             headers: {
                                 Authorization: `Bearer ${localStorage.getItem('jwt')}`

@@ -13,7 +13,8 @@ export default function Products({ seller }: any) {
   useEffect(() => {
     if (!seller?._id) return;
 
-    fetch(`http://localhost:8080/sellers/${seller._id}/products`)
+    const API_URL = import.meta.env.VITE_API_URL || "https://api.nearlook.in";
+    fetch(`${API_URL}/sellers/${seller._id}/products`)
       .then((res) => res.json())
       .then((data) => {
         setProducts(data);

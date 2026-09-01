@@ -32,7 +32,8 @@ export default function ChatModal({ sellerId, sellerName, themeColor = '#1976d2'
     if (chat.currentChat && auth.jwt) {
       dispatch(fetchChatMessages({ chatId: chat.currentChat._id, jwt: auth.jwt }));
 
-      const newSocket = io('http://localhost:8080');
+      const API_URL = import.meta.env.VITE_API_URL || "https://api.nearlook.in";
+      const newSocket = io(API_URL);
       setSocket(newSocket);
 
       newSocket.emit('join_chat', chat.currentChat._id);
