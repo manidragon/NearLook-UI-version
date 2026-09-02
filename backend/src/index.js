@@ -89,7 +89,9 @@ app.use(cors({
     'https://nearlook.in',
     'https://www.nearlook.in',
     'http://localhost:5173', // For local development
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'http://localhost',
+    'capacitor://localhost'
   ],
   methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
   credentials: true
