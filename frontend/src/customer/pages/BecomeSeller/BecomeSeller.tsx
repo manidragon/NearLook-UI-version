@@ -97,18 +97,14 @@ const BecomeSeller = () => {
               </Button>
             </div>
           </div>
-          <div className="w-full lg:w-1/2 p-10 flex justify-center items-center">
+          <div className="w-full md:w-1/2 p-4 sm:p-8 md:p-10 flex justify-center items-center">
             <img
-              src="https://res.cloudinary.com/dt6nu9oqs/image/upload/f_auto,q_auto,w_800,c_limit/v1786087952/nearlook_uploads/k5gw83xcj2gktr4uhp8a.jpg"
-              srcSet="
-                https://res.cloudinary.com/dt6nu9oqs/image/upload/f_auto,q_auto,w_400,c_limit/v1786087952/nearlook_uploads/k5gw83xcj2gktr4uhp8a.jpg 400w,
-                https://res.cloudinary.com/dt6nu9oqs/image/upload/f_auto,q_auto,w_800,c_limit/v1786087952/nearlook_uploads/k5gw83xcj2gktr4uhp8a.jpg 800w
-              "
-              sizes="(max-width: 1024px) 100vw, 50vw"
+              src="https://res.cloudinary.com/dt6nu9oqs/image/upload/f_auto,q_auto,w_800,c_limit/v1788326805/ChatGPT_Image_Sep_2_2026_10_48_30_AM.png"
+              sizes="(max-width: 768px) 100vw, 50vw"
               width="800"
               height="557"
               alt="Become a Seller"
-              className="w-full h-auto max-w-lg object-contain drop-shadow-xl"
+              className="w-full h-auto max-w-[280px] sm:max-w-sm md:max-w-md lg:max-w-lg object-contain drop-shadow-2xl rounded-xl hover:scale-105 transition-transform duration-500 ease-in-out"
               fetchPriority="high"
             />
           </div>

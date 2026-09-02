@@ -1,4 +1,3 @@
-// ✅ backend/src/validators/productValidators.js
 const Yup = require("yup");
 
 // ✅✅✅ UPDATED: Variant validation for multi-seller support (offers array)
