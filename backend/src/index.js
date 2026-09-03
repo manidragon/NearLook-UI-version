@@ -91,6 +91,7 @@ app.use(cors({
     'http://localhost:5173', // For local development
     'http://localhost:3000',
     'http://localhost',
+    'https://localhost',
     'capacitor://localhost'
   ],
   methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
