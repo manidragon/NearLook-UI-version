@@ -273,7 +273,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
                           }}
                         >
                           <Box sx={{ flex: 1 }}>
-                            <Typography variant="body2" fontWeight="500">
+                            <Typography variant="body2" component="div" fontWeight="500">
                               Variant {subIndex + 1}
                               {isSharedReadOnly && (
                                 <Chip label="Shared Specs" size="small" sx={{ ml: 1, height: 20 }} />

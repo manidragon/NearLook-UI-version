@@ -11,6 +11,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import Badge from '@mui/material/Badge';
 
 import StorefrontIcon from '@mui/icons-material/Storefront';
 
@@ -29,6 +30,8 @@ const ProfileNavigation = () => {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const user = useAppSelector(state => state.user);
+  const chats = useAppSelector(state => state.chat.chats);
+  const unreadChatsCount = chats?.filter((chat: any) => chat.lastMessage && !chat.lastMessage.isRead && chat.lastMessage.senderType === 'Seller').length || 0;
 
   const handleLogout = () => {
     dispatch(performLogout());
@@ -93,7 +96,13 @@ const ProfileNavigation = () => {
             >
               <div className="flex items-center gap-4">
                 <div className={`${isActive ? "text-[#c24100]" : "text-gray-400"} transition-colors duration-300`}>
-                  {item.icon}
+                  {item.name === "Chats" ? (
+                    <Badge badgeContent={unreadChatsCount} sx={{ '& .MuiBadge-badge': { backgroundColor: '#FF5A00', color: 'white' } }}>
+                      {item.icon}
+                    </Badge>
+                  ) : (
+                    item.icon
+                  )}
                 </div>
                 <p className="text-[15px]">{item.name}</p>
               </div>

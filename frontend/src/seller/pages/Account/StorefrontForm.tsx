@@ -15,7 +15,6 @@ const StorefrontForm = ({ onClose }: StorefrontFormProps) => {
   const formik = useFormik({
     initialValues: {
       description: profile?.storefront?.description || "",
-      themeColor: profile?.storefront?.themeColor || "#1976d2",
 
       facebook: profile?.storefront?.socialLinks?.facebook || "",
       instagram: profile?.storefront?.socialLinks?.instagram || "",
@@ -27,7 +26,6 @@ const StorefrontForm = ({ onClose }: StorefrontFormProps) => {
       const updatedData = {
         storefront: {
           description: values.description,
-          themeColor: values.themeColor,
 
           promotions: values.promotions.split("\n").filter(p => p.trim() !== ""),
           socialLinks: {

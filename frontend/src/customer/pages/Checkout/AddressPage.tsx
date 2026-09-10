@@ -110,11 +110,19 @@ const [, setWalletLoading] = useState<boolean>(false);
     const [successOrderId, setSuccessOrderId] = useState<string | null>(null);
     const navigate = useNavigate();
 
+    const isCartLoading = useAppSelector(state => state.cart.loading);
+
     useEffect(() => {
         if (user.user?.addresses && user.user.addresses.length > 0) {
             setSelectedAddressId(user.user.addresses[0]._id);
         }
     }, [user.user?.addresses]);
+
+    useEffect(() => {
+        if (!isCartLoading && (!cart?.cartItems || cart.cartItems.length === 0) && !showSuccessModal && !successOrderId) {
+            navigate('/cart');
+        }
+    }, [cart, isCartLoading, navigate, showSuccessModal, successOrderId]);
 
     // ✅ NEW: Fetch wallet balance when component mounts
 useEffect(() => {
@@ -453,15 +461,7 @@ if (result && typeof result === 'object' && 'success' in result && !result.succe
                                             const fallbackAddress = seller?.businessDetails?.businessAddress;
                                             const sellerName = seller?.businessDetails?.businessName || seller?.sellerName || "Seller's";
                                             
-                                            console.log("DEBUG CHECKOUT ADDRESS:", {
-                                                cartItems: cart?.cartItems,
-                                                seller,
-                                                pickupAddress,
-                                                fallbackAddress,
-                                                sellerName,
-                                                itemWithPickup
-                                            });
-                                            
+
                                             if (pickupAddress) {
                                                 return (
                                                     <Box sx={{ mt: 1, p: 2, bgcolor: 'blue.50', borderRadius: 1, border: '1px solid', borderColor: 'blue.100' }}>
@@ -668,7 +668,7 @@ if (result && typeof result === 'object' && 'success' in result && !result.succe
                     </Box>
                 </Modal>
 
-                <Snackbar
+                <Snackbar sx={{ mb: { xs: 8, sm: 0 } }}
                     open={snackbarOpen}
                     autoHideDuration={6000}
                     onClose={handleSnackbarClose}

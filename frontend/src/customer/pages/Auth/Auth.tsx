@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { fetchUserProfile, fetchUserAddresses } from '../../../redux/Customer/UserSlice';
 import { fetchUserCart } from '../../../redux/Customer/CartSlice';
 import { getWishlistByUserId } from '../../../redux/Customer/WishlistSlice';
-import { GoogleOAuthProvider } from '@react-oauth/google';
+
 
 interface AuthProps {
   open: boolean;
@@ -68,7 +68,7 @@ const Auth = ({ open, handleClose }: AuthProps) => {
   };
 
   return (
-    <GoogleOAuthProvider clientId="903968210580-qe4gosdi9acof4hutt3aeamro1bmj9a5.apps.googleusercontent.com">
+    <>
     <Dialog 
       open={open} 
       onClose={handleCloseModal} 
@@ -110,7 +110,7 @@ const Auth = ({ open, handleClose }: AuthProps) => {
         </div>
       </div>
 
-      <Snackbar
+      <Snackbar sx={{ mb: { xs: 8, sm: 0 } }}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         open={snackbarOpen}
         autoHideDuration={6000}
@@ -126,7 +126,7 @@ const Auth = ({ open, handleClose }: AuthProps) => {
         </Alert>
       </Snackbar>
     </Dialog>
-    </GoogleOAuthProvider>
+    </>
   );
 };
 

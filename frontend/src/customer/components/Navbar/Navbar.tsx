@@ -14,6 +14,7 @@ import Sidebar from "./Sidebar";
 import { useNavigate, useLocation } from "react-router-dom";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import CloseIcon from "@mui/icons-material/Close";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import GpsFixedIcon from "@mui/icons-material/GpsFixed";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
@@ -103,10 +104,20 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
   const navigate = useNavigate();
 
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showMobileNavScroll, setShowMobileNavScroll] = useState(true);
+  const lastScrollY = React.useRef(0);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const currentScrollY = window.scrollY;
+      setIsScrolled(currentScrollY > 50);
+      
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+        setShowMobileNavScroll(false);
+      } else if (currentScrollY < lastScrollY.current) {
+        setShowMobileNavScroll(true);
+      }
+      lastScrollY.current = currentScrollY;
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -156,6 +167,12 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
 
   // ✅ FIX 2: Remove duplicate - keep only ONE cartItemCount declaration
   const cartItemCount = useAppSelector(selectCartItemCount);
+  const wishlist = useAppSelector((state) => state.wishlist.wishlist);
+  const wishlistItemCount = wishlist?.products?.length || 0;
+  
+  // ✅ FIX 3: Get unread chat count
+  const chats = useAppSelector((state) => state.chat.chats);
+  const unreadChatsCount = chats?.filter((chat: any) => chat.lastMessage && !chat.lastMessage.isRead && chat.lastMessage.senderType === 'Seller').length || 0;
 
   // ✅ Location modal handlers
   const handleLocationModalOpen = () => {
@@ -464,13 +481,33 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
   const isMobileCartPage = location.pathname === '/cart' && !isLarge;
   const hideTopNav = isMobileCategoriesPage || isMobileSearchPage || isMobileAccountPage || isMobileCartPage || (isChatActive && !isLarge);
 
+  const navRef = React.useRef<HTMLDivElement>(null);
+  const [navHeight, setNavHeight] = useState(0);
+
+  useEffect(() => {
+    if (navRef.current) {
+      setNavHeight(navRef.current.offsetHeight);
+    }
+    const observer = new ResizeObserver((entries) => {
+      if (entries[0]) {
+        setNavHeight(entries[0].contentRect.height);
+      }
+    });
+    if (navRef.current) observer.observe(navRef.current);
+    return () => observer.disconnect();
+  }, [isLarge, isScrolled, hideTopNav]);
+
   return (
     <>
       {!hideTopNav && (
+      <>
       <Box
+      ref={navRef}
       sx={{
-        position: "sticky",
+        position: "fixed",
         top: 0,
+        left: 0,
+        right: 0,
         zIndex: 1200,
       }}
       className="shadow-sm bg-white/70 backdrop-blur-md border-b border-white/50"
@@ -481,9 +518,15 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
           
           <div className="flex items-center gap-1 sm:gap-2 lg:gap-6 shrink-0">
             {!isLarge && (
-              <IconButton aria-label="Open menu" onClick={toggleDrawer(true)} sx={{ p: 0, mr: 0.5 }}>
-                <MenuIcon className="text-gray-700" />
-              </IconButton>
+              location.pathname !== '/' ? (
+                <IconButton aria-label="Go back" onClick={() => navigate(-1)} sx={{ p: 0, mr: 0.5 }}>
+                  <ArrowBackIcon className="text-gray-700" />
+                </IconButton>
+              ) : (
+                <IconButton aria-label="Open menu" onClick={toggleDrawer(true)} sx={{ p: 0, mr: 0.5 }}>
+                  <MenuIcon className="text-gray-700" />
+                </IconButton>
+              )
             )}
 
             {/* Logo */}
@@ -529,9 +572,11 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
               }}
               sx={{ p: 1 }}
             >
-              <svg viewBox="0 0 24 24" style={{ width: '24px', height: '24px', fill: '#ff4081' }} xmlns="http://www.w3.org/2000/svg">
-                <path d="M17.5,1.917a6.4,6.4,0,0,0-5.5,3.3,6.4,6.4,0,0,0-5.5-3.3A6.8,6.8,0,0,0,0,8.967c0,4.547,4.786,9.513,8.8,12.88a4.974,4.974,0,0,0,6.4,0C19.214,18.48,24,13.514,24,8.967A6.8,6.8,0,0,0,17.5,1.917Zm-3.585,18.4a2.973,2.973,0,0,1-3.83,0C4.947,16.006,2,11.87,2,8.967a4.8,4.8,0,0,1,4.5-5.05A4.8,4.8,0,0,1,11,8.967a1,1,0,0,0,2,0,4.8,4.8,0,0,1,4.5-5.05A4.8,4.8,0,0,1,22,8.967C22,11.87,19.053,16.006,13.915,20.313Z"></path>
-              </svg>
+              <Badge badgeContent={wishlistItemCount} sx={{ '& .MuiBadge-badge': { backgroundColor: '#FF5A00', color: 'white' } }}>
+                <svg viewBox="0 0 24 24" style={{ width: '24px', height: '24px', fill: '#ff4081' }} xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17.5,1.917a6.4,6.4,0,0,0-5.5,3.3,6.4,6.4,0,0,0-5.5-3.3A6.8,6.8,0,0,0,0,8.967c0,4.547,4.786,9.513,8.8,12.88a4.974,4.974,0,0,0,6.4,0C19.214,18.48,24,13.514,24,8.967A6.8,6.8,0,0,0,17.5,1.917Zm-3.585,18.4a2.973,2.973,0,0,1-3.83,0C4.947,16.006,2,11.87,2,8.967a4.8,4.8,0,0,1,4.5-5.05A4.8,4.8,0,0,1,11,8.967a1,1,0,0,0,2,0,4.8,4.8,0,0,1,4.5-5.05A4.8,4.8,0,0,1,22,8.967C22,11.87,19.053,16.006,13.915,20.313Z"></path>
+                </svg>
+              </Badge>
             </IconButton>
           </div>
 
@@ -568,7 +613,9 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
               <span className="absolute top-[5px] inset-x-0 h-full rounded-full bg-[linear-gradient(45deg,var(--gradient-from),var(--gradient-to))] blur-[10px] opacity-0 -z-10 transition-all duration-500 group-hover:opacity-50"></span>
               <span className="relative z-10 transition-all duration-500 group-hover:scale-0 delay-0 flex items-center justify-center">
                 {user.user ? (
-                  <Avatar sx={{ width: 28, height: 28 }} src={secureUrl(user.user?.profilePicture || "", 100)} alt={user.user?.fullName || "User Profile"} />
+                  <Badge badgeContent={unreadChatsCount} sx={{ '& .MuiBadge-badge': { backgroundColor: '#FF5A00', color: 'white' } }}>
+                    <Avatar sx={{ width: 28, height: 28 }} src={secureUrl(user.user?.profilePicture || "", 100)} alt={user.user?.fullName || "User Profile"} />
+                  </Badge>
                 ) : (
                   <AccountCircleIcon sx={{ fontSize: 26, color: "#6b7280" }} />
                 )}
@@ -593,7 +640,9 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
               <span className="absolute inset-0 rounded-full bg-[linear-gradient(45deg,var(--gradient-from),var(--gradient-to))] opacity-0 transition-all duration-500 group-hover:opacity-100"></span>
               <span className="absolute top-[5px] inset-x-0 h-full rounded-full bg-[linear-gradient(45deg,var(--gradient-from),var(--gradient-to))] blur-[10px] opacity-0 -z-10 transition-all duration-500 group-hover:opacity-50"></span>
               <span className="relative z-10 transition-all duration-500 group-hover:scale-0 delay-0 flex items-center justify-center">
-                <FavoriteBorderIcon sx={{ fontSize: 26, color: "#6b7280" }} />
+                <Badge badgeContent={wishlistItemCount} sx={{ '& .MuiBadge-badge': { backgroundColor: '#FF5A00', color: 'white' } }}>
+                  <FavoriteBorderIcon sx={{ fontSize: 26, color: "#6b7280" }} />
+                </Badge>
               </span>
               <span className="absolute text-white uppercase tracking-wide text-xs font-semibold transition-all duration-500 scale-0 group-hover:scale-100 delay-150">
                 Wishlist
@@ -670,6 +719,8 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
         </div>
       )}
     </Box>
+    <div style={{ height: navHeight }} className="w-full shrink-0" aria-hidden="true" />
+    </>
     )}
 
     {/* Render Auth modal globally */}
@@ -683,8 +734,8 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
 
     {/* Mobile Bottom Navigation - Glassmorphic, Animated */}
     {!isAuthModalOpen && !hideMobileNav && !(isChatActive && !isLarge) && (
-      <div className="fixed bottom-4 left-4 right-4 z-[9999] lg:hidden flex justify-center pb-safe">
-        <div className="flex justify-around items-center w-full max-w-[420px] bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.12)] rounded-full px-2 py-1.5">
+      <div className={`fixed bottom-4 left-4 right-4 z-[1000] lg:hidden flex justify-center pb-safe transition-all duration-500 ease-in-out ${showMobileNavScroll ? 'translate-y-0 opacity-100' : 'translate-y-[150%] opacity-0'}`}>
+        <div className="flex justify-around items-center w-full max-w-[420px] bg-white/60 backdrop-blur-2xl border border-white/80 shadow-[0_8px_32px_rgba(0,0,0,0.12)] rounded-full px-2 py-1.5">
           {/* Home */}
           <div onClick={() => navigate("/")} className="relative flex flex-col items-center justify-center w-[20%] h-[52px] cursor-pointer group">
             <div className={`absolute inset-0 bg-gradient-to-b from-white/80 to-[#FF5A00]/10 rounded-full transition-all duration-500 ease-out ${location.pathname === '/' ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`} />

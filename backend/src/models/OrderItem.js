@@ -25,6 +25,14 @@ const orderItemSchema = new Schema({
         type: Number,
         required: true,
     },
+    variantId: {
+        type: Schema.Types.ObjectId,
+        required: false,
+    },
+    offerId: {
+        type: Schema.Types.ObjectId,
+        required: false,
+    },
     userId: {  
         type: Schema.Types.ObjectId,
         ref: 'User',

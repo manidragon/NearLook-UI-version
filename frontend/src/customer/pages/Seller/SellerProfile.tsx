@@ -16,6 +16,8 @@ import Reviews from "./Reviews";
 import Policies from "./Policies";
 import Contact from "./Contact";
 
+import PullToRefresh from "../../../components/PullToRefresh";
+
 export default function SellerProfile() {
   const { sellerId } = useParams<{ sellerId: string }>();
   const dispatch = useAppDispatch();
@@ -24,48 +26,38 @@ export default function SellerProfile() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("products");
 
-  useEffect(() => {
+  const fetchSellerData = async () => {
     if (!sellerId) {
-      setLoading(false);
       setError("Seller ID not found");
       return;
     }
-
-    setLoading(true);
     setError(null);
 
-    // ✅ FIX: Use configured `api` instance instead of raw fetch
-    // This ensures auth headers, base URL, and interceptors are applied
-    api
-      .get(`/sellers/${sellerId}`)
-      .then((res) => {
-        setSeller(res.data);
-        // Fetch reviews in background so Header can display the true count immediately
-        dispatch(fetchSellerReviews({ sellerId }));
-        // Increment profile views in background
-        api.patch(`/sellers/${sellerId}/view`).catch(console.error);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch seller:", err);
-        setError(
-          err.response?.data?.message || "Failed to load seller profile"
-        );
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      const res = await api.get(`/sellers/${sellerId}`);
+      setSeller(res.data);
+      dispatch(fetchSellerReviews({ sellerId }));
+      api.patch(`/sellers/${sellerId}/view`).catch(console.error);
+    } catch (err: any) {
+      console.error("Failed to fetch seller:", err);
+      setError(err.response?.data?.message || "Failed to load seller profile");
+    }
+  };
+
+  useEffect(() => {
+    if (!sellerId) return;
+    setLoading(true);
+    fetchSellerData().finally(() => setLoading(false));
   }, [sellerId]);
+
+  const handleRefresh = async () => {
+    await fetchSellerData();
+    await new Promise(resolve => setTimeout(resolve, 500));
+  };
 
   if (loading) {
     return (
-      <Box
-        sx={{
-          minHeight: "100vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
+      <Box sx={{ minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
         <CustomLoader />
       </Box>
     );
@@ -90,32 +82,15 @@ export default function SellerProfile() {
   } as React.CSSProperties;
 
   return (
-    <div className="seller-page" style={themeStyles}>
-      <Header
-        seller={seller}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
-
-      {(activeTab === "all" || activeTab === "products") && (
-        <Products seller={seller} />
-      )}
-
-      {(activeTab === "all" || activeTab === "about") && (
-        <About seller={seller} />
-      )}
-
-      {(activeTab === "all" || activeTab === "reviews") && (
-        <Reviews seller={seller} />
-      )}
-
-      {(activeTab === "all" || activeTab === "policies") && (
-        <Policies seller={seller} />
-      )}
-
-      {(activeTab === "all" || activeTab === "contact") && (
-        <Contact seller={seller} />
-      )}
-    </div>
+    <PullToRefresh onRefresh={handleRefresh}>
+      <div className="seller-page" style={themeStyles}>
+        <Header seller={seller} activeTab={activeTab} setActiveTab={setActiveTab} />
+        {(activeTab === "all" || activeTab === "products") && <Products seller={seller} />}
+        {(activeTab === "all" || activeTab === "about") && <About seller={seller} />}
+        {(activeTab === "all" || activeTab === "reviews") && <Reviews seller={seller} />}
+        {(activeTab === "all" || activeTab === "policies") && <Policies seller={seller} />}
+        {(activeTab === "all" || activeTab === "contact") && <Contact seller={seller} />}
+      </div>
+    </PullToRefresh>
   );
 }

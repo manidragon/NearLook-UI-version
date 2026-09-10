@@ -6,9 +6,11 @@ const orderController = require('../controllers/orderController');
 const reviewController = require('../controllers/reviewController');
 const sellerReviewController = require('../controllers/sellerReviewController');
 const transactionController = require('../controllers/transactionController');
+const adminNotificationController = require('../controllers/adminNotificationController');
 
 // Admin routes
 router.patch('/seller/:id/status/:status', sellerController.updateSellerAccountStatus);
+router.get('/sellers/:id/details', sellerController.getSellerDetailsForAdmin);
 
 // Admin product routes
 router.get('/products', productController.getAllAdminProducts);
@@ -30,5 +32,8 @@ router.get('/transactions', transactionController.getAllTransactionsForAdmin);
 // Admin review routes
 router.get('/reviews/products', reviewController.getAllReviews);
 router.get('/reviews/sellers', sellerReviewController.getAllReviews);
+
+// Admin notification counts
+router.get('/notifications/counts', adminNotificationController.getNotificationCounts);
 
 module.exports = router;

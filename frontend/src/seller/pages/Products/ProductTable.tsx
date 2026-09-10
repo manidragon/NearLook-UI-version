@@ -111,19 +111,7 @@ function Row(props: RowProps) {
     setIsFeatured(row.isFeatured || false);
   }, [row.isFeatured]);
 
-  // ✅ Debug: Log product structure on mount
-  React.useEffect(() => {
-    if (open) {
-      console.log('🔍 [Row Debug] Product data:', {
-        title: row.title,
-        variantsCount: row.variants?.length,
-        isCatalogOffer,
-        catalogId: row.catalog?._id || row.catalog,
-        minPrice: row.minPrice,
-        maxPrice: row.maxPrice
-      });
-    }
-  }, [open, row, isCatalogOffer]);
+
 
   // ✅ Group variants by color
   const variantsByColor = React.useMemo(() => {
@@ -417,14 +405,7 @@ function Row(props: RowProps) {
                           });
                           const yourOffer = yourOffersList[0]; // Get your first offer
 
-                          // ✅ Debug log (remove after testing)
-                          console.log(`🔍 [Variant ${variantIdx}]`, {
-                            variantId: variant._id,
-                            totalOffers: allOffers.length,  // ✅ Updated to new variable name
-                            yourOffersCount: yourOffersList.length,
-                            currentSellerId,
-                            yourOffer
-                          });
+
 
                           return (
                             <Paper
@@ -452,8 +433,11 @@ function Row(props: RowProps) {
                                       Variant {variantIdx + 1}
                                     </Typography>
                                   </Box>
-                                  <Chip label={variant.specifications?.ram || 'N/A'} size="small" variant="outlined" sx={{ fontWeight: 500 }} />
-                                  <Chip label={variant.specifications?.storage || 'N/A'} size="small" variant="outlined" sx={{ fontWeight: 500 }} />
+                                  {variant.specifications && Object.entries(variant.specifications).length > 0 ? (
+                                    Object.entries(variant.specifications).map(([key, val]) => (
+                                      <Chip key={key} label={String(val)} size="small" variant="outlined" sx={{ fontWeight: 500 }} />
+                                    ))
+                                  ) : null}
                                 </Box>
 
                                 {/* Offer Details or Empty State */}

@@ -72,8 +72,8 @@ const Footer = () => {
                 <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-orange-500 transition-colors duration-300">
                   <FaPhoneAlt className="text-gray-400 group-hover:text-white transition-colors" />
                 </div>
-                <a href="tel:+919876543210" className="text-sm font-medium text-gray-300 hover:text-orange-500 transition-colors">
-                  (+91) 9876-543-210
+                <a href="tel:+917888744401" className="text-sm font-medium text-gray-300 hover:text-orange-500 transition-colors">
+                  (+91) 7888744401
                 </a>
               </div>
 
@@ -82,8 +82,7 @@ const Footer = () => {
                   <FaEnvelope className="text-gray-400 group-hover:text-white transition-colors" />
                 </div>
                 <div className="flex flex-col space-y-1">
-                  <a href="mailto:info@nearlooks.com" className="text-sm text-gray-400 hover:text-orange-500 transition-colors">info@nearlooks.com</a>
-                  <a href="mailto:career@nearlooks.com" className="text-sm text-gray-400 hover:text-orange-500 transition-colors">career@nearlooks.com</a>
+                  <a href="mailto:nearlookindia@gmail.com" className="text-sm text-gray-400 hover:text-orange-500 transition-colors">nearlookindia@gmail.com</a>
                 </div>
               </div>
             </div>
@@ -178,14 +177,14 @@ const Footer = () => {
 
             <ul className="flex items-center gap-4">
               {[
-                { Icon: FaFacebookF, name: "Facebook" },
-                { Icon: AiOutlineYoutube, name: "YouTube" },
-                { Icon: FaPinterestP, name: "Pinterest" },
-                { Icon: FaInstagram, name: "Instagram" }
+                { Icon: FaFacebookF, name: "Facebook", url: "https://www.facebook.com/share/14tHzM2MCE9/?mibextid=wwXIfr" },
+                { Icon: FaInstagram, name: "Instagram", url: "https://www.instagram.com/near_looks?stkn=MWRyYWVnZ2hsdWRzMw==" }
               ].map((social, index) => (
                 <li key={index}>
                   <a
-                    href="#"
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     aria-label={social.name}
                     className="w-9 h-9 rounded-full bg-white/5 hover:bg-orange-500 border border-white/10 hover:border-orange-500 inline-flex items-center justify-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-orange-500/20 group"
                   >

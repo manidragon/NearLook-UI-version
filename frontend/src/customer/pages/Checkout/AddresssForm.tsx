@@ -209,7 +209,7 @@ const AddressForm: React.FC<AddressFormProp> = ({ handleClose, onSuccess }) => {
         </Grid>
       </form>
 
-      <Snackbar
+      <Snackbar sx={{ mb: { xs: 8, sm: 0 } }}
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={handleSnackbarClose}

@@ -1333,17 +1333,17 @@ const ProductDetails = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200">
               <div className="flex flex-col divide-y divide-gray-200">
                 {Object.entries(currentVariant.specifications).filter((_, i) => i % 2 === 0).map(([key, value]) => (
-                  <div className="flex justify-between p-4 hover:bg-white transition-colors" key={key}>
-                    <span className="text-gray-500 font-medium capitalize text-sm">{key}</span>
-                    <span className="text-gray-900 font-semibold text-right text-sm">{String(value)}</span>
+                  <div className="flex justify-between items-start p-4 hover:bg-white transition-colors gap-2" key={key}>
+                    <span className="text-gray-500 font-medium capitalize text-sm w-[70%] break-words">{key.replace(/_/g, ' ')}</span>
+                    <span className="text-gray-900 font-semibold text-right text-sm w-[30%] break-words">{String(value)}</span>
                   </div>
                 ))}
               </div>
               <div className="flex flex-col divide-y divide-gray-200">
                 {Object.entries(currentVariant.specifications).filter((_, i) => i % 2 !== 0).map(([key, value]) => (
-                  <div className="flex justify-between p-4 hover:bg-white transition-colors" key={key}>
-                    <span className="text-gray-500 font-medium capitalize text-sm">{key}</span>
-                    <span className="text-gray-900 font-semibold text-right text-sm">{String(value)}</span>
+                  <div className="flex justify-between items-start p-4 hover:bg-white transition-colors gap-2" key={key}>
+                    <span className="text-gray-500 font-medium capitalize text-sm w-[70%] break-words">{key.replace(/_/g, ' ')}</span>
+                    <span className="text-gray-900 font-semibold text-right text-sm w-[30%] break-words">{String(value)}</span>
                   </div>
                 ))}
               </div>
@@ -1794,15 +1794,15 @@ const ProductDetails = () => {
                           </div>
                           <div className="flex flex-col gap-2.5">
                             {currentVariant?.specifications && Object.entries(currentVariant.specifications).map(([key, value]) => (
-                              <div className="flex justify-between items-center bg-gray-50/50 border border-gray-100 rounded-xl px-4 py-3 hover:bg-orange-50/30 transition-colors" key={key}>
-                                <span className="text-gray-500 font-medium text-sm">{key}</span>
-                                <span className="text-gray-900 font-bold text-sm text-right max-w-[60%]">{String(value)}</span>
+                              <div className="flex justify-between items-start bg-gray-50/50 border border-gray-100 rounded-xl px-4 py-3 hover:bg-orange-50/30 transition-colors gap-2" key={key}>
+                                <span className="text-gray-500 font-medium text-sm w-[70%] break-words">{key.replace(/_/g, ' ')}</span>
+                                <span className="text-gray-900 font-bold text-sm text-right w-[30%] break-words">{String(value)}</span>
                               </div>
                             ))}
                             {product?.highlights && Object.entries(product.highlights).map(([key, value]) => (
-                              <div className="flex justify-between items-center bg-gray-50/50 border border-gray-100 rounded-xl px-4 py-3 hover:bg-orange-50/30 transition-colors" key={`hl-${key}`}>
-                                <span className="text-gray-500 font-medium text-sm">{key}</span>
-                                <span className="text-gray-900 font-bold text-sm text-right max-w-[60%]">{String(value)}</span>
+                              <div className="flex justify-between items-start bg-gray-50/50 border border-gray-100 rounded-xl px-4 py-3 hover:bg-orange-50/30 transition-colors gap-2" key={`hl-${key}`}>
+                                <span className="text-gray-500 font-medium text-sm w-[70%] break-words">{key.replace(/_/g, ' ')}</span>
+                                <span className="text-gray-900 font-bold text-sm text-right w-[30%] break-words">{String(value)}</span>
                               </div>
                             ))}
                           </div>
@@ -1913,15 +1913,15 @@ const ProductDetails = () => {
                           </div>
                           <div className="flex flex-col gap-2.5">
                             {currentVariant?.specifications && Object.entries(currentVariant.specifications).map(([key, value]) => (
-                              <div className="flex justify-between items-center bg-white/40 border border-[#cbd5e1] rounded-[16px] px-5 py-3" key={key}>
-                                <span className="text-[#64748b] text-sm">{key}</span>
-                                <span className="text-[#0f172a] font-bold text-sm text-right max-w-[60%]">{String(value)}</span>
+                              <div className="flex justify-between items-start bg-white/40 border border-[#cbd5e1] rounded-[16px] px-5 py-3 gap-2" key={key}>
+                                <span className="text-[#64748b] text-sm w-[70%] break-words">{key.replace(/_/g, ' ')}</span>
+                                <span className="text-[#0f172a] font-bold text-sm text-right w-[30%] break-words">{String(value)}</span>
                               </div>
                             ))}
                             {product?.highlights && Object.entries(product.highlights).map(([key, value]) => (
-                              <div className="flex justify-between items-center bg-white/40 border border-[#cbd5e1] rounded-[16px] px-5 py-3" key={`hl-${key}`}>
-                                <span className="text-[#64748b] text-sm">{key}</span>
-                                <span className="text-[#0f172a] font-bold text-sm text-right max-w-[60%]">{String(value)}</span>
+                              <div className="flex justify-between items-start bg-white/40 border border-[#cbd5e1] rounded-[16px] px-5 py-3 gap-2" key={`hl-${key}`}>
+                                <span className="text-[#64748b] text-sm w-[70%] break-words">{key.replace(/_/g, ' ')}</span>
+                                <span className="text-[#0f172a] font-bold text-sm text-right w-[30%] break-words">{String(value)}</span>
                               </div>
                             ))}
                           </div>
@@ -1954,7 +1954,7 @@ const ProductDetails = () => {
         </section>
       )}
 
-      <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
+      <Snackbar sx={{ mb: { xs: 8, sm: 0 } }} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity as any} sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>

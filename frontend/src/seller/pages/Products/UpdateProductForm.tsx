@@ -323,7 +323,7 @@ const createValidationSchema = (currentSellerId: string) => Yup.object({
           return Yup.object({
             color: Yup.string().required("Color is required").min(2).max(50),
             images: Yup.array()
-              .of(Yup.string().url("Invalid image URL"))
+              .of(Yup.mixed().required("Image is required"))
               .min(1, "At least one image required per color")
               .required("Images are required"),
             subVariants: Yup.array()
@@ -592,7 +592,7 @@ const formVariants = useMemo(() => {
     const currentSeller = getCurrentSellerFromJWT();
     const newColorVariant: ProductVariantForm = {
       color: '', images: [], highlights: {},
-      subVariants: [{ specifications: {}, offers: [{ sellerId: currentSeller?._id || '', mrpPrice: '', sellingPrice: '', stock: '0', sku: '', isReturnable: false, returnTAT: '7 Days', isReplaceable: false, replacementTAT: 'N/A', hasDeliveryCharge: false, deliveryChargePrice: '0', freeDeliveryRadiusKM: '0', isActive: true }], isActive: true }],
+      subVariants: [{ specifications: {}, offers: [{ sellerId: currentSeller?._id || '', mrpPrice: '', sellingPrice: '', stock: '0', sku: '', isReturnable: false, returnTAT: '7 Days', isReplaceable: false, replacementTAT: '7 Days', hasDeliveryCharge: false, deliveryChargePrice: '0', freeDeliveryRadiusKM: '0', isActive: true }], isActive: true }],
       isActive: true
     };
     formik.setFieldValue('variants', [...formik.values.variants, newColorVariant]);
@@ -602,7 +602,7 @@ const formVariants = useMemo(() => {
 
   const handleRemoveColorVariant = useCallback((index: number) => {
     if (formik.values.variants.length <= 1) {
-      formik.setFieldValue('variants', [{ color: '', images: [], highlights: {}, subVariants: [{ specifications: {}, offers: [{ sellerId: '', mrpPrice: '', sellingPrice: '', stock: '0', sku: '', isReturnable: false, returnTAT: '7 Days', isReplaceable: false, replacementTAT: 'N/A', hasDeliveryCharge: false, deliveryChargePrice: '0', freeDeliveryRadiusKM: '0', isActive: true }], isActive: true }], isActive: true }]);
+      formik.setFieldValue('variants', [{ color: '', images: [], highlights: {}, subVariants: [{ specifications: {}, offers: [{ sellerId: '', mrpPrice: '', sellingPrice: '', stock: '0', sku: '', isReturnable: false, returnTAT: '7 Days', isReplaceable: false, replacementTAT: '7 Days', hasDeliveryCharge: false, deliveryChargePrice: '0', freeDeliveryRadiusKM: '0', isActive: true }], isActive: true }], isActive: true }]);
       setActiveColorTab(0); setExpandedSubVariant(0); return;
     }
     const newVariants = formik.values.variants.filter((_, i) => i !== index);
@@ -619,7 +619,7 @@ const formVariants = useMemo(() => {
   const handleAddSubVariant = useCallback((colorIndex: number) => {
     const currentSeller = getCurrentSellerFromJWT();
     const newVariants = [...formik.values.variants];
-    newVariants[colorIndex].subVariants.push({ specifications: {}, offers: [{ sellerId: currentSeller?._id || '', mrpPrice: '', sellingPrice: '', stock: '0', sku: '', isReturnable: false, returnTAT: '', isReplaceable: false, replacementTAT: '', hasDeliveryCharge: false, deliveryChargePrice: '', freeDeliveryRadiusKM: '', isActive: true }], isActive: true });
+    newVariants[colorIndex].subVariants.push({ specifications: {}, offers: [{ sellerId: currentSeller?._id || '', mrpPrice: '', sellingPrice: '', stock: '0', sku: '', isReturnable: false, returnTAT: '7 Days', isReplaceable: false, replacementTAT: '7 Days', hasDeliveryCharge: false, deliveryChargePrice: '', freeDeliveryRadiusKM: '', isActive: true }], isActive: true });
     formik.setFieldValue('variants', newVariants);
     setExpandedSubVariant(newVariants[colorIndex].subVariants.length - 1);
   }, [formik.values.variants, formik]);
@@ -649,7 +649,7 @@ const formVariants = useMemo(() => {
   const handleAddOffer = useCallback((colorIndex: number, subVariantIndex: number) => {
     const currentSeller = getCurrentSellerFromJWT();
     const newVariants = [...formik.values.variants];
-    newVariants[colorIndex].subVariants[subVariantIndex].offers.push({ sellerId: currentSeller?._id || '', mrpPrice: '', sellingPrice: '', stock: '0', sku: '', isActive: true, isReturnable: false, returnTAT: '0', isReplaceable: false, replacementTAT: '0', hasDeliveryCharge: false, deliveryChargePrice: '0', freeDeliveryRadiusKM: '0' });
+    newVariants[colorIndex].subVariants[subVariantIndex].offers.push({ sellerId: currentSeller?._id || '', mrpPrice: '', sellingPrice: '', stock: '0', sku: '', isActive: true, isReturnable: false, returnTAT: '7 Days', isReplaceable: false, replacementTAT: '7 Days', hasDeliveryCharge: false, deliveryChargePrice: '0', freeDeliveryRadiusKM: '0' });
     formik.setFieldValue('variants', newVariants);
   }, [formik.values.variants, formik]);
 

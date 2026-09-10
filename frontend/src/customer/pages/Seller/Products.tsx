@@ -58,7 +58,7 @@ export default function Products({ seller }: any) {
         <>
           {featuredProducts.length > 0 && (
             <div className="mb-12">
-              <h3 className="text-xl font-bold mb-6 flex items-center gap-2" style={{ color: seller?.storefront?.themeColor || "#FF5A00" }}>
+              <h3 className="text-xl font-bold mb-6 flex items-center gap-2" style={{ color: "#FF5A00" }}>
                 ⭐ Featured
               </h3>
               <div className="sp-products-grid">

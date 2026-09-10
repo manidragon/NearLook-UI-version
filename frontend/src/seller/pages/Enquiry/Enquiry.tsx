@@ -4,6 +4,8 @@ import EmailIcon from '@mui/icons-material/Email';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CustomLoader from "../../../components/CustomLoader";
+import { useDispatch } from "react-redux";
+import { clearEnquiryNotification } from "../../../redux/Seller/notificationSlice";
 
 interface Enquiry {
   _id: string;
@@ -18,10 +20,12 @@ interface Enquiry {
 export default function Enquiry() {
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     loadEnquiries();
-  }, []);
+    dispatch(clearEnquiryNotification());
+  }, [dispatch]);
 
   const loadEnquiries = async () => {
     try {

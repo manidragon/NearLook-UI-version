@@ -59,10 +59,12 @@ const ZoomableImage: React.FC<ZoomableImageProps> = ({ src, alt }) => {
       style={{
         overflow: 'hidden',
         cursor: isZoomed ? 'zoom-out' : 'zoom-in',
-        width: isZoomed ? '100%' : '100%',
-        height: 'auto',
+        width: '100%',
+        height: '100%',
         position: 'relative',
-        
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
       onClick={toggleZoom}
       onMouseDown={handleMouseDown}
@@ -76,10 +78,11 @@ const ZoomableImage: React.FC<ZoomableImageProps> = ({ src, alt }) => {
         src={src}
         alt={alt}
         style={{
-          width: isZoomed ? '200%' : '200%',
-          height: isZoomed ? '200%' : 'auto',
+          width: isZoomed ? '250%' : '100%',
+          height: isZoomed ? 'auto' : '100%',
+          objectFit: 'contain',
           transform: `translate(${offset.x}px, ${offset.y}px)`,
-          transition: isDragging ? 'none' : 'transform 0.3s',
+          transition: isDragging ? 'none' : 'transform 0.3s, width 0.3s',
           userSelect: 'none',
         }}
       />

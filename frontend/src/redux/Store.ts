@@ -31,6 +31,7 @@ import payoutSlice from "./Seller/payoutSlice";
 import transactionSlice from "./Seller/transactionSlice";
 import revenueChartSlice from "./Seller/revenueChartSlice";
 import replacementsReducer from "./Seller/ReplacementSlice";
+import notificationReducer from "./Seller/notificationSlice";
 
 // Admin slices
 import AdminCouponSlice from "./Admin/AdminCouponSlice";
@@ -41,6 +42,7 @@ import categoryAttributeReducer from "./Admin/CategoryAttributeSlice";
 import adminOrderReducer from "./Admin/AdminOrderSlice";
 import adminReviewReducer from "./Admin/AdminReviewSlice";
 import adminPayoutReducer from "./Admin/AdminPayoutSlice";
+import adminNotificationReducer from "./Admin/adminNotificationSlice";
 
 const rootReducer = combineReducers({
   // Customer
@@ -68,6 +70,7 @@ const rootReducer = combineReducers({
   transaction: transactionSlice,
   revenueChart: revenueChartSlice,
   replacements: replacementsReducer,
+  sellerNotifications: notificationReducer,
 
   // Admin
   adminCoupon: AdminCouponSlice,
@@ -78,7 +81,7 @@ const rootReducer = combineReducers({
   adminOrders: adminOrderReducer,
   adminReviews: adminReviewReducer,
   adminPayouts: adminPayoutReducer,
-
+  adminNotifications: adminNotificationReducer,
 });
 
 const store = configureStore({

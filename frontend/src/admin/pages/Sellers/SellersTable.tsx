@@ -10,6 +10,7 @@ import Paper from '@mui/material/Paper';
 import { Button, FormControl, InputLabel, Menu, MenuItem, Select, styled, TableFooter, TablePagination } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../../../redux/Store';
 import { fetchSellers, selectSellers, updateSellerAccountStatus } from '../../../redux/Seller/sellerSlice';
+import { useNavigate } from 'react-router-dom';
 
 function createData(
     name: string,
@@ -57,6 +58,7 @@ export default function SellersTable() {
     const [page, setPage] = React.useState(0);
     const [accountStatus, setAccountStatus] = React.useState("ACTIVE")
     const sellers  = useAppSelector(state => state.sellers);
+    const navigate = useNavigate();
 
     const dispatch = useAppDispatch();
 
@@ -117,7 +119,12 @@ export default function SellersTable() {
                         {sellers.sellers?.map((seller) => (
                             <StyledTableRow key={seller.sellerName}>
                                 <StyledTableCell component="th" scope="row">
-                                    {seller.businessDetails?.businessName || seller.sellerName}
+                                    <span
+                                        onClick={() => navigate(`/admin/sellers/${seller._id}`)}
+                                        style={{ cursor: 'pointer', color: '#FF5A00', fontWeight: 600, textDecoration: 'underline' }}
+                                    >
+                                        {seller.businessDetails?.businessName || seller.sellerName}
+                                    </span>
                                 </StyledTableCell>
                                 <StyledTableCell >{seller.email}</StyledTableCell>
                                 <StyledTableCell >{seller.mobile}</StyledTableCell>

@@ -176,6 +176,7 @@ class SellerService {
 
   async updateSellerAccountStatus(sellerId, status) {
     const seller = await this.getSellerById(sellerId);
+    const previousStatus = seller.accountStatus;
     seller.accountStatus = status;
     await seller.save(); 
 
@@ -183,6 +184,18 @@ class SellerService {
     const Product = require("../models/Product");
     const AccountStatus = require("../domain/AccountStatus");
     const isSellerActive = status === AccountStatus.ACTIVE;
+
+    // Send approval email if status changed to ACTIVE
+    if (isSellerActive && previousStatus !== AccountStatus.ACTIVE) {
+      try {
+        const { sendVerificationEmail } = require("../utils/sendEmail");
+        const subject = "Seller Account Approved - Welcome!";
+        const text = `Hello ${seller.sellerName},\n\nGreat news! Your seller account has been approved by our administration team. You can now log in to your seller dashboard, add products, and start managing your store.\n\nBest Regards,\nThe Admin Team`;
+        sendVerificationEmail(seller.email, subject, text).catch(e => console.error("Failed to send approval email:", e));
+      } catch (error) {
+        console.error("Error setting up approval email:", error);
+      }
+    }
 
     // Find all products where this seller has offers or is the owner
     const products = await Product.find({ 

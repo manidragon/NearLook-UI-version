@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Box, Paper, Typography, TextField, IconButton, List, ListItemButton, ListItemText, ListItemAvatar, Avatar, Fade } from '@mui/material';
+import { Box, Paper, Typography, TextField, IconButton, List, ListItemButton, ListItemText, ListItemAvatar, Avatar, Fade, Badge } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useAppDispatch, useAppSelector } from '../../../redux/Store';
@@ -120,16 +120,18 @@ export default function Chats() {
                   }}
                 >
                   <ListItemAvatar>
-                    <Avatar 
-                      src={c.user?.profilePicture} 
-                      alt={c.user?.fullName}
-                      sx={{ 
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                        border: '2px solid white'
-                      }}
-                    >
-                      {c.user?.fullName?.charAt(0) || 'C'}
-                    </Avatar>
+                    <Badge color="error" badgeContent={c.unreadCount || 0} invisible={!c.unreadCount || c.unreadCount === 0}>
+                      <Avatar 
+                        src={c.user?.profilePicture} 
+                        alt={c.user?.fullName}
+                        sx={{ 
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                          border: '2px solid white'
+                        }}
+                      >
+                        {c.user?.fullName?.charAt(0) || 'C'}
+                      </Avatar>
+                    </Badge>
                   </ListItemAvatar>
                   <ListItemText 
                     primary={
@@ -137,11 +139,17 @@ export default function Chats() {
                         {c.user?.fullName || 'Customer'}
                       </Typography>
                     } 
-                    secondary={c.lastMessage?.content || 'No messages yet'} 
-                    secondaryTypographyProps={{ 
-                      noWrap: true,
-                      sx: { fontSize: '0.8rem', color: 'text.secondary' }
-                    }}
+                    secondary={
+                      <Typography
+                        variant="body2"
+                        color={c.unreadCount > 0 ? "text.primary" : "text.secondary"}
+                        fontWeight={c.unreadCount > 0 ? 700 : 400}
+                        noWrap
+                        sx={{ fontSize: '0.8rem' }}
+                      >
+                        {c.lastMessage?.content || 'No messages yet'}
+                      </Typography>
+                    }
                   />
                 </ListItemButton>
               </Box>

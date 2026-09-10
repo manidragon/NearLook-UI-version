@@ -7,6 +7,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useAppDispatch, useAppSelector } from '../../../redux/Store';
 import { fetchAllUsers, selectAllUsers } from '../../../redux/Customer/UserSlice';
 
+import { clearAdminBadge } from '../../../redux/Admin/adminNotificationSlice';
+
 const UsersList = () => {
     const theme = useTheme();
     const dispatch = useAppDispatch();
@@ -18,6 +20,7 @@ const UsersList = () => {
     // Fetch users on component mount
     useEffect(() => {
         dispatch(fetchAllUsers());
+        dispatch(clearAdminBadge('users'));
     }, [dispatch]);
 
     // Filter users based on search term

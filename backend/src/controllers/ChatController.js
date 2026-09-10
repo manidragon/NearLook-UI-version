@@ -18,10 +18,21 @@ module.exports = {
   // Get all chats for a seller
   getSellerChats: async (req, res) => {
     try {
-      const chats = await Chat.find({ seller: req.seller._id })
+      let chats = await Chat.find({ seller: req.seller._id })
         .populate('user', 'fullName email profilePicture')
         .populate('lastMessage')
-        .sort({ updatedAt: -1 });
+        .sort({ updatedAt: -1 })
+        .lean();
+
+      chats = await Promise.all(chats.map(async chat => {
+        const unreadCount = await Message.countDocuments({
+          chat: chat._id,
+          senderType: 'User',
+          isRead: false
+        });
+        return { ...chat, unreadCount };
+      }));
+
       res.status(200).json(chats);
     } catch (error) {
       res.status(500).json({ error: error.message });

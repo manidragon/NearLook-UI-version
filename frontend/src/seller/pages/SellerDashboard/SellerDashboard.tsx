@@ -9,14 +9,29 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import SellerRoutes from "../../../routes/SellerRoutes";
 import Navbar from "../../components/Navbar/Navbar";
 import SellerSidebar from "../../components/Sidebar/Sidebar";
-import { useAppSelector } from "../../../redux/Store";
+import { useAppSelector, useAppDispatch } from "../../../redux/Store";
+import { fetchNotificationCounts } from "../../../redux/Seller/notificationSlice";
+import { useEffect } from "react";
 
 const SellerDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const sellers = useAppSelector((state) => state.sellers);
   const chat = useAppSelector((state) => state.chat);
+  const dispatch = useAppDispatch();
   
+  useEffect(() => {
+    // Initial fetch
+    dispatch(fetchNotificationCounts());
+    
+    // Set up polling every 15 seconds
+    const interval = setInterval(() => {
+      dispatch(fetchNotificationCounts());
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [dispatch]);
+
   const logoUrl = sellers.profile?.businessDetails?.logo;
 
   const isChatScreen = location.pathname.includes('/seller/chats');

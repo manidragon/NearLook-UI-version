@@ -14,6 +14,7 @@ const UsersList = lazy(() => import('../admin/pages/Users/UsersList'));
 const Transactions = lazy(() => import('../admin/pages/Transactions/Transactions'));
 const AllProducts = lazy(() => import('../admin/pages/Products/AllProducts'));
 const SellersManagement = lazy(() => import('../admin/pages/Sellers/SellersManagement'));
+const SellerDetails = lazy(() => import('../admin/pages/Sellers/SellerDetails'));
 const GlobalOrders = lazy(() => import('../admin/pages/Orders/GlobalOrders'));
 const SupportTickets = lazy(() => import('../admin/pages/Support/SupportTickets'));
 const ReviewsModeration = lazy(() => import('../admin/pages/Reviews/ReviewsModeration'));
@@ -35,6 +36,7 @@ const AdminRoutes = () => {
       <Route path='/transactions' element={<Transactions />} />
       <Route path='/products' element={<AllProducts />} />
       <Route path='/sellers' element={<SellersManagement />} />
+      <Route path='/sellers/:id' element={<SellerDetails />} />
       <Route path='/orders' element={<GlobalOrders />} />
       <Route path='/support' element={<SupportTickets />} />
       <Route path='/approvals' element={<Approvals />} />

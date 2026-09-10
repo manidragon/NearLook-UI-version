@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { api } from "../../../Config/Api";
 import { useAppSelector } from "../../../redux/Store";
 import ChatModal from "./ChatModal";
-import { Snackbar, Alert, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
+import { Snackbar, Alert, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Avatar } from "@mui/material";
 
 interface HeaderProps {
   seller: any;
@@ -11,10 +11,15 @@ interface HeaderProps {
 }
 
 const optimizeCloudinaryUrl = (url?: string, width = 1000) => {
-  if (url && url.includes('res.cloudinary.com') && !url.includes('f_auto')) {
-    return url.replace('/upload/', `/upload/f_auto,q_auto,w_${width},c_limit/`);
+  if (!url) return url;
+  
+  // Force HTTPS because Android Capacitor blocks cleartext HTTP by default
+  let secureUrl = url.replace('http://', 'https://');
+  
+  if (secureUrl.includes('res.cloudinary.com') && !secureUrl.includes('f_auto')) {
+    return secureUrl.replace('/upload/', `/upload/f_auto,q_auto,w_${width},c_limit/`);
   }
-  return url;
+  return secureUrl;
 };
 
 export default function Header({ seller, activeTab, setActiveTab }: HeaderProps) {
@@ -36,7 +41,7 @@ export default function Header({ seller, activeTab, setActiveTab }: HeaderProps)
   const logo = seller?.businessDetails?.logo || "/seller.png";
   const district = seller?.district || "Unknown";
   const joined = seller?.createdAt ? new Date(seller.createdAt).toLocaleDateString() : "";
-  const themeColor = seller?.storefront?.themeColor || "#1976d2";
+  const themeColor = "#FF5A00";
   const isHolidayMode = seller?.storefront?.holidayMode;
   const promotions = seller?.storefront?.promotions || [];
   
@@ -57,6 +62,7 @@ export default function Header({ seller, activeTab, setActiveTab }: HeaderProps)
     if (!auth.jwt) {
       setSnackbarMessage("Please login to follow this seller.");
       setSnackbarOpen(true);
+      window.dispatchEvent(new Event('open-login-modal'));
       return;
     }
     
@@ -141,24 +147,62 @@ export default function Header({ seller, activeTab, setActiveTab }: HeaderProps)
       
       {/* COVER */}
       <div className="cover-wrapper">
-        <img
-          src={optimizeCloudinaryUrl(seller?.businessDetails?.banner, 1200) || "/cover.png"}
-          alt="Seller Cover"
-          className="cover-image"
-          fetchPriority="high"
-          width="1200"
-          height="300"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = "/cover.png";
-          }}
-        />
+        {seller?.businessDetails?.banner ? (
+          <img
+            src={optimizeCloudinaryUrl(seller.businessDetails.banner, 1200)}
+            alt="Seller Cover"
+            className="cover-image"
+            fetchPriority="high"
+            width="1200"
+            height="300"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+        ) : (
+          <div 
+            className="cover-image" 
+            style={{ 
+              width: '100%', 
+              height: '100%', 
+              background: `linear-gradient(135deg, ${themeColor}80 0%, ${themeColor} 100%)` 
+            }} 
+          />
+        )}
         <div className="cover-overlay"></div>
       </div>
 
       {/* PROFILE INFO CARD (GLASSMORPHISM) */}
       <div className="profile-info-card">
         <div className="profile-avatar-wrap">
-          <img src={optimizeCloudinaryUrl(logo, 200)} alt="Seller Avatar" width="120" height="120" className="profile-avatar" />
+          {seller?.businessDetails?.logo ? (
+            <img 
+              src={optimizeCloudinaryUrl(seller.businessDetails.logo, 200)} 
+              alt="Seller Avatar" 
+              width="120" 
+              height="120" 
+              className="profile-avatar" 
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+          ) : (
+            <Avatar 
+              className="profile-avatar" 
+              sx={{ 
+                width: 120, 
+                height: 120, 
+                fontSize: '3.5rem', 
+                bgcolor: themeColor,
+                backgroundColor: `${themeColor} !important`,
+                color: '#ffffff !important',
+                fontWeight: 'bold',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+              }}
+            >
+              {businessName.charAt(0).toUpperCase()}
+            </Avatar>
+          )}
         </div>
 
         <div className="profile-details">
@@ -187,6 +231,7 @@ export default function Header({ seller, activeTab, setActiveTab }: HeaderProps)
                 if (!auth.jwt) {
                   setSnackbarMessage("Please login to message this seller.");
                   setSnackbarOpen(true);
+                  window.dispatchEvent(new Event('open-login-modal'));
                   return;
                 }
                 setIsChatOpen(true);
@@ -267,7 +312,7 @@ export default function Header({ seller, activeTab, setActiveTab }: HeaderProps)
         />
       )}
 
-      <Snackbar open={snackbarOpen} 
+      <Snackbar sx={{ mb: { xs: 8, sm: 0 }, zIndex: 9999 }} open={snackbarOpen} 
         autoHideDuration={4000} 
         onClose={() => setSnackbarOpen(false)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}

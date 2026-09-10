@@ -2,24 +2,32 @@
 import './App.css';
 import { ThemeProvider } from '@emotion/react';
 import customeTheme from './Theme/customeTheme';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Route, Routes, useNavigate, useLocation } from 'react-router-dom';
+import { Network } from '@capacitor/network';
 import { Suspense } from 'react';
 import { useAppDispatch, useAppSelector } from './redux/Store';
 import { fetchSellerProfile } from './redux/Seller/sellerSlice';
 import { fetchUserProfile, fetchUserAddresses } from './redux/Customer/UserSlice';
 import { fetchUserCart as fetchCart } from './redux/Customer/CartSlice';
 import { getWishlistByUserId as fetchWishlist } from './redux/Customer/WishlistSlice';
+import { fetchUserChats } from './redux/Chat/ChatSlice';
 import { fetchHomePageData } from './redux/Customer/Customer/AsyncThunk';
-import { Box } from '@mui/material';
+import { Box, Snackbar, Alert } from '@mui/material';
 import CustomLoader from "./components/CustomLoader";
 import { lazy } from 'react';
+import { usePushNotifications } from './hooks/usePushNotifications';
+import { useHardwareBackButton } from './hooks/useHardwareBackButton';
+import { useExternalLinks } from './hooks/useExternalLinks';
+import PullToRefresh from 'react-simple-pull-to-refresh';
+
 const AdminDashboard = lazy(() => import('./admin/pages/Dashboard/Dashboard'));
 const CustomerRoutes = lazy(() => import('./routes/CustomerRoutes'));
 const SellerDashboard = lazy(() => import('./seller/pages/SellerDashboard/SellerDashboard'));
 const SellerAccountVerification = lazy(() => import('./seller/pages/SellerAccountVerification'));
 const SellerAccountVerified = lazy(() => import('./seller/pages/SellerAccountVerified'));
 const BecomeSeller = lazy(() => import('./customer/pages/BecomeSeller/BecomeSeller'));
+const SellerRegistrationSuccess = lazy(() => import('./customer/pages/BecomeSeller/SellerRegistrationSuccess'));
 const AdminAuth = lazy(() => import('./admin/pages/Auth/AdminAuth'));
 
 const ScrollToTop = () => {
@@ -42,6 +50,49 @@ function App() {
   const sellerAuth = useAppSelector((state) => state.sellerAuth); // seller auth
   const user = useAppSelector((state) => state.user);
   const seller = useAppSelector((state) => state.sellers.profile);
+  
+  const jwt = localStorage.getItem("jwt");
+  usePushNotifications(jwt, auth.role);
+  useHardwareBackButton();
+  useExternalLinks();
+
+  const [isOffline, setIsOffline] = useState(false);
+
+  const handleRefresh = async () => {
+    dispatch(fetchHomePageData());
+    if (jwt) {
+      if (auth.role === "ROLE_CUSTOMER") {
+        dispatch(fetchUserProfile({ jwt, navigate }));
+        dispatch(fetchCart(jwt));
+        dispatch(fetchWishlist(jwt));
+        dispatch(fetchUserAddresses());
+        dispatch(fetchUserChats(jwt));
+      } else if (auth.role === "ROLE_SELLER") {
+        dispatch(fetchSellerProfile(jwt));
+      }
+    }
+    // Simulate a tiny delay for better UI feedback
+    await new Promise(resolve => setTimeout(resolve, 800));
+  };
+
+  useEffect(() => {
+    // Initial network check
+    const checkNetwork = async () => {
+      const status = await Network.getStatus();
+      setIsOffline(!status.connected);
+    };
+    checkNetwork();
+
+    // Listen for network changes
+    const listener = Network.addListener('networkStatusChange', status => {
+      setIsOffline(!status.connected);
+    });
+
+    return () => {
+      listener.then(l => l.remove());
+    };
+  }, []);
+
   useEffect(() => {
     dispatch(fetchHomePageData());
   }, [dispatch]);
@@ -83,6 +134,7 @@ function App() {
       dispatch(fetchCart(jwt));
       dispatch(fetchWishlist(jwt));
       dispatch(fetchUserAddresses());
+      dispatch(fetchUserChats(jwt));
     } else if (role === "ROLE_SELLER") {
       dispatch(fetchSellerProfile(jwt));
     }
@@ -95,24 +147,38 @@ function App() {
         <div className="fixed inset-0 -z-[100] w-full h-full bg-white [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#FF5A00_100%)]" />
 
         <ScrollToTop />
-        <Suspense fallback={
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-            <CustomLoader sx={{ color: '#FF5A00' }} />
-          </Box>
-        }>
-          <Routes>
-            <Route path='/seller/*' element={<SellerDashboard />} />
-            {/* ✅ FIXED: Check auth.role instead of user.user?.role */}
-            {auth.role === "ROLE_ADMIN" && (
-              <Route path='/admin/*' element={<AdminDashboard />} />
-            )}
-            <Route path='/verify-seller/:otp' element={<SellerAccountVerification />} />
-            <Route path='/seller-account-verified' element={<SellerAccountVerified />} />
-            <Route path='/become-seller' element={<BecomeSeller />} />
-            <Route path='/admin-login' element={<AdminAuth />} />
-            <Route path='*' element={<CustomerRoutes />} />
-          </Routes>
-        </Suspense>
+        <PullToRefresh onRefresh={handleRefresh} pullingContent={''} >
+          <div style={{ minHeight: '100vh' }}>
+            <Suspense fallback={
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <CustomLoader sx={{ color: '#FF5A00' }} />
+              </Box>
+            }>
+              <Routes>
+                <Route path='/seller/*' element={<SellerDashboard />} />
+                {/* ✅ FIXED: Check auth.role instead of user.user?.role */}
+                {auth.role === "ROLE_ADMIN" && (
+                  <Route path='/admin/*' element={<AdminDashboard />} />
+                )}
+                <Route path='/verify-seller/:otp' element={<SellerAccountVerification />} />
+                <Route path='/seller-account-verified' element={<SellerAccountVerified />} />
+                <Route path='/become-seller' element={<BecomeSeller />} />
+                <Route path='/seller-registration-success' element={<SellerRegistrationSuccess />} />
+                <Route path='/admin-login' element={<AdminAuth />} />
+                <Route path='*' element={<CustomerRoutes />} />
+              </Routes>
+            </Suspense>
+          </div>
+        </PullToRefresh>
+
+        <Snackbar 
+          open={isOffline} 
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert severity="error" variant="filled" sx={{ width: '100%' }}>
+            No Internet Connection
+          </Alert>
+        </Snackbar>
       </div>
     </ThemeProvider>
   );

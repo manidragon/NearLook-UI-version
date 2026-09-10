@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "984356954548",
+    "project_id": "nearlook",
+    "storage_bucket": "nearlook.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:984356954548:android:f253d9e3b0c5db90f852e1",
+        "android_client_info": {
+          "package_name": "com.nearlook.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgjgbR1jbAkYkhArGovSQSuObyKE0GWrM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

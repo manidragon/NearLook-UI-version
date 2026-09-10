@@ -19,6 +19,7 @@ import type { ProductFormValues } from '../types/productFormTypes';
 import { useAppSelector } from '../../../../redux/Store';
 import StyleIcon from '@mui/icons-material/Style';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 
 const getFormikError = (formik: any, path: string): string | undefined => {
@@ -475,7 +476,26 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
           </Tabs>
 
           {variants[activeColorTab] && (
-            <Paper sx={{ p: 3 }}>
+            <Paper sx={{ p: 3, position: 'relative' }}>
+              {/* ✅ Remove Variant Button for non-catalog or new variants */}
+              {(!isCatalogProduct || !variants[activeColorTab].isFromCatalog) && variants.length > 1 && (
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    size="small"
+                    startIcon={<DeleteIcon />}
+                    onClick={() => {
+                      if (window.confirm('Are you sure you want to remove this entire variant?')) {
+                        onRemoveColor(activeColorTab);
+                      }
+                    }}
+                  >
+                    Remove Variant
+                  </Button>
+                </Box>
+              )}
+
               {/* Variant Group Field (Only show if NO color-level attributes exist) */}
               {colorVariantAttributes.length === 0 && (
                 <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -709,11 +729,11 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                     🎨 Color-Level Specifications
                   </Typography>
                   <Grid container spacing={2}>
-                    {colorVariantAttributes.map((attr: CategoryAttribute) => (
+                    {colorVariantAttributes.map((attr: CategoryAttribute, index: number) => (
                       <Grid size={{ xs: 12, sm: 6, md: 4 }} key={attr._id}>
                         {renderAttributeField(
                           attr,
-                          colorHighlights[activeColorTab]?.[attr.name] ?? '',
+                          colorHighlights[activeColorTab]?.[attr.name] || (index === 0 ? variants[activeColorTab]?.color : ''),
                           (value) => {
                             onColorHighlightChange(activeColorTab, attr.name, String(value));
                             if (colorVariantAttributes.length > 0 && attr.name === colorVariantAttributes[0].name) {
@@ -976,14 +996,20 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                                           />
                                         </Grid>
                                         <Grid size={{ xs: 12, sm: 6 }}>
-                                          <TextField
-                                            size="small"
-                                            label="Return TAT"
-                                            value={String(offer.returnTAT ?? 'N/A')}
-                                            onChange={(e) => onOfferChange?.(activeColorTab, subIndex, offerIndex, 'returnTAT', e.target.value)}
-                                            fullWidth
-                                            disabled={!offer.isReturnable}
-                                          />
+                                          <FormControl fullWidth size="small" disabled={!offer.isReturnable}>
+                                            <InputLabel>Return TAT</InputLabel>
+                                            <Select
+                                              label="Return TAT"
+                                              value={offer.returnTAT && offer.returnTAT !== 'N/A' ? String(offer.returnTAT) : '7 Days'}
+                                              onChange={(e) => onOfferChange?.(activeColorTab, subIndex, offerIndex, 'returnTAT', e.target.value)}
+                                            >
+                                              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((day) => (
+                                                <MenuItem key={day} value={`${day} Day${day > 1 ? 's' : ''}`}>
+                                                  {day} Day{day > 1 ? 's' : ''}
+                                                </MenuItem>
+                                              ))}
+                                            </Select>
+                                          </FormControl>
                                         </Grid>
                                         <Grid size={{ xs: 12, sm: 6 }}>
                                           <FormControlLabel
@@ -997,14 +1023,20 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                                           />
                                         </Grid>
                                         <Grid size={{ xs: 12, sm: 6 }}>
-                                          <TextField
-                                            size="small"
-                                            label="Replacement TAT"
-                                            value={String(offer.replacementTAT ?? 'N/A')}
-                                            onChange={(e) => onOfferChange?.(activeColorTab, subIndex, offerIndex, 'replacementTAT', e.target.value)}
-                                            fullWidth
-                                            disabled={!offer.isReplaceable}
-                                          />
+                                          <FormControl fullWidth size="small" disabled={!offer.isReplaceable}>
+                                            <InputLabel>Replacement TAT</InputLabel>
+                                            <Select
+                                              label="Replacement TAT"
+                                              value={offer.replacementTAT && offer.replacementTAT !== 'N/A' ? String(offer.replacementTAT) : '7 Days'}
+                                              onChange={(e) => onOfferChange?.(activeColorTab, subIndex, offerIndex, 'replacementTAT', e.target.value)}
+                                            >
+                                              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((day) => (
+                                                <MenuItem key={day} value={`${day} Day${day > 1 ? 's' : ''}`}>
+                                                  {day} Day{day > 1 ? 's' : ''}
+                                                </MenuItem>
+                                              ))}
+                                            </Select>
+                                          </FormControl>
                                         </Grid>
                                         <Grid size={{ xs: 12, sm: 4 }}>
                                           <FormControlLabel

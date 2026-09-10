@@ -328,7 +328,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId, i
 
       {/* Snackbar for Wishlist Alerts */}
       <Portal>
-        <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} 
+        <Snackbar sx={{ mb: { xs: 8, sm: 0 } }} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} 
           autoHideDuration={3000} 
           onClose={() => setSnackbarOpen(false)}
         >

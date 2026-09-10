@@ -189,7 +189,7 @@ const ReviewForm: React.FC = () => {
             <Button color="primary" variant="contained" type="submit">
                 Submit Review
             </Button>
-            <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)}>
+            <Snackbar sx={{ mb: { xs: 8, sm: 0 } }} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)}>
                 <Alert onClose={() => setSnackbarOpen(false)} severity="error" sx={{ width: '100%' }}>
                     {snackbarMsg}
                 </Alert>

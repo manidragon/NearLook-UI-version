@@ -9,7 +9,13 @@ require('../middlewares/sellerAuthMiddleware');
 
 const offlineSaleController = require('../controllers/offlineSaleController');
 const userAuthMiddleware = require('../middlewares/userAuthMiddleware');
+const sellerNotificationController = require('../controllers/sellerNotificationController');
 
+router.get(
+  '/notifications/counts',
+  sellerAuthMiddleware,
+  sellerNotificationController.getNotificationCounts
+);
 
 router.get(
 '/analytics',

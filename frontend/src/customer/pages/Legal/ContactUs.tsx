@@ -25,7 +25,7 @@ const ContactUs = () => {
               <FaPhoneAlt />
             </div>
             <h3 className="font-semibold text-gray-900 mb-2">Call Us</h3>
-            <p className="text-sm text-gray-600">(+91) 9876-543-210</p>
+            <p className="text-sm text-gray-600">(+91) 7888744401</p>
             <p className="text-sm text-gray-600 mt-1">Mon-Fri from 9am to 6pm.</p>
           </div>
 
@@ -34,8 +34,7 @@ const ContactUs = () => {
               <FaEnvelope />
             </div>
             <h3 className="font-semibold text-gray-900 mb-2">Email Us</h3>
-            <p className="text-sm text-gray-600">info@nearlooks.com</p>
-            <p className="text-sm text-gray-600 mt-1">career@nearlooks.com</p>
+            <p className="text-sm text-gray-600">nearlookindia@gmail.com</p>
           </div>
         </div>
       </div>

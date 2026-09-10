@@ -49,6 +49,10 @@ const userSchema = new mongoose.Schema(
         ref: "Seller",
       },
     ],
+    fcmToken: {
+      type: String,
+      default: ""
+    },
   },
   {
     timestamps: true, 

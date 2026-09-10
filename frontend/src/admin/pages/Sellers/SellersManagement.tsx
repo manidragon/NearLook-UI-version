@@ -8,6 +8,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useAppDispatch, useAppSelector } from '../../../redux/Store';
 import { fetchSellers, updateSellerAccountStatus } from '../../../redux/Seller/sellerSlice';
+import { useNavigate } from 'react-router-dom';
 
 const accountStatuses = [
     { status: 'ALL', title: 'All Sellers', description: 'Show all sellers regardless of their account status' },
@@ -21,6 +22,7 @@ const accountStatuses = [
 
 const SellerRow = ({ seller, accountStatuses, getStatusColor, handleUpdateSellerAccountStatus }: any) => {
     const theme = useTheme();
+    const navigate = useNavigate();
     const [open, setOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
@@ -60,7 +62,21 @@ const SellerRow = ({ seller, accountStatuses, getStatusColor, handleUpdateSeller
                             {(seller.businessDetails?.businessName || seller.sellerName)?.charAt(0) || 'S'}
                         </Avatar>
                         <Box>
-                            <Typography variant="body1" fontWeight="500" sx={{ color: '#111827' }}>{seller.businessDetails?.businessName || seller.sellerName}</Typography>
+                            <Typography
+                                variant="body1"
+                                fontWeight="600"
+                                onClick={() => navigate(`/admin/sellers/${seller._id}`)}
+                                sx={{
+                                    color: '#FF5A00',
+                                    cursor: 'pointer',
+                                    '&:hover': {
+                                        textDecoration: 'underline',
+                                        color: '#e04e00'
+                                    }
+                                }}
+                            >
+                                {seller.businessDetails?.businessName || seller.sellerName}
+                            </Typography>
                             <Box display="flex" alignItems="center" gap={0.5}>
                                 <Rating value={seller.averageRating || 0} readOnly size="small" precision={0.5} />
                                 <Typography variant="caption" sx={{ color: '#4B5563' }}>({seller.numRatings || seller.totalReviews || 0})</Typography>

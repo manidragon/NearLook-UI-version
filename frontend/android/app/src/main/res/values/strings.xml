@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">NearLook</string>
+    <string name="title_activity_main">NearLook</string>
+    <string name="package_name">com.nearlook.app</string>
+    <string name="custom_url_scheme">com.nearlook.app</string>
+</resources>

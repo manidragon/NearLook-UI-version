@@ -227,7 +227,7 @@ export const useCatalogSearch = (
           isReturnable: false,
           returnTAT: '0',
           isReplaceable: false,
-          replacementTAT: '0',
+          replacementTAT: '7 Days',
           hasDeliveryCharge: false,
           deliveryChargePrice: '0',
           freeDeliveryRadiusKM: '0',

@@ -155,7 +155,7 @@ export const defaultInitialValues: ProductFormValues = {
               isReturnable: false,
               returnTAT: "7 Days",
               isReplaceable: false,
-              replacementTAT: "N/A",
+              replacementTAT: "7 Days",
               hasDeliveryCharge: false,
               deliveryChargePrice: "0",
               freeDeliveryRadiusKM: "0",

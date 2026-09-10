@@ -323,7 +323,7 @@ const Cart = () => {
       </div>
 
       {/* Snackbar */}
-      <Snackbar
+      <Snackbar sx={{ mb: { xs: 8, sm: 0 } }}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         open={snackbarOpen}
         autoHideDuration={6000}

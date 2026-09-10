@@ -591,7 +591,7 @@ const ReplacementRequestForm: React.FC<ReplacementRequestFormProps> = ({
                 </DialogActions>
             </form>
 
-            <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            <Snackbar sx={{ mb: { xs: 8, sm: 0 } }} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 open={!!formError}
                 autoHideDuration={4000}
                 onClose={() => setFormError('')}

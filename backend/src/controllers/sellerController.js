@@ -318,6 +318,12 @@ class SellerController {
   async sendLoginOtp(req, res) {
     try {
       const { email } = req.body;
+
+      const seller = await Seller.findOne({ email });
+      if (!seller) {
+        throw new SellerError("Seller not found");
+      }
+
       const otp = generateOTP();
       await VerificationService.createVerificationCode(otp, email);
       
@@ -338,7 +344,7 @@ class SellerController {
 
       const seller = await Seller.findOne({ email });
       if (!seller) {
-        throw new SellerError("Invalid email or password");
+        throw new SellerError("Seller not found");
       }
 
       if (seller.accountStatus !== "ACTIVE") {
@@ -449,6 +455,86 @@ class SellerController {
       await seller.save();
 
       res.status(200).json({ followers: seller.performanceMetrics.followersCount });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+
+  async getSellerDetailsForAdmin(req, res) {
+    try {
+      const sellerId = req.params.id;
+      const Order = require('../models/Order');
+      const Product = require('../models/Product');
+      const SellerReview = require('../models/SellerReview');
+      const Transaction = require('../models/Transaction');
+
+      const seller = await Seller.findById(sellerId).lean();
+      if (!seller) return res.status(404).json({ message: 'Seller not found' });
+
+      // Aggregate counts in parallel
+      const [orders, products, reviews, transactions] = await Promise.all([
+        Order.find({ seller: sellerId })
+          .select('orderStatus orderDate totalSellingPrice paymentStatus')
+          .sort({ orderDate: -1 })
+          .limit(20)
+          .lean(),
+
+        Product.find({ 'variants.offers.seller': sellerId })
+          .select('title images variants category approvalStatus createdAt seller description highlights catalog slug averageRating totalReviews minPrice maxPrice')
+          .populate('category', 'name slug')
+          .populate('seller', 'sellerName businessDetails.businessName')
+          .limit(50)
+          .lean(),
+
+        SellerReview.find({ seller: sellerId })
+          .populate('user', 'fullName profilePicture')
+          .sort({ createdAt: -1 })
+          .limit(10)
+          .lean(),
+
+        Transaction.find({ seller: sellerId, paymentStatus: 'COMPLETED' })
+          .select('amount createdAt')
+          .lean(),
+      ]);
+
+      // Compute metrics
+      const totalOrders = orders.length;
+      const totalRevenue = transactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+      const cancelledOrders = orders.filter(o => o.orderStatus === 'CANCELLED').length;
+      const totalReviews = reviews.length;
+      const averageRating = totalReviews > 0
+        ? reviews.reduce((s, r) => s + (r.rating || 0), 0) / totalReviews
+        : 0;
+
+      // Active products count
+      const activeProducts = products.length;
+
+      // Enrich each product: isOwner flag + seller-specific offers
+      const enrichedProducts = products.map(p => {
+        const isOwner = p.seller && String(p.seller._id || p.seller) === String(sellerId);
+        // Extract only the variants/offers belonging to this seller
+        const sellerVariants = (p.variants || []).map(v => {
+          const sellerOffers = (v.offers || []).filter(o => String(o.seller) === String(sellerId));
+          return { ...v, sellerOffers };
+        }).filter(v => v.sellerOffers.length > 0);
+
+        return { ...p, isOwner, sellerVariants };
+      });
+
+      return res.status(200).json({
+        seller,
+        metrics: {
+          totalOrders,
+          totalRevenue: Math.round(totalRevenue * 100) / 100,
+          cancelledOrders,
+          activeProducts,
+          totalReviews,
+          averageRating: Math.round(averageRating * 10) / 10,
+        },
+        recentOrders: orders,
+        products: enrichedProducts,
+        reviews,
+      });
     } catch (error) {
       res.status(500).json({ message: error.message });
     }

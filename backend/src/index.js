@@ -132,12 +132,14 @@ const webhookRoutes = require('./routers/webhookRoutes.js');
 const sellerReviewRoutes = require("./routers/sellerReviewRoutes");
 const chatRoutes = require("./routers/chatRoutes.js");
 const adminPayoutRoutes = require('./routers/adminPayoutRoutes.js');
+const notificationRoutes = require('./routers/notificationRoutes.js');
 
 app.use("/api/chats", chatRoutes);
 app.use(
   "/api/seller-review",
   sellerReviewRoutes
 );
+app.use('/api/notifications', notificationRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/returns', returnRoutes);

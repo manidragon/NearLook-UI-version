@@ -16,6 +16,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
+import { SignInWithApple } from '@capacitor-community/apple-sign-in';
+import AppleIcon from '@mui/icons-material/Apple';
 
 const SellerLoginForm = () => {
   const dispatch = useAppDispatch();
@@ -59,13 +61,35 @@ const SellerLoginForm = () => {
     );
   };
 
+  const handleAppleSignIn = async () => {
+    try {
+      const result = await SignInWithApple.authorize({
+        clientId: 'com.nearlook.app',
+        redirectURI: '',
+        scopes: 'email name'
+      });
+      let email = result.response?.email;
+      if (!email && result.response?.identityToken) {
+        const decoded: any = jwtDecode(result.response.identityToken);
+        email = decoded.email;
+      }
+      
+      if (email) {
+        formik.setFieldValue('email', email);
+        dispatch(sendSellerLoginOtp(email));
+        setTimer(30);
+        setIsTimerActive(true);
+      } else {
+        console.error('Apple Sign-In failed to return an email');
+      }
+    } catch (error) {
+      console.error('Apple Sign-In failed', error);
+    }
+  };
+
   // 🔔 Show snackbar on state changes (prevents double showing)
   useEffect(() => {
-    if (sellerAuth.otpSent) {
-      setSnackbarMessage("OTP sent successfully!");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
-    } else if (sellerAuth.error) {
+    if (sellerAuth.error) {
       // ✅ Format error message based on account status
       const formattedMessage = formatErrorMessage(sellerAuth.error);
       setSnackbarMessage(typeof formattedMessage === 'string' ? formattedMessage : sellerAuth.error);
@@ -73,6 +97,10 @@ const SellerLoginForm = () => {
       setSnackbarOpen(true);
     } else if (sellerAuth.jwt) {
       setSnackbarMessage("Login successful! Redirecting...");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+    } else if (sellerAuth.otpSent) {
+      setSnackbarMessage("OTP sent successfully!");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
     }
@@ -200,25 +228,36 @@ const SellerLoginForm = () => {
               <span className="px-2 bg-white text-gray-500">Or continue with</span>
             </div>
           </div>
-          <div className="mt-6 flex justify-center">
-            <GoogleLogin
-              onSuccess={(credentialResponse) => {
-                const decoded: any = jwtDecode(credentialResponse.credential!);
-                formik.setFieldValue('email', decoded.email);
-                dispatch(sendSellerLoginOtp(decoded.email));
-                setTimer(30);
-                setIsTimerActive(true);
-              }}
-              onError={() => {
-                console.error('Google Login Failed');
-              }}
-            />
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex-shrink-0">
+              <GoogleLogin
+                onSuccess={(credentialResponse) => {
+                  const decoded: any = jwtDecode(credentialResponse.credential!);
+                  formik.setFieldValue('email', decoded.email);
+                  dispatch(sendSellerLoginOtp(decoded.email));
+                  setTimer(30);
+                  setIsTimerActive(true);
+                }}
+                onError={() => {
+                  console.error('Google Login Failed');
+                }}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={handleAppleSignIn}
+              className="flex items-center justify-center gap-2 bg-black text-white px-4 rounded shadow hover:bg-gray-800 transition-colors w-[200px]"
+              style={{ height: '40px' }}
+            >
+              <AppleIcon />
+              <span className="text-sm font-medium font-sans">Sign in with Apple</span>
+            </button>
           </div>
         </div>
       )}
 
       {/* ✅ Enhanced Snackbar - prevents double showing */}
-      <Snackbar
+      <Snackbar sx={{ mb: { xs: 8, sm: 0 } }}
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}

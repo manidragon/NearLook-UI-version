@@ -38,6 +38,8 @@ const LazySection = ({ children, height = "400px" }: { children: React.ReactNode
     return <div ref={ref} style={{ minHeight: isVisible ? 'auto' : height }}>{isVisible && children}</div>;
 }
 
+import PullToRefresh from '../../../components/PullToRefresh';
+
 const Home = () => {
     const [showChatBot, setShowChatBot] = useState(false)
     const [isInitialRender, setIsInitialRender] = useState(true);
@@ -48,17 +50,12 @@ const Home = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        // Legacy effect removed for LazySection
-    }, [isInitialRender, products.loading]);
-
-    useEffect(() => {
+    const fetchAllData = () => {
         dispatch(fetchCategories());
         dispatch(fetchRecentlyAddedProducts());
         dispatch(fetchTopSellingProducts());
         dispatch(fetchSellers("ACTIVE"));
         
-        // Fetch local products
         if (products.locationFilter) {
             dispatch(fetchProductsNearYou(products.locationFilter));
         } else {
@@ -75,8 +72,18 @@ const Home = () => {
         if (jwt) {
             dispatch(fetchFollowedSellerProducts());
         }
+    };
+
+    useEffect(() => {
+        fetchAllData();
         setIsInitialRender(false);
     }, [dispatch, auth.jwt, products.locationFilter]);
+
+    const handleRefresh = async () => {
+        fetchAllData();
+        // Artificial delay for UX
+        await new Promise(resolve => setTimeout(resolve, 800));
+    };
 
     const handleShowChatBot = () => {
         setShowChatBot(!showChatBot)
@@ -93,6 +100,7 @@ const Home = () => {
                 title="NearLook | Your Premium Marketplace" 
                 description="Discover and buy amazing products from multiple vendors near you on NearLook." 
             />
+            <PullToRefresh onRefresh={handleRefresh}>
             <div className='bg-[#F1F3F6] min-h-screen pb-10 relative'>
                 <div className="max-w-[1400px] mx-auto px-2 space-y-4">
                     {/* Top Brands Grid */}
@@ -187,6 +195,7 @@ const Home = () => {
                     )}
                 </section>
             </div>
+            </PullToRefresh>
         </>
     )
 }

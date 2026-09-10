@@ -5,7 +5,8 @@ import Navbar from '../../components/Navbar/Navbar'
 import AdminSidebar from '../../components/Sidebar/Sidebar'
 import Alert from "../../../components/CustomAlert";
 import { Snackbar } from "@mui/material"
-import { useAppSelector } from '../../../redux/Store'
+import { useAppSelector, useAppDispatch } from '../../../redux/Store'
+import { fetchAdminNotificationCounts } from '../../../redux/Admin/adminNotificationSlice'
 
 const AdminDashboard = () => {
       const deal = useAppSelector(state => state.deal);
@@ -21,6 +22,15 @@ const AdminDashboard = () => {
       setOpenSnackbar(true)
     }
   }, [deal.dealCreated, deal.dealUpdated, deal.error, admin.categoryUpdated, admin.categoryDeleted])
+
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    dispatch(fetchAdminNotificationCounts());
+    const interval = setInterval(() => {
+      dispatch(fetchAdminNotificationCounts());
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [dispatch]);
   return (
     <>
       <div className="min-h-screen">

@@ -20,8 +20,9 @@ import RateReviewIcon from '@mui/icons-material/RateReview';
 import Divider from "@mui/material/Divider";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
+import Badge from "@mui/material/Badge";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../../../redux/Store";
+import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { performLogout } from "../../../redux/Customer/AuthSlice";
 import "../../../SidebarGlider.css";
 
@@ -147,6 +148,7 @@ interface SidebarProps {
 const AdminSidebar = ({ toggleDrawer }: SidebarProps) => {
 
     const dispatch = useAppDispatch()
+    const { counts } = useAppSelector(state => state.adminNotifications);
 
 
     const location = useLocation();
@@ -188,13 +190,23 @@ const handleClick = (item: any) => () => {
                         </div>
                         {menu.map((item) => {
                             const isActive = item.path === location.pathname;
+                            
+                            let badgeCount = 0;
+                            if (item.name === "Users Management") badgeCount = counts.users;
+                            else if (item.name === "Product Approvals") badgeCount = counts.products;
+                            else if (item.name === "Sellers") badgeCount = counts.sellers;
+                            else if (item.name === "Global Orders") badgeCount = counts.orders;
+                            else if (item.name === "Reviews & Moderation") badgeCount = counts.reviews;
+
                             return (
                                 <div key={item.name}
                                     onClick={handleClick(item)}
                                     className="pr-9 cursor-pointer relative z-10">
                                     <div className={`${isActive ? "bg-orange-50 border-l-4 border-[#FF5A00] text-[#b33f00] font-semibold" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"} flex items-center px-5 py-3 transition-all duration-300`}>
                                         <ListItemIcon sx={{ color: isActive ? '#b33f00' : 'inherit' }}>
-                                            {isActive ? item.activeIcon : item.icon}
+                                            <Badge color="error" badgeContent={badgeCount} invisible={badgeCount === 0}>
+                                                {isActive ? item.activeIcon : item.icon}
+                                            </Badge>
                                         </ListItemIcon>
                                         <ListItemText primary={item.name} />
                                     </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Box, Typography, TextField, IconButton, List, ListItem, ListItemButton, ListItemText, ListItemAvatar, Avatar, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Typography, TextField, IconButton, List, ListItem, ListItemButton, ListItemText, ListItemAvatar, Avatar, useMediaQuery, useTheme, Badge } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useAppDispatch, useAppSelector } from '../../../redux/Store';
@@ -113,9 +113,14 @@ export default function CustomerChats() {
                     }}
                   >
                     <ListItemAvatar>
-                      <Avatar src={logo} alt={sellerName}>
-                        {sellerName.charAt(0)}
-                      </Avatar>
+                      <Badge 
+                        badgeContent={c.lastMessage && !c.lastMessage.isRead && c.lastMessage.senderType === 'Seller' ? 1 : 0} 
+                        sx={{ '& .MuiBadge-badge': { backgroundColor: '#FF5A00', color: 'white' } }}
+                      >
+                        <Avatar src={logo} alt={sellerName}>
+                          {sellerName.charAt(0)}
+                        </Avatar>
+                      </Badge>
                     </ListItemAvatar>
                     <ListItemText 
                       primary={sellerName} 

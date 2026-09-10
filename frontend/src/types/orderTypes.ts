@@ -53,7 +53,8 @@ export type OrderStatus =
   | 'SHIPPED'
   | 'ARRIVING'
   | 'DELIVERED'
-  | 'CANCELLED';
+  | 'CANCELLED'
+  | 'RETURNED';
 
 export interface OrderItem {
   _id: string;

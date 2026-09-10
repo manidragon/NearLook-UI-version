@@ -15,7 +15,8 @@ import { Replay, HourglassEmpty, CheckCircle, Payment, AttachMoney } from '@mui/
 // ✅ Helper: Format date and time
 const formatDateTime = (dateString: string | undefined) => {
   if (!dateString) return 'N/A';
-  return dayjs(dateString).format('MMM D, YYYY h:mm A');
+  const localDate = dateString.endsWith('Z') ? dateString.slice(0, -1) : dateString;
+  return dayjs(localDate).format('MMM D, YYYY h:mm A');
 };
 
 // ✅ Helper: Safely get product image
@@ -266,10 +267,10 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({ item, order }) => {
           );
         })() : (
           <div className='flex items-start gap-2'>
-            <div className="w-2.5 h-2.5 rounded-full mt-1.5 bg-[#26a541]" />
+            <div className={`w-2.5 h-2.5 rounded-full mt-1.5 ${order.orderStatus === 'CANCELLED' ? 'bg-[#ff6161]' : 'bg-[#26a541]'}`} />
             <div>
               <Typography className="text-[14px] font-medium text-[#212121]">
-                {order.orderStatus === 'CANCELLED' ? 'Cancelled on' : (order.orderStatus === 'DELIVERED' ? 'Delivered on' : 'Expected delivery by')} {order.orderStatus === 'CANCELLED' ? formatDate(order.updatedAt || order.orderDate) : (isSelfPickup && order.pickupTime ? formatDateTime(order.pickupTime) : formatDate(order.deliverDate))}
+                {order.orderStatus === 'CANCELLED' ? 'Cancelled on' : (order.orderStatus === 'DELIVERED' ? (isSelfPickup ? 'Picked up on' : 'Delivered on') : (isSelfPickup ? 'Expected pickup by' : 'Expected delivery by'))} {order.orderStatus === 'CANCELLED' ? formatDate(order.updatedAt || order.orderDate) : (isSelfPickup && order.pickupTime ? formatDateTime(order.pickupTime) : formatDate(order.deliverDate))}
               </Typography>
               <Typography className="text-[12px] text-gray-600 mt-1">
                 {order.orderStatus === 'CANCELLED' ? 'Your order has been cancelled' : (isSelfPickup ? 'Self Pickup from store' : 'Your item has been delivered')}

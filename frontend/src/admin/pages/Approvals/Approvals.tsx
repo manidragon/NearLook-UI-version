@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Tabs, Tab, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip } from '@mui/material';
+import { Box, Typography, Tabs, Tab, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Badge } from '@mui/material';
 import { api } from '../../../Config/Api';
 import CustomLoader from "../../../components/CustomLoader";
 
@@ -82,8 +82,8 @@ const Approvals = () => {
   };
 
   useEffect(() => {
-    if (tabValue === 0) fetchProducts();
-    else fetchOffers();
+    fetchProducts();
+    fetchOffers();
   }, [tabValue]);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -132,6 +132,9 @@ const Approvals = () => {
     }
   };
 
+  const pendingProductsCount = products.filter((p: any) => p.approvalStatus === 'PENDING').length;
+  const pendingOffersCount = offers.filter((o: any) => o.offer.approvalStatus === 'PENDING').length;
+
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Typography variant="h4" fontWeight="bold" sx={{ mb: 3 }}>
@@ -139,9 +142,23 @@ const Approvals = () => {
       </Typography>
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={tabValue} onChange={handleTabChange} aria-label="approval tabs">
-          <Tab label="All Products" sx={{ '&.Mui-selected': { color: '#C2410C' }, color: '#4B5563', fontWeight: 'bold' }} />
-          <Tab label="All Offers" sx={{ '&.Mui-selected': { color: '#C2410C' }, color: '#4B5563', fontWeight: 'bold' }} />
+        <Tabs value={tabValue} onChange={handleTabChange} aria-label="approval tabs" sx={{ overflow: 'visible' }}>
+          <Tab 
+            label={
+              <Badge badgeContent={pendingProductsCount} color="error">
+                <span style={{ paddingRight: '16px' }}>ALL PRODUCTS</span>
+              </Badge>
+            } 
+            sx={{ '&.Mui-selected': { color: '#C2410C' }, color: '#4B5563', fontWeight: 'bold', mr: 2 }} 
+          />
+          <Tab 
+            label={
+              <Badge badgeContent={pendingOffersCount} color="error">
+                <span style={{ paddingRight: '16px' }}>ALL OFFERS</span>
+              </Badge>
+            } 
+            sx={{ '&.Mui-selected': { color: '#C2410C' }, color: '#4B5563', fontWeight: 'bold', ml: 2 }} 
+          />
         </Tabs>
       </Box>
 
@@ -263,6 +280,7 @@ const Approvals = () => {
               <Typography><strong>Seller:</strong> {selectedItem.seller?.businessDetails?.businessName}</Typography>
               <Typography><strong>Category:</strong> {selectedItem.category?.name}</Typography>
               <Typography><strong>Status:</strong> {selectedItem.approvalStatus}</Typography>
+              <Typography><strong>Created At:</strong> {selectedItem.createdAt ? new Date(selectedItem.createdAt).toLocaleString() : 'N/A'}</Typography>
               
               <Typography variant="subtitle1" mt={2} fontWeight="bold">Variants & Specifications:</Typography>
               {selectedItem.variants?.map((v: any, i: number) => (

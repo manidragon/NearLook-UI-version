@@ -33,7 +33,6 @@ export interface SocialLinks {
 export interface Storefront {
     description?: string;
     socialLinks?: SocialLinks;
-    themeColor?: string;
     holidayMode?: boolean;
     promotions?: string[];
 }

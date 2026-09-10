@@ -13,6 +13,7 @@ import AppleIcon from '@mui/icons-material/Apple';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
+import { SignInWithApple } from '@capacitor-community/apple-sign-in';
 
 const socialLogins = [
   { title: 'Google', icon: <GoogleIcon />, gradientFrom: '#FF4B2B', gradientTo: '#FF416C' },
@@ -67,6 +68,32 @@ const LoginForm = () => {
       otp,
       navigate
     }));
+  };
+
+  const handleAppleSignIn = async () => {
+    try {
+      const result = await SignInWithApple.authorize({
+        clientId: 'com.nearlook.app',
+        redirectURI: '',
+        scopes: 'email name'
+      });
+      let email = result.response?.email;
+      if (!email && result.response?.identityToken) {
+        const decoded: any = jwtDecode(result.response.identityToken);
+        email = decoded.email;
+      }
+      
+      if (email) {
+        formik.setFieldValue('email', email);
+        dispatch(sendLoginSignupOtp({ email }));
+        setTimer(30);
+        setIsTimerActive(true);
+      } else {
+        console.error('Apple Sign-In failed to return an email');
+      }
+    } catch (error) {
+      console.error('Apple Sign-In failed', error);
+    }
   };
 
   // Timer logic
@@ -200,19 +227,30 @@ const LoginForm = () => {
               <span className="px-2 bg-white text-gray-500">Or continue with</span>
             </div>
           </div>
-          <div className="mt-6 flex justify-center">
-            <GoogleLogin
-              onSuccess={(credentialResponse) => {
-                const decoded: any = jwtDecode(credentialResponse.credential!);
-                formik.setFieldValue('email', decoded.email);
-                dispatch(sendLoginSignupOtp({ email: decoded.email }));
-                setTimer(30);
-                setIsTimerActive(true);
-              }}
-              onError={() => {
-                console.error('Google Login Failed');
-              }}
-            />
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex-shrink-0">
+              <GoogleLogin
+                onSuccess={(credentialResponse) => {
+                  const decoded: any = jwtDecode(credentialResponse.credential!);
+                  formik.setFieldValue('email', decoded.email);
+                  dispatch(sendLoginSignupOtp({ email: decoded.email }));
+                  setTimer(30);
+                  setIsTimerActive(true);
+                }}
+                onError={() => {
+                  console.error('Google Login Failed');
+                }}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={handleAppleSignIn}
+              className="flex items-center justify-center gap-2 bg-black text-white px-4 rounded shadow hover:bg-gray-800 transition-colors w-[200px]"
+              style={{ height: '40px' }}
+            >
+              <AppleIcon />
+              <span className="text-sm font-medium font-sans">Sign in with Apple</span>
+            </button>
           </div>
         </div>
       )}

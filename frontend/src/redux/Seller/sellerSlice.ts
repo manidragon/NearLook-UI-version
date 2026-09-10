@@ -9,8 +9,10 @@ import { api } from "../../Config/Api";
 interface SellerState {
   sellers: Seller[];
   selectedSeller: Seller | null;
+  sellerDetails: any | null;
   profile: Seller | null;
   loading: boolean;
+  detailsLoading: boolean;
   error: string | null;
   report: SellerReport | null;
   profileUpdated: boolean;
@@ -20,7 +22,9 @@ interface SellerState {
 const initialState: SellerState = {
   sellers: [],
   selectedSeller: null,
+  sellerDetails: null,
   loading: false,
+  detailsLoading: false,
   error: null,
   profile: null,
   report: null,
@@ -263,6 +267,20 @@ export const deleteSeller = createAsyncThunk<void, string>(
 );
 
 // Create the slice
+export const fetchSellerDetailsForAdmin = createAsyncThunk<any, string>(
+  'sellers/fetchSellerDetailsForAdmin',
+  async (sellerId: string, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/admin/sellers/${sellerId}/details`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('jwt')}` },
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch seller details');
+    }
+  }
+);
+
 const sellerSlice = createSlice({
   name: "sellers",
   initialState,
@@ -398,6 +416,18 @@ const sellerSlice = createSlice({
       })
       .addCase(fetchSellerReport.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchSellerDetailsForAdmin.pending, (state) => {
+        state.detailsLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchSellerDetailsForAdmin.fulfilled, (state, action) => {
+        state.detailsLoading = false;
+        state.sellerDetails = action.payload;
+      })
+      .addCase(fetchSellerDetailsForAdmin.rejected, (state, action) => {
+        state.detailsLoading = false;
         state.error = action.payload as string;
       });
   },

@@ -73,7 +73,7 @@ class AuthService {
 
     const user = await User.findOne({ email });
     if (!user) {
-      throw new UserError("Invalid username or password");
+      throw new UserError("User not found, please register first");
     }
 
     // 🔑 Verify OTP

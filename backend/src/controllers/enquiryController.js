@@ -32,6 +32,12 @@ exports.getSellerEnquiries = async (req, res) => {
       seller: req.seller._id,
     }).sort({ createdAt: -1 });
 
+    // Mark all 'NEW' enquiries as 'READ' now that the seller has viewed them
+    await Enquiry.updateMany(
+      { seller: req.seller._id, status: "NEW" },
+      { $set: { status: "READ" } }
+    );
+
     res.status(200).json(enquiries);
   } catch (error) {
     res.status(500).json({

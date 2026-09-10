@@ -7,10 +7,14 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 'auto',
-  height: '100%',
+  width: '100vw',
+  height: '100vh',
+  bgcolor: 'rgba(0,0,0,0.9)',
   boxShadow: 24,
   outline: 'none',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
 };
 
 const PLACEHOLDER_50 = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50'%3E%3Crect width='50' height='50' fill='%23f5f5f5'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='8' fill='%23999'%3ENo Image%3C/text%3E%3C/svg%3E";
@@ -269,12 +273,13 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
       <div className="lumen-gallery">
         <div className="lumen-gallery__main">
           <div 
-            className="lumen-mediaFrame" 
+            className="lumen-mediaFrame cursor-pointer" 
             id="mainMediaFrame"
             ref={viewerRef}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             onMouseEnter={handleMouseMove}
+            onClick={handleOpen}
           >
             {displayImages.length > 0 && displayImages[selectedImage] ? (
               <img
@@ -308,7 +313,11 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
             <div className="lumen-mediaFrame__shine" aria-hidden="true"></div>
 
             
-            <div className="absolute top-4 right-4 z-10 bg-white/80 backdrop-blur-sm rounded-full shadow-md hover:bg-white transition-all hover:scale-110 active:scale-95 flex items-center justify-center" style={{ width: '44px', height: '44px' }}>
+            <div 
+              className="absolute top-4 right-4 z-10 bg-white/80 backdrop-blur-sm rounded-full shadow-md hover:bg-white transition-all hover:scale-110 active:scale-95 flex items-center justify-center" 
+              style={{ width: '44px', height: '44px' }}
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="heart-container" title="Like">
               <input 
                 type="checkbox" 
@@ -377,6 +386,16 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
       {/* MODAL FOR IMAGE ZOOM */}
       <Modal open={open} onClose={handleClose}>
         <Box sx={style}>
+          <button 
+            onClick={handleClose} 
+            className="absolute top-4 right-4 z-50 text-white bg-black/50 rounded-full p-2 hover:bg-black/80"
+            aria-label="Close zoom modal"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
           {displayImages.length > 0 && displayImages[selectedImage] ? (
             <ZoomableImage
               src={displayImages[selectedImage]}

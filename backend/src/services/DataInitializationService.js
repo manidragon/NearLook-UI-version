@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 
 class DataInitializationService {
   async initializeAdminUser() {
-    const adminEmail = 'NearLook@gmail.com';
+    const adminEmail = 'nearlookindia@gmail.com';
     const adminPassword = 'NearLook@123';
     
     try {

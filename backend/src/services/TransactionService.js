@@ -110,14 +110,19 @@ async getTransactionsBySellerId(sellerId, options = {}) {
     // ✅ Populate order with orderItems and their returnRequest
     .populate({
       path: 'order',
-      select: 'orderStatus totalSellingPrice totalMrpPrice orderDate deliverDate fulfillmentType createdAt', // ✅ Added createdAt as fallback
-      populate: {
-        path: 'orderItems',
-        populate: {
-          path: 'returnRequest',
-          select: 'status refundStatus refundAmount'
+      select: 'orderStatus totalSellingPrice totalMrpPrice orderDate deliverDate fulfillmentType createdAt shippingAddress billingInfo', // ✅ Added shippingAddress and billingInfo
+      populate: [
+        {
+          path: 'orderItems',
+          populate: {
+            path: 'returnRequest',
+            select: 'status refundStatus refundAmount'
+          }
+        },
+        {
+          path: 'shippingAddress'
         }
-      }
+      ]
     })
     // ✅ Populate customer
     .populate('customer', 'fullName email mobile')

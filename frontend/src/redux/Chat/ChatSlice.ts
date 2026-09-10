@@ -50,10 +50,26 @@ const chatSlice = createSlice({
   initialState,
   reducers: {
     addMessage: (state, action) => {
-      state.messages.push(action.payload);
+      // If we are looking at the current chat, add the message to the view
+      if (state.currentChat && state.currentChat._id === action.payload.chat) {
+        state.messages.push(action.payload);
+      }
+      // Update the chat's lastMessage and unreadCount
+      const chatIndex = state.chats.findIndex(c => c._id === action.payload.chat);
+      if (chatIndex !== -1) {
+        state.chats[chatIndex].lastMessage = action.payload;
+        if ((!state.currentChat || state.currentChat._id !== action.payload.chat) && action.payload.senderType === 'User') {
+          state.chats[chatIndex].unreadCount = (state.chats[chatIndex].unreadCount || 0) + 1;
+        }
+      }
     },
     setCurrentChat: (state, action) => {
       state.currentChat = action.payload;
+      // Optimistically clear unread count if we switch to this chat
+      const chatIndex = state.chats.findIndex(c => c._id === action.payload._id);
+      if (chatIndex !== -1) {
+        state.chats[chatIndex].unreadCount = 0;
+      }
     },
     markMessagesAsSeen: (state, action) => {
       // payload: { chatId, readerType }
@@ -62,6 +78,11 @@ const chatSlice = createSlice({
           msg.isRead = true;
         }
       });
+      // Clear unread count on the chat object as well
+      const chatIndex = state.chats.findIndex(c => c._id === action.payload.chatId);
+      if (chatIndex !== -1 && action.payload.readerType === 'Seller') {
+        state.chats[chatIndex].unreadCount = 0;
+      }
     }
   },
   extraReducers: (builder) => {

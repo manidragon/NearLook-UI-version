@@ -607,7 +607,7 @@ const ReturnRequestForm: React.FC<ReturnRequestFormProps> = ({
         </DialogActions>
       </form>
 
-      <Snackbar
+      <Snackbar sx={{ mb: { xs: 8, sm: 0 } }}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         open={!!formError}
         autoHideDuration={4000}

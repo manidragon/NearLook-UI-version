@@ -12,7 +12,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import Navbar from "../../components/Navbar/Navbar";
-import { GoogleOAuthProvider } from '@react-oauth/google';
+
 const BecomeSeller = () => {
   const dispatch = useAppDispatch();
   const [modalOpen, setModalOpen] = useState(false);
@@ -167,7 +167,7 @@ const BecomeSeller = () => {
       </section>
 
       {/* ─── MODAL POPUP FOR FORMS ─── */}
-      <GoogleOAuthProvider clientId="903968210580-qe4gosdi9acof4hutt3aeamro1bmj9a5.apps.googleusercontent.com">
+      <>
       <Dialog
         open={modalOpen}
         onClose={handleCloseModal}
@@ -213,30 +213,9 @@ const BecomeSeller = () => {
           </div>
         </div>
       </Dialog>
-      </GoogleOAuthProvider>
+      </>
 
-      {/* Snackbar */}
-      <Snackbar
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={
-            sellerAuth.error 
-              ? sellerAuth.error.toLowerCase().includes("pending") 
-                ? "warning" 
-                : "error" 
-              : "success"
-          }
-          variant="filled"
-          sx={{ width: '100%' }}
-        >
-          {sellerAuth.error || "OTP sent successfully!"}
-        </Alert>
-      </Snackbar>
+      {/* Snackbar removed to avoid duplication with form components */}
     </div>
   );
 };

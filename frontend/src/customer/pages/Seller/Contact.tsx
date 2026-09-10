@@ -252,7 +252,7 @@ export default function Contact({ seller }: any) {
           </div>
         </div>
       </div>
-      <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)}>
+      <Snackbar sx={{ mb: { xs: 8, sm: 0 } }} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)}>
         <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMsg}
         </Alert>

@@ -13,7 +13,7 @@ interface ChatModalProps {
   onClose: () => void;
 }
 
-export default function ChatModal({ sellerId, sellerName, themeColor = '#1976d2', onClose }: ChatModalProps) {
+export default function ChatModal({ sellerId, sellerName, themeColor = '#FF5A00', onClose }: ChatModalProps) {
   const dispatch = useAppDispatch();
   const auth = useAppSelector(state => state.auth);
   const chat = useAppSelector(state => state.chat);

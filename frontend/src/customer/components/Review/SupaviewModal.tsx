@@ -315,7 +315,7 @@ const SupaviewModal: React.FC<SupaviewModalProps> = ({ open, onClose, reviewType
             </Box>
             </Modal>
             
-            <Snackbar
+            <Snackbar sx={{ mb: { xs: 8, sm: 0 } }}
                 open={!!submitError}
                 autoHideDuration={4000}
                 onClose={() => setSubmitError('')}

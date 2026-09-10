@@ -34,7 +34,7 @@ export const sendSellerLoginOtp = createAsyncThunk(
   'sellerAuth/sendSellerLoginOtp',
   async (email: string, { rejectWithValue }) => {
     try {
-      const response = await api.post('/auth/sent/login-signup-otp', { email });
+      const response = await api.post('/sellers/send-login-otp', { email });
       return response.data;
     } catch (error: any) {
       return rejectWithValue(

@@ -33,7 +33,6 @@ export const sendLoginSignupOtp = createAsyncThunk<ApiResponse, { email: string 
             const response = await api.post(`${API_URL}/sent/login-signup-otp`, { email });
             return response.data;
         } catch (error: any) {
-            console.log("error --- ", error)
             return rejectWithValue(error.response.data.error || 'Failed to send OTP');
         }
     }
@@ -49,7 +48,6 @@ export const signup = createAsyncThunk<AuthResponse, SignupRequest>(
             localStorage.setItem("jwt", response.data.jwt)
             return response.data;
         } catch (error: any) {
-            console.log("signin error", error.response);
             return rejectWithValue(
                 error.response?.data?.error || 'Signin failed'
             );
@@ -70,7 +68,6 @@ export const signin = createAsyncThunk<AuthResponse, LoginRequest>(
         }
             return response.data;
         } catch (error: any) {
-            console.log("Signin error:", error.response?.data)
             return rejectWithValue(error.response?.data?.error || error.response?.data?.message || 'Signin failed');
         }
     }

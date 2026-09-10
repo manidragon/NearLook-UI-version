@@ -1,6 +1,7 @@
 // D:\Mani\Code with Zosh\Backup\source code\backend\src\services\OrderService.js
 const Order = require("../models/Order");
 const Cart = require("../models/Cart");
+const Product = require("../models/Product");
 const Address = require("../models/Address");
 const User = require("../models/User");
 const OrderItem = require("../models/OrderItem");
@@ -13,6 +14,7 @@ const TransactionService = require("./TransactionService");
 const Seller = require("../models/Seller");
 const SellerReportService = require("./SellerReportService");
 const Transaction = require("../models/Transaction");
+const { sendPushNotification } = require("../utils/sendPushNotification");
 
 class OrderService {
   async createOrder(user, shippingAddress, cart, fulfillmentType = 'DELIVERY', pickupTime = null, paymentMethod = 'RAZORPAY') {
@@ -143,16 +145,58 @@ class OrderService {
         // Create order items first
         const orderItemIds = [];
         for (const cartItem of cartItems) {
+          
+          let variantId = cartItem.variantId;
+          let offerId = cartItem.offerId;
+
+          if (!variantId || !offerId) {
+             for (const v of cartItem.product.variants) {
+                 if (v.offers) {
+                     const offer = v.offers.find(o => String(o._id) === String(cartItem.offerId));
+                     if (offer) {
+                         variantId = v._id;
+                         offerId = offer._id;
+                         break;
+                     }
+                 }
+             }
+          }
+
           const orderItem = new OrderItem({
             product: cartItem.product._id,
             size: cartItem.size,
             quantity: cartItem.quantity,
             mrpPrice: cartItem.mrpPrice,
             sellingPrice: cartItem.sellingPrice,
-            userId: user._id
+            userId: user._id,
+            variantId: variantId,
+            offerId: offerId
           });
           const savedOrderItem = await orderItem.save();
           orderItemIds.push(savedOrderItem._id);
+
+          // ✅ NEW: Deduct Stock
+          const qty = cartItem.quantity;
+
+          if (variantId && offerId) {
+              await Product.updateOne(
+                  {
+                      _id: cartItem.product._id,
+                      'variants._id': variantId,
+                      'variants.offers._id': offerId,
+                      'variants.offers.stock': { $gte: qty }
+                  },
+                  {
+                      $inc: { 'variants.$[v].offers.$[o].stock': -qty }
+                  },
+                  {
+                      arrayFilters: [
+                          { 'v._id': variantId },
+                          { 'o._id': offerId }
+                      ]
+                  }
+              );
+          }
         }
 
         // Fetch seller details to get handling time and pickup address
@@ -228,6 +272,15 @@ const newOrder = new Order({
         }
 
         orders.push(savedOrder);
+        
+        // Trigger Push Notification to Seller
+        if (seller.fcmToken) {
+            await sendPushNotification(
+                seller.fcmToken,
+                "New Order Received! 📦",
+                `You received a new order for ${totalItemCount} items.`
+            );
+        }
       }
 
       return orders;
@@ -421,11 +474,78 @@ const newOrder = new Order({
       }
     }
 
+    // Trigger Push Notification to User
+    const user = await User.findById(updatedOrder.user);
+    if (user && user.fcmToken) {
+        let title = "Order Update";
+        let body = `Your order status is now ${orderStatus}`;
+        if (orderStatus === OrderStatus.DELIVERED) {
+            title = "Order Delivered! 🎉";
+            body = "Your order has been successfully delivered.";
+        }
+        await sendPushNotification(user.fcmToken, title, body);
+    }
+
     return updatedOrder;
+  }
+
+  async restoreStockForOrder(orderId) {
+    try {
+        const order = await Order.findById(orderId).populate('orderItems');
+        if (!order) return;
+
+        const Product = require('../models/Product');
+
+        for (const item of order.orderItems) {
+            let varId = item.variantId;
+            let offId = item.offerId;
+
+            if (!varId || !offId) {
+                const product = await Product.findById(item.product);
+                if (product && product.variants) {
+                    for (const v of product.variants) {
+                        if (!v.offers) continue;
+                        for (const o of v.offers) {
+                            if (o.mrp === item.mrpPrice && o.sellingPrice === item.sellingPrice) {
+                                varId = v._id;
+                                offId = o._id;
+                                break;
+                            }
+                        }
+                        if (varId) break;
+                    }
+                }
+            }
+
+            if (varId && offId) {
+                await Product.updateOne(
+                    {
+                        _id: item.product,
+                        'variants._id': varId,
+                        'variants.offers._id': offId
+                    },
+                    {
+                        $inc: { 'variants.$[v].offers.$[o].stock': item.quantity }
+                    },
+                    {
+                        arrayFilters: [
+                            { 'v._id': varId },
+                            { 'o._id': offId }
+                        ]
+                    }
+                );
+            }
+        }
+    } catch (err) {
+        console.error("⚠️ Failed to restore stock:", err.message);
+    }
   }
 
   async deleteOrder(orderId) {
     const order = await this.findOrderById(orderId);
+    if (order.orderStatus !== OrderStatus.CANCELLED && order.orderStatus !== OrderStatus.DELIVERED) {
+       await this.restoreStockForOrder(orderId);
+    }
     return await Order.deleteOne({ _id: orderId });
   }
 
@@ -442,7 +562,7 @@ const newOrder = new Order({
       throw new OrderError(`Cannot cancel order with status: ${order.orderStatus}`);
     }
 
-    return await Order.findByIdAndUpdate(
+    const updatedOrder = await Order.findByIdAndUpdate(
       orderId,
       { orderStatus: OrderStatus.CANCELLED },
       { new: true }
@@ -451,6 +571,9 @@ const newOrder = new Order({
       { path: "shippingAddress" },
       { path: "orderItems", populate: { path: "product", populate: { path: "seller" } } },
     ]);
+
+    await this.restoreStockForOrder(orderId);
+    return updatedOrder;
   }
 
   async cancelOrderWithReport(orderId, user, refundReason = 'Customer requested cancellation') {
@@ -513,6 +636,7 @@ const newOrder = new Order({
       // Don't fail the cancellation for transaction update error
     }
 
+    await this.restoreStockForOrder(orderId);
     return updatedOrder;
   }
 

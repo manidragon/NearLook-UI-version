@@ -271,7 +271,7 @@ const OrderStepper: React.FC<OrderStepperProps> = ({
       { name: "Ordered", description: `Order Placed • ${fd(orderDate)}`, icon: <ReceiptIcon />, value: "PLACED" },
       { name: "Confirmed", icon: <BoxIcon />, value: "CONFIRMED" },
       { name: "Ready for Pickup", icon: <RouteIcon />, value: "READY_FOR_PICKUP" },
-      { name: "Picked Up", description: `Collected • ${fd(deliverDate)}`, icon: <CheckIcon />, value: "DELIVERED" }
+      { name: "Picked Up", description: pickupTime ? `Collected • ${dayjs(pickupTime.endsWith('Z') ? pickupTime.slice(0, -1) : pickupTime).format('MMM DD, YYYY h:mm A')}` : `Collected • ${fd(deliverDate)}`, icon: <CheckIcon />, value: "DELIVERED" }
     ];
   } else {
     steps = [

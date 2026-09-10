@@ -197,7 +197,7 @@ const AddProductForm: React.FC<{
                   isReturnable: Boolean(offer.isReturnable),
                   returnTAT: String(offer.returnTAT || 'N/A'),
                   isReplaceable: Boolean(offer.isReplaceable),
-                  replacementTAT: String(offer.replacementTAT || 'N/A'),
+                  replacementTAT: String(offer.replacementTAT || '7 Days'),
                   hasDeliveryCharge: Boolean(offer.hasDeliveryCharge),
                   deliveryChargePrice: Number(offer.deliveryChargePrice || 0),
                   freeDeliveryRadiusKM: Number(offer.freeDeliveryRadiusKM || 0),
@@ -224,13 +224,7 @@ const AddProductForm: React.FC<{
                 }
               });
 
-              // ✅ Debug: Verify specifications filtering
-              console.log('🔍 [Submit] Variant specs filtering:', {
-                allSpecsKeys: Object.keys(allSpecs),
-                variantAttributeNames,
-                filteredSpecsKeys: Object.keys(variantSpecs),
-                color: colorVariant.color
-              });
+
 
               return {
                 color: colorVariant.color.trim(),
@@ -249,20 +243,7 @@ const AddProductForm: React.FC<{
           throw new Error('Please add at least one variant with valid price and stock');
         }
 
-        console.log('✅ [Submit] Valid variants payload:', {
-          count: variantsPayload.length,
-          variants: variantsPayload.map(v => ({
-            color: v.color,
-            specs: v.specifications,
-            offersCount: v.offers.length,
-            offers: v.offers.map(o => ({
-              seller: o.seller,
-              mrpPrice: o.mrpPrice,
-              sellingPrice: o.sellingPrice,
-              stock: o.stock
-            }))
-          }))
-        });
+
 
 
         // ✅ INDEPENDENT PRODUCT: Create or Update
@@ -371,6 +352,40 @@ const AddProductForm: React.FC<{
     },
   });
 
+  // ✅ Sync colorHighlights from formik variants (important for catalog products)
+  useEffect(() => {
+    setColorHighlights((prev) => {
+      let changed = false;
+      const next = { ...prev };
+
+      const colorAttr = attributeState.attributes?.find(
+        (a: any) => a.isVariantField && !a.isSubVariantField && a.isActive
+      );
+
+      formik.values.variants.forEach((variant, idx) => {
+        if (!next[idx]) next[idx] = {};
+
+        // Sync highlights object if it exists
+        if (variant.highlights && Object.keys(variant.highlights).length > 0) {
+          Object.entries(variant.highlights).forEach(([k, v]) => {
+            if (next[idx][k] !== v) {
+              next[idx][k] = v as string;
+              changed = true;
+            }
+          });
+        }
+
+        // Sync main color property to the dynamic color attribute field
+        if (colorAttr && variant.color && next[idx][colorAttr.name] !== variant.color) {
+          next[idx][colorAttr.name] = variant.color;
+          changed = true;
+        }
+      });
+
+      return changed ? next : prev;
+    });
+  }, [formik.values.variants, attributeState.attributes]);
+
   const catalogSearch = useCatalogSearch(formik, (msg) => { setSnackbarMessage(msg); setSnackbarSeverity('error'); setOpenSnackbar(true); });
 
   // ✅ FIX: validationSchema AFTER catalogSearch declaration
@@ -454,23 +469,7 @@ const AddProductForm: React.FC<{
   }, [formik.values, mode, catalogSearch.isCatalogProduct]);
   // ✅ Navigation with catalog mode handling
   const handleNext = async () => {
-    // Handle catalog search step
-    if (mode === "add" && catalogSearch.showSearch && activeStep === 0) {
-      if (catalogSearch.selectedCatalog) {
-        // ✅ Catalog already selected - attributes fetched in handleSelectCatalog
-        catalogSearch.handleSkipCatalogSearch();
-        setActiveStep(1);  // ✅ Go to Step 1
-        return;
-      }
-      if (catalogSearch.results.length > 0 && !catalogSearch.selectedCatalog) {
-        const confirmSkip = window.confirm(
-          '⚠️ You searched but didn\'t select a catalog. Create independent product instead?'
-        );
-        if (!confirmSkip) return;
-      }
-      catalogSearch.handleSkipCatalogSearch();
-      return;
-    }
+
     // Existing validation logic
     if (mode === "edit") {
       if (activeStep === 0) {
@@ -629,7 +628,7 @@ const AddProductForm: React.FC<{
               isReturnable: false,
               returnTAT: "7 Days",
               isReplaceable: false,
-              replacementTAT: "N/A",
+              replacementTAT: "7 Days",
               hasDeliveryCharge: false,
               deliveryChargePrice: "0",
               freeDeliveryRadiusKM: "0",
@@ -701,7 +700,7 @@ const AddProductForm: React.FC<{
           isReturnable: false,
           returnTAT: '7 Days',
           isReplaceable: false,
-          replacementTAT: 'N/A',
+          replacementTAT: '7 Days',
           hasDeliveryCharge: false,
           deliveryChargePrice: '0',
           freeDeliveryRadiusKM: '0',
@@ -774,7 +773,7 @@ const AddProductForm: React.FC<{
       isReturnable: false,
       returnTAT: '7 Days',
       isReplaceable: false,
-      replacementTAT: 'N/A',
+      replacementTAT: '7 Days',
       hasDeliveryCharge: false,
       deliveryChargePrice: '0',
       freeDeliveryRadiusKM: '0',
@@ -1097,7 +1096,7 @@ const AddProductForm: React.FC<{
   return (
     <Box sx={{ p: { xs: 1, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
       <Paper elevation={0} sx={{ p: { xs: 2, md: 4 }, borderRadius: 4, bgcolor: '#ffffff', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', border: '1px solid', borderColor: 'grey.100' }}>
-      {mode !== "edit" && (
+      {mode !== "edit" && !(activeStep === 0 && catalogSearch.showSearch) && (
         <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: { xs: 3, sm: 6 }, '& .MuiStepLabel-label': { mt: 1, fontWeight: 500, fontSize: { xs: '0.7rem', sm: '0.875rem' } } }}>
           {steps.map((label, index) => (
             <Step key={index}>
@@ -1140,7 +1139,7 @@ const AddProductForm: React.FC<{
               onSelectCatalog={catalogSearch.handleSelectCatalog}
               onPreviewCatalog={catalogSearch.setSelectedCatalog}
               onSkip={catalogSearch.handleSkipCatalogSearch}
-              onNext={handleNext}
+              onNext={() => setActiveStep(1)}
             />
           ) : activeStep === 0 && mode !== "edit" ? (
             <CategoryStep

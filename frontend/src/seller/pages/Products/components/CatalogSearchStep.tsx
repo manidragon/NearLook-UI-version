@@ -58,7 +58,7 @@ export const CatalogSearchStep: React.FC<CatalogSearchStepProps> = ({
   onNext,
 }) => {
   // ✅ NEW: State to track which variants are selected for the selected catalog
-  const [variantSelection, setVariantSelection] = useState<Record<number, boolean>>({});
+  const [variantSelection, setVariantSelection] = useState<Record<string, boolean>>({});
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -76,44 +76,19 @@ export const CatalogSearchStep: React.FC<CatalogSearchStepProps> = ({
     }
   }, [searchQuery, showDropdown]);
 
-  // ✅ Debug log ONLY when search is initiated (button click)
-  useEffect(() => {
-    // Check if isSearching just changed from false → true (search started)
-    if (isSearching && !prevIsSearchingRef.current) {
-      console.log('🔍 [CatalogSearchStep] Search initiated:', {
-        query: searchQuery,
-        timestamp: new Date().toISOString()
-      });
-    }
 
-    // Update ref for next render
-    prevIsSearchingRef.current = isSearching;
-
-    // ✅ Also log when results arrive (search completed)
-    if (!isSearching && prevIsSearchingRef.current && results?.length >= 0) {
-      console.log('📦 [CatalogSearchStep] Search completed:', {
-        resultsLength: results?.length,
-        firstResult: results?.[0]?.title,
-        query: searchQuery
-      });
-    }
-
-    // Update ref again after potential state changes
-    prevIsSearchingRef.current = isSearching;
-
-  }, [isSearching, results, searchQuery]);
 
  // ✅ Sync variantSelection when selectedVariants prop changes (from parent)
 useEffect(() => {
   if (selectedVariants && Array.isArray(selectedVariants) && selectedCatalog?.variantTemplate) {
-    const newSelection: Record<number, boolean> = {};
+    const newSelection: Record<string, boolean> = {};
 
     selectedVariants.forEach((selectedVar: any) => {
       const idx = selectedCatalog.variantTemplate?.findIndex(
         (v: any) => v._id === selectedVar._id || v._id === selectedVar
       );
       if (idx !== undefined && idx >= 0) {
-        newSelection[idx] = true;
+        newSelection[`${selectedCatalog._id}_${idx}`] = true;
       }
     });
 
@@ -183,25 +158,26 @@ useEffect(() => {
   };
 
   // ✅✅✅ NEW: Handle variant selection toggle
-  const handleVariantToggle = (variantIndex: number) => {
+  const handleVariantToggle = (catalogId: string, variantIndex: number) => {
+    const key = `${catalogId}_${variantIndex}`;
     setVariantSelection(prev => ({
       ...prev,
-      [variantIndex]: !prev[variantIndex]
+      [key]: !prev[key]
     }));
   };
 
   // ✅✅✅ NEW: Get selected variants count
   const getSelectedVariantsCount = (catalog: any) => {
     if (!catalog.variantTemplate) return 0;
-    return catalog.variantTemplate.filter((_: any, idx: number) => variantSelection[idx]).length;
+    return catalog.variantTemplate.filter((_: any, idx: number) => variantSelection[`${catalog._id}_${idx}`]).length;
   };
 
   // ✅✅✅ NEW: Handle "Select All" variants
   const handleSelectAllVariants = (catalog: any, selectAll: boolean) => {
     if (!catalog.variantTemplate) return;
-    const newSelection: Record<string, boolean> = {};
+    const newSelection: Record<string, boolean> = { ...variantSelection };
     catalog.variantTemplate.forEach((_: any, idx: number) => {
-      newSelection[idx] = selectAll;
+      newSelection[`${catalog._id}_${idx}`] = selectAll;
     });
     setVariantSelection(newSelection);
   };
@@ -209,7 +185,7 @@ useEffect(() => {
   // ✅✅✅ UPDATED: Handle catalog selection with selected variants
   const handleSelectCatalogWithVariants = (catalog: any) => {
     // Get selected variants from the catalog
-    const selectedVars = catalog.variantTemplate?.filter((_: any, idx: number) => variantSelection[idx]) || [];
+    const selectedVars = catalog.variantTemplate?.filter((_: any, idx: number) => variantSelection[`${catalog._id}_${idx}`]) || [];
 
     if (selectedVars.length === 0) {
       setSnackbarMessage('Please select at least one variant to continue');
@@ -218,6 +194,7 @@ useEffect(() => {
     }
 
     onSelectCatalog(catalog, selectedVars);
+    onNext();
   };
 
   return (
@@ -432,17 +409,21 @@ useEffect(() => {
                       {/* Select Button */}
                       <Box sx={{ display: 'flex', alignItems: { xs: 'stretch', sm: 'center' }, mt: { xs: 1, sm: 0 } }}>
                         <Button
-                          variant="outlined"
+                          variant={selectedCount > 0 ? "contained" : "outlined"}
+                          color={selectedCount > 0 ? "success" : "primary"}
                           size="large"
-                          sx={{ width: { xs: '100%', sm: 'auto' }, minWidth: 100 }}
+                          sx={{ width: { xs: '100%', sm: 'auto' }, minWidth: 120, textTransform: 'none', fontWeight: 600 }}
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (!isSelected || selectedCount === 0) {
+                            if (selectedCount > 0) {
                               handleSelectCatalogWithVariants(catalog);
+                            } else {
+                               setSnackbarMessage('Please select at least one variant below to continue');
+                               setSnackbarOpen(true);
                             }
                           }}
                         >
-                          {selectedCount > 0 ? '✓ Selected' : 'Select'}
+                          {selectedCount > 0 ? 'Continue →' : 'Select Variants'}
                         </Button>
                       </Box>
                     </Box>
@@ -517,7 +498,7 @@ useEffect(() => {
                           </TableHead>
                           <TableBody>
                             {catalog.variantTemplate?.map((variant: any, idx: number) => {
-                              const isSelected = variantSelection[idx] || false;
+                              const isSelected = variantSelection[`${catalog._id}_${idx}`] || false;
                               return (
                                 <TableRow
                                   key={idx}
@@ -532,7 +513,7 @@ useEffect(() => {
                                   <TableCell padding="checkbox">
                                     <Checkbox
                                       checked={isSelected}
-                                      onChange={() => handleVariantToggle(idx)}
+                                      onChange={() => handleVariantToggle(catalog._id, idx)}
                                       color="primary"
                                     />
                                   </TableCell>
@@ -612,6 +593,7 @@ useEffect(() => {
 
       {/* Snackbar for alerts */}
       <Snackbar 
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
           open={snackbarOpen} 
           autoHideDuration={4000} 
           onClose={() => setSnackbarOpen(false)}

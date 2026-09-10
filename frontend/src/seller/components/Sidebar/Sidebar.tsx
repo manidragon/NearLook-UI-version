@@ -1,5 +1,3 @@
-// D:\Mani\Code with Zosh\Backup\source code\frontend\src\seller\components\Sidebar\Sidebar.tsx
-
 import * as React from "react";
 import {
   AccountBox,
@@ -23,8 +21,9 @@ import ChatIcon from "@mui/icons-material/Chat";
 import Divider from "@mui/material/Divider";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
+import Badge from "@mui/material/Badge";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../../../redux/Store";
+import { useAppDispatch, useAppSelector } from "../../../redux/Store";
 import { performLogout } from "../../../redux/Customer/AuthSlice";
 import "../../../SidebarGlider.css";
 
@@ -43,6 +42,7 @@ const menu = [
   },
   {
     name: "Orders",
+    id: "orders",
     path: "/seller/orders",
     icon: <ShoppingBagIcon className="text-primary-color" />,
     activeIcon: <ShoppingBagIcon className="text-white" />,
@@ -50,12 +50,14 @@ const menu = [
 
   {
     name: "Returns",
+    id: "returns",
     path: "/seller/returns",
     icon: <Replay className="text-primary-color" />,
     activeIcon: <Replay className="text-white" />,
   },
   {
     name: "Replacements",
+    id: "replacements",
     path: "/seller/replacements",
     icon: <SwapHoriz className="text-primary-color" />,
     activeIcon: <SwapHoriz className="text-white" />,
@@ -92,17 +94,19 @@ const menu = [
     activeIcon: <ReceiptIcon className="text-white" />,
   },
   {
-  name: "Enquiries",
-  path: "/seller/enquiries",
-  icon: <EmailIcon className="text-primary-color" />,
-  activeIcon: <EmailIcon className="text-white" />,
-},
+    name: "Enquiries",
+    id: "enquiries",
+    path: "/seller/enquiries",
+    icon: <EmailIcon className="text-primary-color" />,
+    activeIcon: <EmailIcon className="text-white" />,
+  },
   {
-  name: "Chats",
-  path: "/seller/chats",
-  icon: <ChatIcon className="text-primary-color" />,
-  activeIcon: <ChatIcon className="text-white" />,
-},
+    name: "Chats",
+    id: "chats",
+    path: "/seller/chats",
+    icon: <ChatIcon className="text-primary-color" />,
+    activeIcon: <ChatIcon className="text-white" />,
+  },
 ];
 
 const menu2 = [
@@ -127,7 +131,7 @@ interface SidebarProps {
 const SellerSidebar = ({ toggleDrawer }: SidebarProps) => {
 
     const dispatch = useAppDispatch()
-
+    const notifications = useAppSelector((state: any) => state.sellerNotifications?.counts || {});
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -168,13 +172,16 @@ const handleClick = (item: any) => () => {
                         </div>
                         {menu.map((item) => {
                             const isActive = item.path === location.pathname;
+                            const badgeCount = item.id ? notifications[item.id] || 0 : 0;
                             return (
                                 <div key={item.name}
                                     onClick={handleClick(item)}
                                     className="pr-9 cursor-pointer relative z-10">
                                     <div className={`${isActive ? "text-primary-color font-bold" : "text-gray-600"} flex items-center px-5 py-3 rounded-r-full transition-colors`}>
                                         <ListItemIcon sx={{ color: isActive ? '#FF5A00' : 'inherit' }}>
-                                            {isActive ? item.activeIcon : item.icon}
+                                            <Badge badgeContent={badgeCount} color="error" overlap="circular">
+                                                {isActive ? item.activeIcon : item.icon}
+                                            </Badge>
                                         </ListItemIcon>
                                         <ListItemText primary={item.name} />
                                     </div>

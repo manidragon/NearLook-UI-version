@@ -16,7 +16,6 @@ const steps = ['Basic Details', 'Business Info', 'Pickup Address', 'Bank Details
 const SellerAccountForm = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [otp, setOtp] = useState('');
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const dispatch = useAppDispatch();
   const { otpSent, loading, sellerCreated, error } = useAppSelector((state) => state.sellerAuth);
   const navigate = useNavigate();
@@ -27,10 +26,7 @@ const SellerAccountForm = () => {
 
   useEffect(() => {
     if (sellerCreated) {
-      setShowSuccessMessage(true);
-      setTimeout(() => {
-        navigate('/');
-      }, 5000);
+      navigate('/seller-registration-success');
     }
   }, [sellerCreated, navigate]);
 
@@ -108,7 +104,7 @@ const SellerAccountForm = () => {
   return (
     <Box>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: { xs: 2, sm: 3 }, position: 'relative' }}>
-        {activeStep > 0 && !showSuccessMessage && (
+        {activeStep > 0 && (
           <IconButton 
             onClick={handleBack} 
             sx={{ position: 'absolute', left: { xs: -10, sm: -20 }, top: 0, color: '#64748b' }}
@@ -154,16 +150,6 @@ const SellerAccountForm = () => {
         </Typography>
       )}
 
-      {showSuccessMessage ? (
-        <Box sx={{ textAlign: 'center', p: 3, bgcolor: '#f0fdf4', borderRadius: 2, border: '1px solid #bbf7d0' }}>
-          <Typography sx={{ color: '#166534', fontWeight: 600 }}>
-            {sellerCreated || 'Seller registered successfully!'}
-          </Typography>
-          <Typography sx={{ color: '#15803d', fontSize: '0.875rem', mt: 1 }}>
-            Redirecting to home...
-          </Typography>
-        </Box>
-      ) : (
         <form onSubmit={formik.handleSubmit}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             
@@ -194,7 +180,7 @@ const SellerAccountForm = () => {
                 </Box>
                 <Box sx={{ display: 'flex', gap: 2 }}>
                   <TextField label="Pin Code" name="pickupAddress.pinCode" value={formik.values.pickupAddress.pinCode} onChange={handleNumberChange(formik)} fullWidth />
-                  <TextField label="Locality" name="pickupAddress.locality" value={formik.values.pickupAddress.locality} onChange={formik.handleChange} fullWidth />
+                  <TextField label="Locality (Optional)" name="pickupAddress.locality" value={formik.values.pickupAddress.locality} onChange={formik.handleChange} fullWidth />
                 </Box>
               </>
             )}
@@ -253,7 +239,6 @@ const SellerAccountForm = () => {
             )}
           </Box>
         </form>
-      )}
     </Box>
   );
 };

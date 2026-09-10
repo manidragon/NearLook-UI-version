@@ -365,8 +365,18 @@ const OrderDetails = () => {
       ).toFixed(1)
       : null;
 
-  const handleCancelOrder = () => {
-    if (orderId) dispatch(cancelOrder(orderId));
+  const handleCancelOrder = async () => {
+    if (orderId) {
+        try {
+            await dispatch(cancelOrder(orderId)).unwrap();
+            if (orderItemId) {
+              dispatch(fetchOrderById({ orderId, jwt: localStorage.getItem("jwt") || "" }));
+              dispatch(fetchOrderItemById({ orderItemId, jwt: localStorage.getItem("jwt") || "" }));
+            }
+        } catch (error) {
+            console.error("Failed to cancel order", error);
+        }
+    }
   };
 
   const handleDeleteProductReview = async (e: React.MouseEvent) => {
@@ -747,57 +757,61 @@ const OrderDetails = () => {
               )}
             </div>
 
-            <Divider />
+            {orders.currentOrder?.orderStatus !== 'CANCELLED' && orders.currentOrder?.orderStatus !== 'RETURNED' && (
+              <>
+                <Divider />
 
-            {/* Bottom Actions */}
-            <div className="flex">
-              <div 
-                onClick={(e) => {
-                  if (hasReturnRequest() || hasReplacementRequest()) return;
-                  if (isShipped || isDelivered) {
-                    if (isReturnWindowOpen && isReplacementWindowOpen) {
-                      setReturnMenuAnchor(e.currentTarget);
-                    } else if (isReturnWindowOpen) {
-                      setIsReturnModalOpen(true);
-                    } else if (isReplacementWindowOpen) {
-                      setIsReplacementModalOpen(true);
-                    }
-                  } else {
-                    handleCancelOrder();
-                  }
-                }} 
-                className={`w-full p-3 text-center flex justify-center items-center ${hasReturnRequest() || hasReplacementRequest() || ((isShipped || isDelivered) && !isReturnWindowOpen && !isReplacementWindowOpen) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-50'}`}
-              >
-                 <Typography className="text-[14px] font-medium text-gray-700">
-                   {isShipped || isDelivered 
-                     ? (!isReturnWindowOpen && !isReplacementWindowOpen 
-                         ? "Return Window Closed" 
-                         : (isReturnWindowOpen && isReplacementWindowOpen) 
-                             ? "Return / Replace" 
-                             : isReturnWindowOpen ? "Return" : "Replace") 
-                     : "Cancel"}
-                 </Typography>
-              </div>
-              
-              <Menu
-                anchorEl={returnMenuAnchor}
-                open={Boolean(returnMenuAnchor)}
-                onClose={() => setReturnMenuAnchor(null)}
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-              >
-                {isReturnWindowOpen && (
-                  <MenuItem onClick={() => { setIsReturnModalOpen(true); setReturnMenuAnchor(null); }}>
-                     Return
-                  </MenuItem>
-                )}
-                {isReplacementWindowOpen && (
-                  <MenuItem onClick={() => { setIsReplacementModalOpen(true); setReturnMenuAnchor(null); }}>
-                     Replacement
-                  </MenuItem>
-                )}
-              </Menu>
-            </div>
+                {/* Bottom Actions */}
+                <div className="flex">
+                  <div 
+                    onClick={(e) => {
+                      if (hasReturnRequest() || hasReplacementRequest()) return;
+                      if (isShipped || isDelivered) {
+                        if (isReturnWindowOpen && isReplacementWindowOpen) {
+                          setReturnMenuAnchor(e.currentTarget);
+                        } else if (isReturnWindowOpen) {
+                          setIsReturnModalOpen(true);
+                        } else if (isReplacementWindowOpen) {
+                          setIsReplacementModalOpen(true);
+                        }
+                      } else {
+                        handleCancelOrder();
+                      }
+                    }} 
+                    className={`w-full p-3 text-center flex justify-center items-center ${hasReturnRequest() || hasReplacementRequest() || ((isShipped || isDelivered) && !isReturnWindowOpen && !isReplacementWindowOpen) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-50'}`}
+                  >
+                     <Typography className="text-[14px] font-medium text-gray-700">
+                       {isShipped || isDelivered 
+                         ? (!isReturnWindowOpen && !isReplacementWindowOpen 
+                             ? "Return Window Closed" 
+                             : (isReturnWindowOpen && isReplacementWindowOpen) 
+                                 ? "Return / Replace" 
+                                 : isReturnWindowOpen ? "Return" : "Replace") 
+                         : "Cancel"}
+                     </Typography>
+                  </div>
+                  
+                  <Menu
+                    anchorEl={returnMenuAnchor}
+                    open={Boolean(returnMenuAnchor)}
+                    onClose={() => setReturnMenuAnchor(null)}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                    transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                  >
+                    {isReturnWindowOpen && (
+                      <MenuItem onClick={() => { setIsReturnModalOpen(true); setReturnMenuAnchor(null); }}>
+                         Return
+                      </MenuItem>
+                    )}
+                    {isReplacementWindowOpen && (
+                      <MenuItem onClick={() => { setIsReplacementModalOpen(true); setReturnMenuAnchor(null); }}>
+                         Replacement
+                      </MenuItem>
+                    )}
+                  </Menu>
+                </div>
+              </>
+            )}
           </Card>
         </div>
 
@@ -1054,7 +1068,7 @@ const OrderDetails = () => {
         existingReview={mySellerReview}
       />
       
-      <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)}>
+      <Snackbar sx={{ mb: { xs: 8, sm: 0 } }} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)}>
         <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMsg}
         </Alert>

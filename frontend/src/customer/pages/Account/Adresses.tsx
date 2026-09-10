@@ -199,7 +199,7 @@ const Addresses = () => {
       )}
 
       {/* ✅ Snackbar for success/error messages */}
-      <Snackbar
+      <Snackbar sx={{ mb: { xs: 8, sm: 0 } }}
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={handleSnackbarClose}

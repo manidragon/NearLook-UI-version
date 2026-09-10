@@ -200,7 +200,7 @@ function DesktopTransactionRow({ transaction }: { transaction: Transaction }) {
         </TableCell>
         <TableCell sx={{ py: 1, px: 1.5 }}>
           <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
-            {transaction.isOffline ? transaction.customerPhone || transaction.order?.billingInfo?.customerPhone || 'N/A' : transaction.customer?.mobile || 'N/A'}
+            {transaction.isOffline ? transaction.customerPhone || transaction.order?.billingInfo?.customerPhone || 'N/A' : transaction.order?.shippingAddress?.mobile || transaction.customer?.mobile || 'N/A'}
           </Typography>
         </TableCell>
         <TableCell sx={{ py: 1, px: 1.5 }}>
@@ -321,7 +321,7 @@ export default function TransactionTable() {
     }
     if (appliedFilters.customerPhone) {
       result = result.filter(t => {
-        const phone = t.isOffline ? t.customerPhone || t.order?.billingInfo?.customerPhone : t.customer?.mobile;
+        const phone = t.isOffline ? t.customerPhone || t.order?.billingInfo?.customerPhone : t.order?.shippingAddress?.mobile || t.customer?.mobile;
         return phone?.includes(appliedFilters.customerPhone);
       });
     }

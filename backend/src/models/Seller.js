@@ -138,7 +138,6 @@ location: {
             website: { type: String, default: "" },
             twitter: { type: String, default: "" }
         },
-        themeColor: { type: String, default: "#1976d2" },
         holidayMode: { type: Boolean, default: false },
         promotions: [{ type: String }]
     },
@@ -175,6 +174,10 @@ location: {
     // ✅ Ratings & Reviews
     averageRating: { type: Number, default: 0, min: 0, max: 5 },
     totalReviews: { type: Number, default: 0 },
+    fcmToken: {
+      type: String,
+      default: ""
+    },
 }, {
     timestamps: true  
 });

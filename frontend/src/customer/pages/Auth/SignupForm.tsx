@@ -11,6 +11,8 @@ import { Alert, Box, Typography } from '@mui/material';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
 import { handleNameChange } from "../../../utils/validationUtils";
+import { SignInWithApple } from '@capacitor-community/apple-sign-in';
+import AppleIcon from '@mui/icons-material/Apple';
 const SignupForm = () => {
   const navigate = useNavigate();
   const [otp, setOtp] = useState("");
@@ -53,6 +55,39 @@ const SignupForm = () => {
       otp,
       navigate
     }));
+  };
+
+  const handleAppleSignIn = async () => {
+    try {
+      const result = await SignInWithApple.authorize({
+        clientId: 'com.nearlook.app',
+        redirectURI: '',
+        scopes: 'email name'
+      });
+      let email = result.response?.email;
+      let name = '';
+      if (result.response?.givenName) {
+        name = result.response.givenName + ' ' + (result.response.familyName || '');
+      }
+      
+      if (!email && result.response?.identityToken) {
+        const decoded: any = jwtDecode(result.response.identityToken);
+        email = decoded.email;
+        if (!name && decoded.name) name = decoded.name;
+      }
+      
+      if (email) {
+        formik.setFieldValue('email', email);
+        if (name) formik.setFieldValue('name', name);
+        dispatch(sendLoginSignupOtp({ email }));
+        setTimer(30);
+        setIsTimerActive(true);
+      } else {
+        console.error('Apple Sign-In failed to return an email');
+      }
+    } catch (error) {
+      console.error('Apple Sign-In failed', error);
+    }
   };
 
   // Timer logic
@@ -192,20 +227,31 @@ const SignupForm = () => {
               <span className="px-2 bg-white text-gray-500">Or continue with</span>
             </div>
           </div>
-          <div className="mt-6 flex justify-center">
-            <GoogleLogin
-              onSuccess={(credentialResponse) => {
-                const decoded: any = jwtDecode(credentialResponse.credential!);
-                formik.setFieldValue('email', decoded.email);
-                formik.setFieldValue('name', decoded.name || '');
-                dispatch(sendLoginSignupOtp({ email: decoded.email }));
-                setTimer(30);
-                setIsTimerActive(true);
-              }}
-              onError={() => {
-                console.error('Google Login Failed');
-              }}
-            />
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex-shrink-0">
+              <GoogleLogin
+                onSuccess={(credentialResponse) => {
+                  const decoded: any = jwtDecode(credentialResponse.credential!);
+                  formik.setFieldValue('email', decoded.email);
+                  formik.setFieldValue('name', decoded.name || '');
+                  dispatch(sendLoginSignupOtp({ email: decoded.email }));
+                  setTimer(30);
+                  setIsTimerActive(true);
+                }}
+                onError={() => {
+                  console.error('Google Login Failed');
+                }}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={handleAppleSignIn}
+              className="flex items-center justify-center gap-2 bg-black text-white px-4 rounded shadow hover:bg-gray-800 transition-colors w-[200px]"
+              style={{ height: '40px' }}
+            >
+              <AppleIcon />
+              <span className="text-sm font-medium font-sans">Sign in with Apple</span>
+            </button>
           </div>
         </div>
       )}
