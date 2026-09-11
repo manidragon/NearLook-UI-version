@@ -8,6 +8,13 @@ const config: CapacitorConfig = {
     PushNotifications: {
       presentationOptions: ["badge", "sound", "alert"],
     },
+    StatusBar: {
+      overlaysWebView: true,
+      style: "DARK",
+    },
+  },
+  ios: {
+    allowsBackForwardNavigationGestures: true,
   },
 };
 

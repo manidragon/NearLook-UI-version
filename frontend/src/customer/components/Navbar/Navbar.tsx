@@ -509,6 +509,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
         left: 0,
         right: 0,
         zIndex: 1200,
+        paddingTop: 'env(safe-area-inset-top)',
       }}
       className="shadow-sm bg-white/70 backdrop-blur-md border-b border-white/50"
     >
@@ -519,7 +520,7 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
           <div className="flex items-center gap-1 sm:gap-2 lg:gap-6 shrink-0">
             {!isLarge && (
               location.pathname !== '/' ? (
-                <IconButton aria-label="Go back" onClick={() => navigate(-1)} sx={{ p: 0, mr: 0.5 }}>
+                <IconButton aria-label="Go back" onClick={() => window.history.length > 2 ? navigate(-1) : navigate('/', { replace: true })} sx={{ p: 0, mr: 0.5 }}>
                   <ArrowBackIcon className="text-gray-700" />
                 </IconButton>
               ) : (
@@ -734,7 +735,10 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
 
     {/* Mobile Bottom Navigation - Glassmorphic, Animated */}
     {!isAuthModalOpen && !hideMobileNav && !(isChatActive && !isLarge) && (
-      <div className={`fixed bottom-4 left-4 right-4 z-[1000] lg:hidden flex justify-center pb-safe transition-all duration-500 ease-in-out ${showMobileNavScroll ? 'translate-y-0 opacity-100' : 'translate-y-[150%] opacity-0'}`}>
+      <div 
+        className={`fixed left-4 right-4 z-[1000] lg:hidden flex justify-center transition-all duration-500 ease-in-out ${showMobileNavScroll ? 'translate-y-0 opacity-100' : 'translate-y-[150%] opacity-0'}`}
+        style={{ bottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}
+      >
         <div className="flex justify-around items-center w-full max-w-[420px] bg-white/60 backdrop-blur-2xl border border-white/80 shadow-[0_8px_32px_rgba(0,0,0,0.12)] rounded-full px-2 py-1.5">
           {/* Home */}
           <div onClick={() => navigate("/")} className="relative flex flex-col items-center justify-center w-[20%] h-[52px] cursor-pointer group">
