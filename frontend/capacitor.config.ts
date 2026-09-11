@@ -14,7 +14,6 @@ const config: CapacitorConfig = {
     },
   },
   ios: {
-    allowsBackForwardNavigationGestures: true,
   },
 };
 
