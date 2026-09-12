@@ -41,7 +41,10 @@ const Sidebar = ({ toggleDrawer }: SidebarProps) => {
       role="presentation"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 bg-white border-b border-gray-100 shadow-sm sticky top-0 z-10">
+      <div 
+        className="flex items-center justify-between px-5 pb-4 bg-white border-b border-gray-100 shadow-sm sticky top-0 z-10"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
+      >
         <div 
           onClick={() => { closeDrawer(); navigate("/"); }} 
           className="cursor-pointer m-0 flex items-center"

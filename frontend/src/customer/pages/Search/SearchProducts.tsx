@@ -83,7 +83,10 @@ const SearchProducts = () => {
   return (
     <div className='bg-[#F1F3F6] min-h-[100dvh] pb-[60px] lg:pb-0'>
       {/* Mobile-style Sticky Header */}
-      <div className="sticky top-0 z-50 bg-white border-b border-gray-200">
+      <div 
+        className="sticky top-0 z-50 bg-white border-b border-gray-200"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 4px)' }}
+      >
         <div className="flex items-center px-2 py-1 max-w-[1400px] mx-auto">
           {/* Mobile Back Button (Visible <768px) */}
           <IconButton aria-label="Back" className="md:hidden" onClick={() => navigate(-1)} sx={{ color: '#555', display: { md: 'none' } }}>

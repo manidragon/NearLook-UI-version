@@ -46,7 +46,10 @@ const Profile = () => {
   const isChatActive = location.pathname.includes('/account/chats') && chat.currentChat !== null;
 
   return (
-    <div className={`bg-[#F1F3F6] min-h-[100dvh] ${isChatActive && isMobile ? 'p-0 h-[100dvh] overflow-hidden' : 'py-4 md:py-8 px-2 sm:px-10 md:px-10 lg:px-20 xl:px-60 pb-[80px] md:pb-8'}`}>
+    <div 
+      className={`bg-[#F1F3F6] min-h-[100dvh] ${isChatActive && isMobile ? 'p-0 h-[100dvh] overflow-hidden' : 'py-4 md:py-8 px-2 sm:px-10 md:px-10 lg:px-20 xl:px-60 pb-[80px] md:pb-8'}`}
+      style={{ paddingTop: isMobile ? 'calc(env(safe-area-inset-top) + 16px)' : undefined }}
+    >
       <div className='flex flex-col md:flex-row gap-6 items-start h-full'>
         
         {(!isMobile || isRootAccount) && <ProfileNavigation />}

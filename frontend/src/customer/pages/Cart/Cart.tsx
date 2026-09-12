@@ -164,7 +164,7 @@ const Cart = () => {
   const totalAmount = cartItems.length > 0 ? (cart.cart?.totalSellingPrice || 0) + PLATFORM_FEE + totalDeliveryCharges : 0;
 
   return (
-    <div className="cart-page-wrapper">
+    <div className="cart-page-wrapper" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
       
       <div className="page">
         <div className="container cart-container">

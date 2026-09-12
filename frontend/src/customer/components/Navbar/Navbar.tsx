@@ -488,9 +488,9 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
     if (navRef.current) {
       setNavHeight(navRef.current.offsetHeight);
     }
-    const observer = new ResizeObserver((entries) => {
-      if (entries[0]) {
-        setNavHeight(entries[0].contentRect.height);
+    const observer = new ResizeObserver(() => {
+      if (navRef.current) {
+        setNavHeight(navRef.current.offsetHeight);
       }
     });
     if (navRef.current) observer.observe(navRef.current);

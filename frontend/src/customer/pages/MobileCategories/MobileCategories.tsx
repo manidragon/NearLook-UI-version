@@ -87,7 +87,10 @@ const MobileCategories = () => {
   return (
     <div className="flex flex-col h-[100dvh] bg-white pb-[60px]">
       {/* App Bar */}
-      <div className="flex items-center justify-between px-2 py-3 border-b border-gray-200 bg-white sticky top-0 z-50 shadow-sm">
+      <div 
+        className="flex items-center justify-between px-2 py-3 border-b border-gray-200 bg-white sticky top-0 z-50 shadow-sm"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 12px)' }}
+      >
         <div className="flex items-center gap-2">
           <IconButton onClick={() => navigate(-1)}>
             <ArrowBackIcon sx={{ color: '#1f2937' }} />
