@@ -737,34 +737,34 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
     {!isAuthModalOpen && !hideMobileNav && !(isChatActive && !isLarge) && (
       <div 
         className={`fixed left-4 right-4 z-[1000] lg:hidden flex justify-center transition-all duration-500 ease-in-out ${showMobileNavScroll ? 'translate-y-0 opacity-100' : 'translate-y-[150%] opacity-0'}`}
-        style={{ bottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}
+        style={{ bottom: 'calc(env(safe-area-inset-bottom, 12px) + 8px)' }}
       >
-        <div className="flex justify-around items-center w-full max-w-[420px] bg-white/60 backdrop-blur-2xl border border-white/80 shadow-[0_8px_32px_rgba(0,0,0,0.12)] rounded-full px-2 py-1.5">
+        <div className="flex justify-around items-center w-full max-w-[420px] bg-white/95 backdrop-blur-3xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.1)] rounded-full px-2 py-1.5">
           {/* Home */}
           <div onClick={() => navigate("/")} className="relative flex flex-col items-center justify-center w-[20%] h-[52px] cursor-pointer group">
             <div className={`absolute inset-0 bg-gradient-to-b from-white/80 to-[#FF5A00]/10 rounded-full transition-all duration-500 ease-out ${location.pathname === '/' ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`} />
-            <StorefrontIcon sx={{ color: location.pathname === '/' ? '#FF5A00' : '#6b7280', fontSize: 24, transition: 'all 0.4s ease-out' }} className={location.pathname === '/' ? '-translate-y-2.5 scale-110 drop-shadow-md' : 'translate-y-0'} />
-            <span className={`text-[10px] absolute bottom-1 transition-all duration-400 font-bold tracking-wide ${location.pathname === '/' ? 'text-[#FF5A00] opacity-100 translate-y-0 scale-100' : 'text-gray-500 opacity-0 translate-y-2 scale-75'}`}>Home</span>
+            <StorefrontIcon sx={{ color: location.pathname === '/' ? '#FF5A00' : '#374151', fontSize: 24, transition: 'all 0.4s ease-out' }} className={location.pathname === '/' ? '-translate-y-2.5 scale-110 drop-shadow-md' : 'translate-y-0'} />
+            <span className={`text-[10px] absolute bottom-1 transition-all duration-400 font-bold tracking-wide ${location.pathname === '/' ? 'text-[#FF5A00] opacity-100 translate-y-0 scale-100' : 'text-gray-700 opacity-0 translate-y-2 scale-75'}`}>Home</span>
           </div>
           {/* Categories */}
           <div onClick={() => navigate("/mobile-categories")} className="relative flex flex-col items-center justify-center w-[20%] h-[52px] cursor-pointer group">
             <div className={`absolute inset-0 bg-gradient-to-b from-white/80 to-[#FF5A00]/10 rounded-full transition-all duration-500 ease-out ${location.pathname === '/mobile-categories' ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`} />
-            <CategoryOutlinedIcon sx={{ color: location.pathname === '/mobile-categories' ? '#FF5A00' : '#6b7280', fontSize: 24, transition: 'all 0.4s ease-out' }} className={location.pathname === '/mobile-categories' ? '-translate-y-2.5 scale-110 drop-shadow-md' : 'translate-y-0'} />
-            <span className={`text-[9px] absolute bottom-1 transition-all duration-400 font-bold tracking-wide ${location.pathname === '/mobile-categories' ? 'text-[#FF5A00] opacity-100 translate-y-0 scale-100' : 'text-gray-500 opacity-0 translate-y-2 scale-75'}`}>Categories</span>
+            <CategoryOutlinedIcon sx={{ color: location.pathname === '/mobile-categories' ? '#FF5A00' : '#374151', fontSize: 24, transition: 'all 0.4s ease-out' }} className={location.pathname === '/mobile-categories' ? '-translate-y-2.5 scale-110 drop-shadow-md' : 'translate-y-0'} />
+            <span className={`text-[9px] absolute bottom-1 transition-all duration-400 font-bold tracking-wide ${location.pathname === '/mobile-categories' ? 'text-[#FF5A00] opacity-100 translate-y-0 scale-100' : 'text-gray-700 opacity-0 translate-y-2 scale-75'}`}>Categories</span>
           </div>
           {/* Search */}
           <div onClick={() => navigate("/search-products")} className="relative flex flex-col items-center justify-center w-[20%] h-[52px] cursor-pointer group">
             <div className={`absolute inset-0 bg-gradient-to-b from-white/80 to-[#FF5A00]/10 rounded-full transition-all duration-500 ease-out ${location.pathname === '/search-products' ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`} />
-            <SearchIcon sx={{ color: location.pathname === '/search-products' ? '#FF5A00' : '#6b7280', fontSize: 24, transition: 'all 0.4s ease-out' }} className={location.pathname === '/search-products' ? '-translate-y-2.5 scale-110 drop-shadow-md' : 'translate-y-0'} />
-            <span className={`text-[10px] absolute bottom-1 transition-all duration-400 font-bold tracking-wide ${location.pathname === '/search-products' ? 'text-[#FF5A00] opacity-100 translate-y-0 scale-100' : 'text-gray-500 opacity-0 translate-y-2 scale-75'}`}>Search</span>
+            <SearchIcon sx={{ color: location.pathname === '/search-products' ? '#FF5A00' : '#374151', fontSize: 24, transition: 'all 0.4s ease-out' }} className={location.pathname === '/search-products' ? '-translate-y-2.5 scale-110 drop-shadow-md' : 'translate-y-0'} />
+            <span className={`text-[10px] absolute bottom-1 transition-all duration-400 font-bold tracking-wide ${location.pathname === '/search-products' ? 'text-[#FF5A00] opacity-100 translate-y-0 scale-100' : 'text-gray-700 opacity-0 translate-y-2 scale-75'}`}>Search</span>
           </div>
           {/* Cart */}
           <div onClick={() => { user.user ? navigate("/cart") : setIsAuthModalOpen(true); }} className="relative flex flex-col items-center justify-center w-[20%] h-[52px] cursor-pointer group">
             <div className={`absolute inset-0 bg-gradient-to-b from-white/80 to-[#FF5A00]/10 rounded-full transition-all duration-500 ease-out ${location.pathname === '/cart' ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`} />
             <Badge badgeContent={cartItemCount} sx={{ '& .MuiBadge-badge': { backgroundColor: '#FF5A00', color: 'white', transition: 'all 0.3s' } }} className={`transition-all duration-400 ease-out ${location.pathname === '/cart' ? '-translate-y-2.5 scale-110 drop-shadow-md' : 'translate-y-0'}`}>
-              <AddShoppingCartIcon sx={{ color: location.pathname === '/cart' ? '#FF5A00' : '#6b7280', fontSize: 24, transition: 'color 0.4s' }} />
+              <AddShoppingCartIcon sx={{ color: location.pathname === '/cart' ? '#FF5A00' : '#374151', fontSize: 24, transition: 'color 0.4s' }} />
             </Badge>
-            <span className={`text-[10px] absolute bottom-1 transition-all duration-400 font-bold tracking-wide ${location.pathname === '/cart' ? 'text-[#FF5A00] opacity-100 translate-y-0 scale-100' : 'text-gray-500 opacity-0 translate-y-2 scale-75'}`}>Cart</span>
+            <span className={`text-[10px] absolute bottom-1 transition-all duration-400 font-bold tracking-wide ${location.pathname === '/cart' ? 'text-[#FF5A00] opacity-100 translate-y-0 scale-100' : 'text-gray-700 opacity-0 translate-y-2 scale-75'}`}>Cart</span>
           </div>
           {/* Account */}
           <div onClick={() => { user.user ? navigate("/account") : setIsAuthModalOpen(true); }} className="relative flex flex-col items-center justify-center w-[20%] h-[52px] cursor-pointer group">
@@ -773,10 +773,10 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
               {user.user ? (
                 <Avatar sx={{ width: 24, height: 24, border: location.pathname.includes('/account') ? '2px solid #FF5A00' : '2px solid transparent', transition: 'border 0.4s' }} src={secureUrl(user.user?.profilePicture || "", 100)} alt={user.user?.fullName || "User Profile"} />
               ) : (
-                <AccountCircleIcon sx={{ color: location.pathname.includes('/account') ? '#FF5A00' : '#6b7280', fontSize: 24, transition: 'color 0.4s' }} />
+                <AccountCircleIcon sx={{ color: location.pathname.includes('/account') ? '#FF5A00' : '#374151', fontSize: 24, transition: 'color 0.4s' }} />
               )}
             </div>
-            <span className={`text-[10px] absolute bottom-1 transition-all duration-400 font-bold tracking-wide ${location.pathname.includes('/account') ? 'text-[#FF5A00] opacity-100 translate-y-0 scale-100' : 'text-gray-500 opacity-0 translate-y-2 scale-75'}`}>Account</span>
+            <span className={`text-[10px] absolute bottom-1 transition-all duration-400 font-bold tracking-wide ${location.pathname.includes('/account') ? 'text-[#FF5A00] opacity-100 translate-y-0 scale-100' : 'text-gray-700 opacity-0 translate-y-2 scale-75'}`}>Account</span>
           </div>
         </div>
       </div>
