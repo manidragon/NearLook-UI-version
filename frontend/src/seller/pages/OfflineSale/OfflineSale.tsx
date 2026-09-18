@@ -1,7 +1,7 @@
 // src/seller/pages/OfflineSale/OfflineSale.tsx
 import React, { useEffect, useState, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
-import { fetchSellerProducts } from "../../../redux/Seller/sellerProductSlice";
+import { fetchSellerProducts, fetchSellerCatalogOffers } from "../../../redux/Seller/sellerProductSlice";
 import { api } from "../../../Config/Api";
 import { Box, Typography, Paper, Chip, Button, Divider, TextField, Snackbar, Alert, Checkbox, IconButton, Tooltip, Badge } from '@mui/material';
 import PaletteIcon from "@mui/icons-material/Palette";
@@ -534,13 +534,12 @@ const OfflineSale: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    if (!products || products.length === 0) {
-      const jwt = localStorage.getItem("jwt") || "";
-      if (jwt) {
-        dispatch(fetchSellerProducts(jwt));
-      }
+    const jwt = localStorage.getItem("jwt") || "";
+    if (jwt) {
+      dispatch(fetchSellerProducts(jwt));
+      dispatch(fetchSellerCatalogOffers(jwt));
     }
-  }, [dispatch, products]);
+  }, [dispatch]);
 
   useEffect(() => {
     if (products?.length) {

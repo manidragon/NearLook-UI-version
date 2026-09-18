@@ -63,6 +63,7 @@ export const CatalogSearchStep: React.FC<CatalogSearchStepProps> = ({
   const [hasSearched, setHasSearched] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [isAccordionExpanded, setIsAccordionExpanded] = useState(false);
 
   const prevIsSearchingRef = useRef<boolean>(false);
 
@@ -400,10 +401,6 @@ useEffect(() => {
                           <strong>Total Variants:</strong> {variantCount} options
                         </Typography>
 
-                        {/* Created By */}
-                        <Typography variant="caption" color="text.secondary">
-                          Created by: {catalog.createdBy?.businessDetails?.businessName || catalog.createdBy?.sellerName || 'Unknown'}
-                        </Typography>
                       </Box>
 
                       {/* Select Button */}
@@ -418,8 +415,11 @@ useEffect(() => {
                             if (selectedCount > 0) {
                               handleSelectCatalogWithVariants(catalog);
                             } else {
-                               setSnackbarMessage('Please select at least one variant below to continue');
-                               setSnackbarOpen(true);
+                              if (!isAccordionExpanded) {
+                                setIsAccordionExpanded(true);
+                              }
+                              setSnackbarMessage('Please select at least one variant below to continue');
+                              setSnackbarOpen(true);
                             }
                           }}
                         >
@@ -431,7 +431,13 @@ useEffect(() => {
 
                   {/* ✅✅✅ EXPANDABLE: Variant Selection Table */}
                   <Divider />
-                  <Accordion disableGutters elevation={0} sx={{ border: 'none', '&:before': { display: 'none' } }}>
+                  <Accordion 
+                    disableGutters 
+                    elevation={0} 
+                    sx={{ border: 'none', '&:before': { display: 'none' } }}
+                    expanded={isAccordionExpanded}
+                    onChange={(_, expanded) => setIsAccordionExpanded(expanded)}
+                  >
                     <AccordionSummary
                       expandIcon={<ExpandMoreIcon />}
                       sx={{

@@ -65,18 +65,23 @@ class OrderService {
       }
 
       const itemsBySeller = cart.cartItems.reduce((acc, item) => {
-        // ✅ Null safety: check if product and seller exist
-        if (!item.product || !item.product.seller || !item.product.seller._id) {
+        // ✅ Fix: Check if we have either item.sellerId OR product.seller
+        if (!item.product || (!item.sellerId && (!item.product.seller || !item.product.seller._id))) {
           console.error("⚠️ Cart item missing product/seller:", {
             itemId: item._id,
             productId: item.product?._id,
-            sellerId: item.product?.seller?._id
+            itemSellerId: item.sellerId
           });
           // Skip this item or throw error based on your business logic
           return acc;
         }
 
-        const sellerId = item.product.seller._id.toString();
+        let sellerId;
+        if (item.sellerId) {
+            sellerId = typeof item.sellerId === 'object' ? item.sellerId._id.toString() : item.sellerId.toString();
+        } else {
+            sellerId = item.product.seller._id.toString();
+        }
 
         if (!acc[sellerId]) {
           acc[sellerId] = [];

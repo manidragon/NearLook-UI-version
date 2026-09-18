@@ -225,7 +225,7 @@ export const useCatalogSearch = (
           stock: '0',
           sku: '',
           isReturnable: false,
-          returnTAT: '0',
+          returnTAT: '7 Days',
           isReplaceable: false,
           replacementTAT: '7 Days',
           hasDeliveryCharge: false,

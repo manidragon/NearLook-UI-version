@@ -327,8 +327,31 @@ class SellerController {
       const otp = generateOTP();
       await VerificationService.createVerificationCode(otp, email);
       
-      const subject = "Near Look Seller Login/Signup OTP";
+      const subject = "Near Look Seller Login OTP";
       const text = `Your login OTP is - ${otp}`;
+      const html = generateOtpTemplate(otp);
+      await sendVerificationEmail(email, subject, text, html);
+
+      return res.status(200).json({ message: "OTP sent successfully" });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
+  async sendSignupOtp(req, res) {
+    try {
+      const { email } = req.body;
+
+      const seller = await Seller.findOne({ email });
+      if (seller) {
+        throw new SellerError("Seller already exists with this email");
+      }
+
+      const otp = generateOTP();
+      await VerificationService.createVerificationCode(otp, email);
+      
+      const subject = "Near Look Seller Signup OTP";
+      const text = `Your signup OTP is - ${otp}`;
       const html = generateOtpTemplate(otp);
       await sendVerificationEmail(email, subject, text, html);
 

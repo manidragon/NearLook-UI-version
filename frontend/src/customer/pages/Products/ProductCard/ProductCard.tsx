@@ -164,7 +164,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId, i
     <>
       <div
         onClick={() => {
-          const baseUrl = `/product-details/${categoryId}/${item.title}/${item._id}`;
+          const itemCategoryId = categoryId || (typeof item.category === 'object' ? (item.category?.categoryId || item.category?._id) : item.category) || 'all';
+          const baseUrl = `/product-details/${itemCategoryId}/${item.title}/${item._id}`;
           navigate(sellerId ? `${baseUrl}?sellerId=${sellerId}` : baseUrl);
         }}
         className="group relative flex flex-col bg-white border border-gray-100 rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-orange-200 transition-all duration-300 h-full"

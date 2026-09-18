@@ -1,11 +1,12 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\seller\pages\Stock\Stock.tsx
 import React, { useEffect, useState, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "../../../redux/Store";
-import { fetchSellerProducts, updateProduct } from "../../../redux/Seller/sellerProductSlice";
+import { fetchSellerProducts, fetchSellerCatalogOffers, updateProduct } from "../../../redux/Seller/sellerProductSlice";
 import { Box, Typography, Paper, Chip, TextField, Button, Snackbar, Alert, Divider, Tooltip, Skeleton } from '@mui/material';
 import PaletteIcon from "@mui/icons-material/Palette";
 import StorageIcon from "@mui/icons-material/Storage";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import SearchIcon from "@mui/icons-material/Search";
 import EditIcon from "@mui/icons-material/Edit";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import CustomLoader from "../../../components/CustomLoader";
@@ -457,17 +458,17 @@ const Stock: React.FC = () => {
   const [drafts, setDrafts] = useState<Record<string, ColorVariant[]>>({});
   const [saving, setSaving] = useState<Record<string, boolean>>({});
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const [searchQuery, setSearchQuery] = useState("");
 
   const sellerId = useMemo(() => getCurrentSellerId(), []);
 
- useEffect(() => {
-  if (!products || products.length === 0) {
+  useEffect(() => {
     const jwt = localStorage.getItem("jwt") || "";
     if (jwt) {
       dispatch(fetchSellerProducts(jwt));
+      dispatch(fetchSellerCatalogOffers(jwt));
     }
-  }
-}, [dispatch, products]);
+  }, [dispatch]);
 
   useEffect(() => {
     if (products?.length) {
@@ -583,6 +584,12 @@ const Stock: React.FC = () => {
       });
   };
 
+  const filteredProducts = useMemo(() => {
+    if (!products) return [];
+    if (!searchQuery.trim()) return products;
+    return products.filter((p: any) => p.title?.toLowerCase().includes(searchQuery.toLowerCase()));
+  }, [products, searchQuery]);
+
   if (loading && (!products || products.length === 0)) {
     return (
       <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 900, mx: "auto", minHeight: '80vh' }}>
@@ -643,11 +650,29 @@ const Stock: React.FC = () => {
         <LowStockPanel items={lowStockItems} />
       </Box>
 
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
         Quickly update stock quantities per color and variant.
       </Typography>
 
-      {products.map((product: any) => {
+      <TextField
+        fullWidth
+        placeholder="Search products by name..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        size="small"
+        sx={{ mb: 4, bgcolor: 'white', borderRadius: 1 }}
+        InputProps={{
+          startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
+        }}
+      />
+
+      {filteredProducts.length === 0 && (
+        <Box sx={{ p: 4, textAlign: "center" }}>
+          <Typography color="text.secondary">No products match your search.</Typography>
+        </Box>
+      )}
+
+      {filteredProducts.map((product: any) => {
         const colorVariants = drafts[product._id] || [];
         const isSaving = saving[product._id];
         const isCollapsed = collapsed[product._id] !== false; // Default to true (collapsed) if undefined

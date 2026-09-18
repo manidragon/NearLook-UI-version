@@ -16,9 +16,9 @@ const Footer = React.lazy(() => import('../customer/components/Footer/Footer'))
 const Home = React.lazy(() => import('../customer/pages/Home/Home'))
 const Products = React.lazy(() => import('../customer/pages/Products/Products'))
 const ProductDetails = React.lazy(() => import('../customer/pages/Products/ProductDetails/ProductDetails'))
-const Cart = React.lazy(() => import('../customer/pages/Cart/Cart'))
+import Cart from '../customer/pages/Cart/Cart';
 const Address = React.lazy(() => import('../customer/pages/Checkout/AddressPage'))
-const Profile = React.lazy(() => import('../customer/pages/Account/Profile'))
+import Profile from '../customer/pages/Account/Profile';
 const NotFound = React.lazy(() => import('../customer/pages/NotFound/NotFound'))
 const PaymentSuccessHandler = React.lazy(() => import('../customer/pages/Payment/PaymentSuccessHandler'))
 const Reviews = React.lazy(() => import('../customer/pages/Review/Reviews'))

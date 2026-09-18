@@ -282,12 +282,40 @@ const Approvals = () => {
               <Typography><strong>Status:</strong> {selectedItem.approvalStatus}</Typography>
               <Typography><strong>Created At:</strong> {selectedItem.createdAt ? new Date(selectedItem.createdAt).toLocaleString() : 'N/A'}</Typography>
               
+              {selectedItem.highlights && Object.keys(selectedItem.highlights).length > 0 && (
+                <>
+                  <Typography variant="subtitle1" mt={2} fontWeight="bold">Category Attributes (Highlights):</Typography>
+                  <Box sx={{ p: 2, border: '1px solid #eee', borderRadius: 1 }}>
+                    <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                      {Object.entries(selectedItem.highlights).map(([key, val]) => (
+                        <li key={key} style={{ marginBottom: '4px' }}>
+                          <Typography variant="body2">
+                            <strong>{key}:</strong> {String(val)}
+                          </Typography>
+                        </li>
+                      ))}
+                    </ul>
+                  </Box>
+                </>
+              )}
+
               <Typography variant="subtitle1" mt={2} fontWeight="bold">Variants & Specifications:</Typography>
               {selectedItem.variants?.map((v: any, i: number) => (
                 <Box key={i} sx={{ mb: 2, p: 2, border: '1px solid #eee', borderRadius: 1 }}>
                   <Typography><strong>Color:</strong> {v.color}</Typography>
                   {v.specifications && Object.keys(v.specifications).length > 0 && (
-                    <Typography><strong>Specs:</strong> {Object.entries(v.specifications).map(([key, val]) => `${key}: ${val}`).join(', ')}</Typography>
+                    <Box mt={1}>
+                      <Typography variant="body2" fontWeight="bold">Specs:</Typography>
+                      <ul style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
+                        {Object.entries(v.specifications).map(([key, val]) => (
+                          <li key={key}>
+                            <Typography variant="body2">
+                              <strong>{key}:</strong> {String(val)}
+                            </Typography>
+                          </li>
+                        ))}
+                      </ul>
+                    </Box>
                   )}
                   <Box display="flex" gap={1} mt={1}>
                     {v.images?.map((img: string, idx: number) => (

@@ -52,32 +52,39 @@ const loadRazorpayScript = () => {
 };
 
 // ✅ Note: This is now a function that uses walletBalance
-const getPaymentGatewayList = (finalAmount: number, walletBalance: number) => [
-    {
-        value: "RAZORPAY",
-        image: "https://razorpay.com/newsroom-content/uploads/2020/12/output-onlinepngtools-1-1.png",
-        label: "Razorpay",
-        icon: null,
-        disabled: false
-    },
-    {
-        value: "CASH_ON_DELIVERY",
-        image: "",
-        label: "Cash on Delivery",
-        icon: <CurrencyRupeeIcon />,
-        disabled: false
-    },
-    {
-        value: "WALLET",
-        image: "",
-        label: `Pay with Wallet (Balance: ₹${walletBalance})`,
-        icon: <AccountBalanceWalletIcon sx={{ color: walletBalance >= finalAmount ? 'green' : 'red' }} />,
-        disabled: walletBalance < finalAmount,
-        balanceInfo: walletBalance < finalAmount 
-            ? `Insufficient balance (Need ₹${finalAmount - walletBalance} more)` 
-            : null
+const getPaymentGatewayList = (finalAmount: number, walletBalance: number) => {
+    const options = [
+        {
+            value: "RAZORPAY",
+            image: "https://razorpay.com/newsroom-content/uploads/2020/12/output-onlinepngtools-1-1.png",
+            label: "Razorpay",
+            icon: null,
+            disabled: false,
+            balanceInfo: null as string | null
+        },
+        {
+            value: "CASH_ON_DELIVERY",
+            image: "",
+            label: "Cash on Delivery",
+            icon: <CurrencyRupeeIcon />,
+            disabled: false,
+            balanceInfo: null as string | null
+        }
+    ];
+
+    if (walletBalance >= finalAmount) {
+        options.push({
+            value: "WALLET",
+            image: "",
+            label: `Pay with Wallet (Balance: ₹${walletBalance})`,
+            icon: <AccountBalanceWalletIcon sx={{ color: 'green' }} />,
+            disabled: false,
+            balanceInfo: null
+        });
     }
-];
+
+    return options;
+};
 
 const fulfillmentOptions = [
     { value: 'DELIVERY', label: 'Home Delivery', icon: <LocalShippingIcon /> },

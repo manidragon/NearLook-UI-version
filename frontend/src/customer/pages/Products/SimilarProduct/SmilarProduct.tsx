@@ -10,47 +10,45 @@ import { useParams } from "react-router-dom";
 // ✅✅✅ ADD THESE IMPORTS:
 import CustomLoader from "../../../../components/CustomLoader";
 import { Typography } from "@mui/material";
+import ProductSlider from "../../Home/ProductSlider";
 
 const SmilarProduct = () => {
   const products = useAppSelector((state) => state.products);
   const dispatch = useAppDispatch();
   const { categoryId } = useParams();
 
+  const trueCategoryId = (categoryId && categoryId !== 'undefined') 
+    ? categoryId 
+    : (products.product?.category?.categoryId || products.product?.category?._id);
+
   useEffect(() => {
-    if (categoryId) {
-      // ✅ Only fetch if NOT loading and NOT already loaded
-      if (!products.loading && (!products.products || products.products.length === 0)) {
-        dispatch(getAllProducts({ category: categoryId }));
-      }
+    if (trueCategoryId) {
+      dispatch(getAllProducts({ category: trueCategoryId }));
     }
-  }, [categoryId, dispatch, products.loading, products.products]);
+  }, [trueCategoryId, dispatch]);
 
   // ✅ Safe products array getter
   const productsToRender = products.products || [];
 
+  const filteredProducts = productsToRender.filter((item) => item._id && item._id !== products.product?._id).slice(0, 15);
+
+  if (!products.loading && filteredProducts.length === 0) {
+    return null;
+  }
+
   return (
-    <div>
+    <section className="container mx-auto pt-10 px-4 sm:px-10 lg:px-20 mb-10">
+      <h2 className="text-xl font-bold mb-4">Similar Products</h2>
       {products.loading ? (
         <div className="flex justify-center items-center py-10 min-h-[400px]">
           <CustomLoader />
         </div>
-      ) : productsToRender.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6 mt-6">
-          {productsToRender
-            .filter((item) => item._id)  // ✅ Filter out invalid items
-            .slice(0, 6)  // ✅ Limit to 6 similar products
-            .map((item) => (
-              <div key={item._id} className="w-full">
-                <ProductCard item={item as any} categoryId={categoryId} />
-              </div>
-            ))}
-        </div>
       ) : (
-        <Typography variant="body2" color="text.secondary" align="center">
-          No similar products found
-        </Typography>
+        <div className="mt-6">
+          <ProductSlider products={filteredProducts as any} />
+        </div>
       )}
-    </div>
+    </section>
   );
 };
 

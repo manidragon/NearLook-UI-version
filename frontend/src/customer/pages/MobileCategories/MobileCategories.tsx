@@ -49,6 +49,11 @@ const MobileCategories = () => {
 
   const stateCategoryId = location.state?.categoryId as string | undefined;
   const [selectedL1, setSelectedL1] = useState<string | null>(stateCategoryId || null);
+  const [expandedL2, setExpandedL2] = useState<Record<string, boolean>>({});
+
+  const toggleL2 = (id: string) => {
+    setExpandedL2(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   useEffect(() => {
     if (categories.length === 0) {
@@ -62,13 +67,19 @@ const MobileCategories = () => {
       .sort((a, b) => (a.order || 9999) - (b.order || 9999));
   }, [categories]);
 
+  // Handle initial category from navigation state
   useEffect(() => {
     if (stateCategoryId) {
       setSelectedL1(stateCategoryId);
-    } else if (levelOneCategories.length > 0 && !selectedL1) {
+    }
+  }, [location.key, stateCategoryId]);
+
+  // Handle default selection when categories load
+  useEffect(() => {
+    if (!selectedL1 && levelOneCategories.length > 0) {
       setSelectedL1(levelOneCategories[0]._id);
     }
-  }, [levelOneCategories, stateCategoryId, selectedL1]);
+  }, [levelOneCategories.length, selectedL1]);
 
   const getLevelTwoCategories = () => {
     return categories
@@ -150,40 +161,50 @@ const MobileCategories = () => {
           ) : (
             <div className="space-y-8">
               {levelTwoCategories.map((l2) => (
-                <div key={l2._id}>
-                  {/* Stylish Heading */}
-                  <div className="flex items-center gap-2.5 mb-4">
-                    <div className="w-1.5 h-5 bg-gradient-to-b from-[#00927c] to-[#00bda0] rounded-full shadow-sm"></div>
-                    <h3 className="font-extrabold text-gray-800 text-[15px] tracking-wide">{l2.name}</h3>
+                <div key={l2._id} className="bg-[#fafafa] rounded-2xl overflow-hidden border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+                  {/* Stylish Heading / Accordion Header */}
+                  <div 
+                    onClick={() => toggleL2(l2._id)}
+                    className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition-all"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-1.5 h-5 bg-gradient-to-b from-[#00927c] to-[#00bda0] rounded-full shadow-sm"></div>
+                      <h3 className="font-extrabold text-gray-800 text-[15px] tracking-wide">{l2.name}</h3>
+                    </div>
+                    <div className={`transition-transform duration-300 ${expandedL2[l2._id] ? 'rotate-90' : ''}`}>
+                      <ChevronRightIcon sx={{ color: '#00927c' }} />
+                    </div>
                   </div>
                   
                   {/* Modern List Items */}
-                  <ul className="space-y-2.5">
-                    {getLevelThreeCategories(l2._id).map(l3 => (
-                      <li 
-                        key={l3._id} 
-                        onClick={() => navigate(`/products/${l3._id}`)}
-                        className="flex items-center justify-between p-3.5 rounded-2xl bg-[#fafafa] border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:border-[#00927c]/30 hover:bg-[#f0fdfa] active:scale-[0.98] transition-all cursor-pointer group"
-                      >
-                         <div className="flex items-center gap-3">
-                           <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-gray-200 bg-white">
-                             <img 
-                               src={l3.image && !l3.image.includes('flaticon.com') ? l3.image : `https://ui-avatars.com/api/?name=${encodeURIComponent(l3.name || 'C')}&background=f3f4f6&color=6b7280&size=128`} 
-                               alt={l3.name} 
-                               className="w-full h-full object-cover" 
-                               onError={(e) => {
-                                 (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(l3.name || 'C')}&background=f3f4f6&color=6b7280&size=128`;
-                               }}
-                             />
+                  <div className={`transition-all duration-300 overflow-hidden ${expandedL2[l2._id] ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                    <ul className="space-y-2.5 px-4 pb-4">
+                      {getLevelThreeCategories(l2._id).map(l3 => (
+                        <li 
+                          key={l3._id} 
+                          onClick={() => navigate(`/products/${l3._id}`)}
+                          className="flex items-center justify-between p-3 rounded-xl bg-white border border-gray-100 shadow-sm hover:border-[#00927c]/30 hover:bg-[#f0fdfa] active:scale-[0.98] transition-all cursor-pointer group"
+                        >
+                           <div className="flex items-center gap-3">
+                             <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-gray-200 bg-white">
+                               <img 
+                                 src={l3.image && !l3.image.includes('flaticon.com') ? l3.image : `https://ui-avatars.com/api/?name=${encodeURIComponent(l3.name || 'C')}&background=f3f4f6&color=6b7280&size=128`} 
+                                 alt={l3.name} 
+                                 className="w-full h-full object-cover" 
+                                 onError={(e) => {
+                                   (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(l3.name || 'C')}&background=f3f4f6&color=6b7280&size=128`;
+                                 }}
+                               />
+                             </div>
+                             <span className="text-gray-700 font-semibold text-[13px] group-hover:text-[#00927c] transition-colors">{l3.name}</span>
                            </div>
-                           <span className="text-gray-700 font-semibold text-[13px] group-hover:text-[#00927c] transition-colors">{l3.name}</span>
-                         </div>
-                         <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:bg-[#00927c] transition-colors">
-                           <ChevronRightIcon sx={{ fontSize: 16 }} className="text-gray-400 group-hover:text-white transition-colors" />
-                         </div>
-                      </li>
-                    ))}
-                  </ul>
+                           <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:bg-[#00927c] transition-colors">
+                             <ChevronRightIcon sx={{ fontSize: 16 }} className="text-gray-400 group-hover:text-white transition-colors" />
+                           </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               ))}
             </div>

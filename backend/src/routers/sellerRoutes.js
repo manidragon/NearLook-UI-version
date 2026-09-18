@@ -87,6 +87,11 @@ router.post(
 sellerController.sendLoginOtp
 );
 
+router.post(
+'/send-signup-otp',
+sellerController.sendSignupOtp
+);
+
 router.delete(
 '/:id',
 sellerController.deleteSeller

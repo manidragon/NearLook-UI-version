@@ -5,11 +5,13 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useFormik } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../redux/Store';
-import { createSeller, sendSellerLoginOtp, resetSellerAuthState } from '../../../redux/Seller/sellerAuthenticationSlice';
+import { createSeller, sendSellerSignupOtp, resetSellerAuthState } from '../../../redux/Seller/sellerAuthenticationSlice';
 import Button from '../../../components/NeonButton';
 import TextField from '../../../components/CustomTextField';
 import CustomLoader from '../../../components/CustomLoader';
 import OTPInput from '../../components/OtpField/OTPInput';
+import { State, City } from 'country-state-city';
+import { FormControl, InputLabel, Select, MenuItem, FormHelperText, Autocomplete, TextField as MuiTextField } from '@mui/material';
 
 const steps = ['Basic Details', 'Business Info', 'Pickup Address', 'Bank Details', 'Verify'];
 
@@ -77,7 +79,7 @@ const SellerAccountForm = () => {
   const handleNext = () => {
     if (activeStep === 3) {
       // Send OTP when moving to the final Verify step
-      dispatch(sendSellerLoginOtp(formik.values.email));
+      dispatch(sendSellerSignupOtp(formik.values.email));
     }
     setActiveStep((prev) => prev + 1);
   };
@@ -85,6 +87,12 @@ const SellerAccountForm = () => {
   const handleBack = () => {
     setActiveStep((prev) => prev - 1);
   };
+
+  const indianStates = State.getStatesOfCountry('IN');
+  
+  // Find currently selected state object to load its cities
+  const selectedStateObj = indianStates.find(s => s.name === formik.values.pickupAddress.state);
+  const citiesOfSelectedState = selectedStateObj ? City.getCitiesOfState('IN', selectedStateObj.isoCode) : [];
 
   // Validation checks for each step
   const isStep1Valid = formik.values.sellerName && formik.values.email && formik.values.mobile?.length === 10;
@@ -175,8 +183,34 @@ const SellerAccountForm = () => {
               <>
                 <TextField label="Full Address" name="pickupAddress.address" value={formik.values.pickupAddress.address} onChange={formik.handleChange} fullWidth />
                 <Box sx={{ display: 'flex', gap: 2 }}>
-                  <TextField label="City" name="pickupAddress.city" value={formik.values.pickupAddress.city} onChange={handleNameChange(formik)} fullWidth />
-                  <TextField label="State" name="pickupAddress.state" value={formik.values.pickupAddress.state} onChange={handleNameChange(formik)} fullWidth />
+                  <Autocomplete
+                    options={indianStates}
+                    getOptionLabel={(option) => option.name}
+                    value={selectedStateObj || null}
+                    onChange={(event, newValue) => {
+                      formik.setFieldValue('pickupAddress.state', newValue ? newValue.name : '');
+                      formik.setFieldValue('pickupAddress.city', '');
+                    }}
+                    renderInput={(params) => <MuiTextField {...params} label="State" size="small" />}
+                    fullWidth
+                    size="small"
+                  />
+                  
+                  <Autocomplete
+                    freeSolo
+                    options={citiesOfSelectedState.map(c => c.name)}
+                    value={formik.values.pickupAddress.city}
+                    onChange={(event, newValue) => {
+                      formik.setFieldValue('pickupAddress.city', newValue || '');
+                    }}
+                    onInputChange={(event, newInputValue) => {
+                      formik.setFieldValue('pickupAddress.city', newInputValue || '');
+                    }}
+                    renderInput={(params) => <MuiTextField {...params} label="City" size="small" />}
+                    disabled={!formik.values.pickupAddress.state}
+                    fullWidth
+                    size="small"
+                  />
                 </Box>
                 <Box sx={{ display: 'flex', gap: 2 }}>
                   <TextField label="Pin Code" name="pickupAddress.pinCode" value={formik.values.pickupAddress.pinCode} onChange={handleNumberChange(formik)} fullWidth />

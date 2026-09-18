@@ -283,6 +283,25 @@ const OrderRow: React.FC<OrderRowProps> = React.memo(({
         </StyledTableCell>
       )}
 
+      {/* Payment Method Column */}
+      <StyledTableCell align="center">
+        <div className='flex flex-col gap-1 items-center'>
+          <Typography variant="body2" sx={{ fontWeight: 500, fontSize: '0.75rem' }}>
+            {item.paymentMethod === 'CASH_ON_DELIVERY' ? 'COD' : 
+             item.paymentMethod === 'RAZORPAY' ? 'Razorpay' : 
+             item.paymentMethod === 'WALLET' ? 'Wallet' : 
+             (item.paymentMethod || 'N/A')}
+          </Typography>
+          <Box className={`text-[0.65rem] px-2 py-0.5 rounded-full ${
+            item.paymentStatus === 'COMPLETED' ? 'bg-green-100 text-green-700' :
+            item.paymentStatus === 'FAILED' ? 'bg-red-100 text-red-700' :
+            'bg-orange-100 text-orange-700'
+          }`}>
+            {item.paymentStatus || 'PENDING'}
+          </Box>
+        </div>
+      </StyledTableCell>
+
       {/* Order Status */}
       <StyledTableCell align="center">
         <Box 
@@ -392,10 +411,12 @@ export default function OrderTable() {
 
   const handleStatusFilterChange = (event: any) => {
     setStatusFilter(event.target.value);
+    setPage(0); // Reset page on filter change
   };
 
   const handleSortChange = (event: any) => {
     setSortOrder(event.target.value as 'NEW_TO_OLD' | 'OLD_TO_NEW');
+    setPage(0); // Reset page on sort change
   };
 
   // ✅ Filter & Sort logic
@@ -404,7 +425,11 @@ export default function OrderTable() {
 
     // Filter by status
     if (statusFilter !== 'ALL') {
-      result = result.filter(order => order.orderStatus === statusFilter);
+      result = result.filter(order => {
+        const orderStat = order.orderStatus?.trim().toUpperCase();
+        const filterStat = statusFilter.trim().toUpperCase();
+        return orderStat === filterStat;
+      });
     }
 
     // Sort by date
@@ -534,6 +559,7 @@ export default function OrderTable() {
                     <StyledTableCell>Order Id</StyledTableCell>
                     <StyledTableCell>Products</StyledTableCell>
                     <StyledTableCell>Shipping Address</StyledTableCell>
+                    <StyledTableCell align="center">Payment</StyledTableCell>
                     <StyledTableCell align="right">Order Status</StyledTableCell>
                     <StyledTableCell align="right">Update</StyledTableCell>
                   </TableRow>
@@ -583,6 +609,7 @@ export default function OrderTable() {
                     <StyledTableCell>Order Id</StyledTableCell>
                     <StyledTableCell>Products</StyledTableCell>
                     <StyledTableCell align="center">Pickup Time</StyledTableCell>
+                    <StyledTableCell align="center">Payment</StyledTableCell>
                     <StyledTableCell align="right">Order Status</StyledTableCell>
                     <StyledTableCell align="right">Update</StyledTableCell>
                   </TableRow>

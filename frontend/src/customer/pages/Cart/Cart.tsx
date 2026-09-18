@@ -93,10 +93,11 @@ const Cart = () => {
   // Group cart items by seller
   const cartItemsBySeller = cartItems.reduce((acc, item) => {
     // Find the offer that this cart item uses
+    // Find the offer that this cart item uses
     let matchingOffer = null;
     if (item.product?.variants) {
       for (const variant of item.product.variants) {
-        const offer = variant.offers?.find(o => o._id === item.offerId);
+        const offer = variant.offers?.find((o: any) => o._id?.toString() === item.offerId?.toString());
         if (offer) {
           matchingOffer = offer;
           break;
@@ -105,16 +106,17 @@ const Cart = () => {
     }
     
     // Determine the seller ID and name safely
-    const sellerObj = typeof matchingOffer?.seller === 'object' ? matchingOffer.seller : null;
-    const sellerId = sellerObj?._id ?? (typeof matchingOffer?.seller === 'string' ? matchingOffer.seller : item.sellerId) ?? 'unknown';
-    const sellerName = sellerObj?.businessDetails?.businessName ?? item.sellerName ?? 'Unknown Seller';
+    const sellerObjFromItem = typeof item.sellerId === 'object' && item.sellerId !== null ? item.sellerId : null;
+    const sellerObjFromOffer = typeof matchingOffer?.seller === 'object' && matchingOffer?.seller !== null ? matchingOffer.seller : null;
+    const sellerObj = (sellerObjFromOffer || sellerObjFromItem) as any;
+    
+    const sellerId = sellerObj?._id?.toString() ?? (typeof item.sellerId === 'string' ? item.sellerId : 'unknown');
+    const sellerName = sellerObj?.businessDetails?.businessName ?? sellerObj?.sellerName ?? 'Unknown Seller';
     
     // Extract minFreeDelivery safely
     let minFreeDelivery = 500; // Default
-    if ((sellerObj as any)?.minFreeDelivery !== undefined) {
-      minFreeDelivery = (sellerObj as any).minFreeDelivery;
-    } else if (item.sellerId && (item.sellerId as any).minFreeDelivery !== undefined) {
-      minFreeDelivery = (item.sellerId as any).minFreeDelivery;
+    if (sellerObj?.minFreeDelivery !== undefined) {
+      minFreeDelivery = sellerObj.minFreeDelivery;
     }
     
     if (!acc[sellerId]) {

@@ -952,8 +952,12 @@ const ProductDetails = () => {
       setSnackbarOpen(true);
       return;
     }
-    if (currentVariant.stock !== undefined && currentVariant.stock < quantity) {
-      setSnackbarMessage(`Only ${currentVariant.stock} items in stock`);
+    const activeStock = selectedSellerOffer ?
+      selectedSellerOffer.variants.find((v: any) => v._id === selectedVariantId)?.stock :
+      currentVariant.stock;
+
+    if (activeStock !== undefined && activeStock < quantity) {
+      setSnackbarMessage(`Only ${activeStock} items in stock`);
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return;
@@ -1407,35 +1411,6 @@ const ProductDetails = () => {
           }}
         />
       )}
-      <div className="!py-2">
-        <div className="container mx-auto px-4 sm:px-10 lg:px-20 pt-4">
-          <Breadcrumbs aria-label="breadcrumb">
-            <Link to="/" className="link transition !text-[14px]">
-              Home
-            </Link>
-            {(() => {
-              const cat: any = product?.category;
-              const crumbs = [];
-              if (cat?.parentCategory?.parentCategory) {
-                crumbs.push(
-                  <Link key="grandparent" to={`/${cat.parentCategory.parentCategory.categoryId}`} className="link transition !text-[14px]">
-                    {cat.parentCategory.parentCategory.name}
-                  </Link>
-                );
-              }
-              if (cat?.parentCategory) {
-                crumbs.push(
-                  <Link key="parent" to={`/${cat.parentCategory.parentCategory?.categoryId || ''}/${cat.parentCategory.categoryId}`} className="link transition !text-[14px]">
-                    {cat.parentCategory.name}
-                  </Link>
-                );
-              }
-              return crumbs;
-            })()}
-            <span className="text-gray-700 !text-[14px]">{product?.title}</span>
-          </Breadcrumbs>
-        </div>
-      </div>
 
       <section className="bg-white !py-5">
         <div className="container mx-auto px-4 sm:px-10 lg:px-20">
@@ -1756,7 +1731,17 @@ const ProductDetails = () => {
                     <div className="flex items-center justify-between px-3 h-[48px] w-[120px] rounded-[18px] bg-[#f0f3f8] border border-[#e2e8f0] text-[#1e293b]">
                       <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="w-8 h-8 flex items-center justify-center hover:bg-[#e2e8f0] rounded-full transition-colors text-lg font-medium">&minus;</button>
                       <span className="text-base font-bold select-none">{quantity}</span>
-                      <button onClick={() => setQuantity(q => q + 1)} className="w-8 h-8 flex items-center justify-center hover:bg-[#e2e8f0] rounded-full transition-colors text-lg font-medium">&#43;</button>
+                      <button 
+                        onClick={() => setQuantity(q => {
+                          const activeStock = selectedSellerOffer ?
+                            selectedSellerOffer.variants.find((v: any) => v._id === selectedVariantId)?.stock :
+                            currentVariant?.stock || 0;
+                          return Math.min(q + 1, Math.max(1, activeStock || 1));
+                        })} 
+                        className="w-8 h-8 flex items-center justify-center hover:bg-[#e2e8f0] rounded-full transition-colors text-lg font-medium"
+                      >
+                        &#43;
+                      </button>
                     </div>
 
                     <button
@@ -1946,12 +1931,9 @@ const ProductDetails = () => {
 
       {/* SIMILAR PRODUCTS */}
       {!catalogLoading && (
-        <section className="container mx-auto pt-10 px-4 sm:px-10 lg:px-20 mb-10">
-          <h2 className="text-xl font-bold mb-4">Similar Products</h2>
-          <React.Suspense fallback={<div className="h-40">Loading Similar Products...</div>}>
-            <SmilarProduct />
-          </React.Suspense>
-        </section>
+        <React.Suspense fallback={<div className="h-40">Loading Similar Products...</div>}>
+          <SmilarProduct />
+        </React.Suspense>
       )}
 
       <Snackbar sx={{ mb: { xs: 8, sm: 0 } }} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>

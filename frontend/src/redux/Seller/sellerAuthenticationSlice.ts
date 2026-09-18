@@ -46,6 +46,23 @@ export const sendSellerLoginOtp = createAsyncThunk(
   }
 );
 
+// ✅ Send Signup OTP
+export const sendSellerSignupOtp = createAsyncThunk(
+  'sellerAuth/sendSellerSignupOtp',
+  async (email: string, { rejectWithValue }) => {
+    try {
+      const response = await api.post('/sellers/send-signup-otp', { email });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        'Failed to send OTP'
+      );
+    }
+  }
+);
+
 // ✅ Verify OTP using seller-specific endpoint
 export const verifyLoginOtp = createAsyncThunk(
   'sellerAuth/verifyLoginOtp',
@@ -132,6 +149,22 @@ const sellerAuthSlice = createSlice({
         state.error = null;
       })
       .addCase(sendSellerLoginOtp.rejected, (state, action) => {
+        state.loading = false;
+        state.otpSent = false;
+        state.error = action.payload as string;
+      })
+
+      // Handle send Signup OTP
+      .addCase(sendSellerSignupOtp.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(sendSellerSignupOtp.fulfilled, (state) => {
+        state.loading = false;
+        state.otpSent = true;
+        state.error = null;
+      })
+      .addCase(sendSellerSignupOtp.rejected, (state, action) => {
         state.loading = false;
         state.otpSent = false;
         state.error = action.payload as string;

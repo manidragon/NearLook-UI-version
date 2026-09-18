@@ -7,7 +7,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { Button, IconButton, styled, Chip, Tooltip, Collapse, Box, Typography, Divider, Alert, Snackbar, Tabs, Tab } from '@mui/material';
+import { Button, IconButton, styled, Chip, Tooltip, Collapse, Box, Typography, Divider, Alert, Snackbar, FormControl, Select, MenuItem, InputLabel, TextField } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
@@ -61,29 +61,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-// ============================================
-// ✅ Tab Panel Component (for tab content)
-// ============================================
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
 
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`product-tabpanel-${index}`}
-      aria-labelledby={`product-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ pt: 3 }}>{children}</Box>}
-    </div>
-  );
-}
 
 // ============================================
 // ✅ Row Component Props
@@ -268,18 +246,6 @@ function Row(props: RowProps) {
                 icon={<StoreIcon fontSize="small" />}
               />
             )}
-            {/* ✅ Badge for Product Approval */}
-            {!isCatalogOffer && row.approvalStatus && (
-              <Tooltip title={row.rejectReason || ''}>
-                <Chip
-                  label={row.approvalStatus}
-                  size="small"
-                  color={row.approvalStatus === 'APPROVED' ? 'success' : row.approvalStatus === 'REJECTED' ? 'error' : 'warning'}
-                  variant="filled"
-                  sx={{ ml: 1, fontSize: '10px', height: '20px' }}
-                />
-              </Tooltip>
-            )}
           </Box>
         </StyledTableCell>
 
@@ -288,6 +254,29 @@ function Row(props: RowProps) {
           <Typography variant="body2" className="max-w-[150px] truncate" title={getCategoryName(row.category)}>
             {getCategoryName(row.category)}
           </Typography>
+        </StyledTableCell>
+
+        {/* ✅ Status Column */}
+        <StyledTableCell align="center">
+          {!isCatalogOffer ? (
+            row.approvalStatus ? (
+              <Tooltip title={row.rejectReason || ''}>
+                <Chip
+                  label={row.approvalStatus}
+                  size="small"
+                  color={row.approvalStatus === 'APPROVED' ? 'success' : row.approvalStatus === 'REJECTED' ? 'error' : 'warning'}
+                  variant="filled"
+                  sx={{ fontSize: '10px', height: '20px' }}
+                />
+              </Tooltip>
+            ) : (
+              <Chip label="PENDING" size="small" color="warning" variant="filled" sx={{ fontSize: '10px', height: '20px' }} />
+            )
+          ) : (
+            <Tooltip title="View offers below for individual approval statuses">
+              <Chip label="OFFERS" size="small" color="default" variant="outlined" sx={{ fontSize: '10px', height: '20px' }} />
+            </Tooltip>
+          )}
         </StyledTableCell>
 
 
@@ -468,17 +457,15 @@ function Row(props: RowProps) {
                                     </Typography>
 
                                     {/* ✅ Badge for Offer Approval */}
-                                    {yourOffer.approvalStatus && (
-                                      <Tooltip title={yourOffer.rejectReason || ''}>
-                                        <Chip
-                                          label={yourOffer.approvalStatus}
-                                          size="small"
-                                          color={yourOffer.approvalStatus === 'APPROVED' ? 'success' : yourOffer.approvalStatus === 'REJECTED' ? 'error' : 'warning'}
-                                          variant="filled"
-                                          sx={{ fontWeight: 600 }}
-                                        />
-                                      </Tooltip>
-                                    )}
+                                    <Tooltip title={yourOffer.rejectReason || ''}>
+                                      <Chip
+                                        label={(yourOffer.approvalStatus || 'PENDING').toUpperCase()}
+                                        size="small"
+                                        color={(yourOffer.approvalStatus || 'PENDING').toUpperCase() === 'APPROVED' ? 'success' : (yourOffer.approvalStatus || 'PENDING').toUpperCase() === 'REJECTED' ? 'error' : 'warning'}
+                                        variant="filled"
+                                        sx={{ fontWeight: 600 }}
+                                      />
+                                    </Tooltip>
 
                                     <Chip
                                       label={yourOffer.isActive !== false ? "Active" : "Inactive"}
@@ -496,7 +483,7 @@ function Row(props: RowProps) {
                               </Box>
                               
                               {/* ✅ Explicit Reject Reason display */}
-                              {yourOffer && yourOffer.approvalStatus === 'REJECTED' && yourOffer.rejectReason && (
+                              {yourOffer && (yourOffer.approvalStatus || '').toUpperCase() === 'REJECTED' && yourOffer.rejectReason && (
                                 <Box sx={{ mt: 2, p: 1.5, bgcolor: '#fef2f2', border: '1px solid #fecaca', borderRadius: 2 }}>
                                   <Typography variant="body2" color="error.dark">
                                     <strong>Rejection Reason:</strong> {yourOffer.rejectReason}
@@ -534,8 +521,9 @@ export default function ProductTable() {
   const [snackbarMessage, setSnackbarMessage] = React.useState('');
   const [snackbarSeverity, setSnackbarSeverity] = React.useState<'success' | 'error'>('success');
 
-  // ✅ NEW: Tab state
-  const [activeTab, setActiveTab] = React.useState(0);
+  // ✅ Filter state
+  const [filterType, setFilterType] = React.useState<'all' | 'my_products' | 'catalog'>('all');
+  const [searchQuery, setSearchQuery] = React.useState('');
 
   // ✅ Fetch both independent products AND catalog offers on mount
   React.useEffect(() => {
@@ -636,9 +624,27 @@ export default function ProductTable() {
 
   const handleSnackbarClose = () => setSnackbarOpen(false);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
-  };
+  let displayedProducts = [...myProducts, ...catalogOffers];
+  if (filterType === 'my_products') {
+    displayedProducts = myProducts;
+  } else if (filterType === 'catalog') {
+    displayedProducts = catalogOffers;
+  }
+
+  // Deduplicate in case any product is in both
+  displayedProducts = Array.from(new Map(displayedProducts.map(item => [item._id, item])).values());
+
+  // Apply search filter
+  if (searchQuery.trim() !== '') {
+    const lowerQuery = searchQuery.toLowerCase();
+    displayedProducts = displayedProducts.filter(p => {
+      const titleMatch = p.title?.toLowerCase().includes(lowerQuery);
+      const categoryMatch = getCategoryName(p.category)?.toLowerCase().includes(lowerQuery);
+      return titleMatch || categoryMatch;
+    });
+  }
+
+  const isCatalog = (item: Product) => catalogOffers.some(co => co._id === item._id);
 
   return (
     <>
@@ -662,44 +668,31 @@ export default function ProductTable() {
           </Button>
         </Box>
         
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
-          <Tabs
-            value={activeTab}
-            onChange={handleTabChange}
-            variant="scrollable"
-            scrollButtons="auto"
-            allowScrollButtonsMobile
-            sx={{ 
-              '& .MuiTab-root': { fontWeight: 600 },
-              '& .Mui-selected': { color: '#c24100 !important' },
-              '& .MuiTabs-indicator': { backgroundColor: '#c24100' }
-            }}
-          >
-            <Tab
-              label={
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography variant="body2" fontWeight={activeTab === 0 ? 'bold' : 'normal'}>
-                    🛍️ My Products
-                  </Typography>
-                  <Chip label={myProducts.length} size="small" variant="outlined" style={{ color: '#c24100', borderColor: '#c24100' }} />
-                </Box>
-              }
-              id="product-tab-0"
-              aria-controls="product-tabpanel-0"
-            />
-            <Tab
-              label={
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography variant="body2" fontWeight={activeTab === 1 ? 'bold' : 'normal'}>
-                    📦 Catalog Offers
-                  </Typography>
-                  <Chip label={catalogOffers.length} size="small" variant="outlined" style={{ color: '#1565C0', borderColor: '#1565C0' }} />
-                </Box>
-              }
-              id="product-tab-1"
-              aria-controls="product-tabpanel-1"
-            />
-          </Tabs>
+        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-start', mb: 2, gap: 2 }}>
+          <FormControl size="small" sx={{ minWidth: 200 }}>
+            <InputLabel id="product-filter-label">Filter Products</InputLabel>
+            <Select
+              labelId="product-filter-label"
+              id="product-filter"
+              value={filterType}
+              label="Filter Products"
+              onChange={(e) => setFilterType(e.target.value as any)}
+            >
+              <MenuItem value="all">All Products ({myProducts.length + catalogOffers.length})</MenuItem>
+              <MenuItem value="my_products">My Products ({myProducts.length})</MenuItem>
+              <MenuItem value="catalog">Catalog Offers ({catalogOffers.length})</MenuItem>
+            </Select>
+          </FormControl>
+          
+          <TextField
+            size="small"
+            label="Search Products"
+            variant="outlined"
+            placeholder="Search by title or category..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            sx={{ minWidth: 250 }}
+          />
         </Box>
       </Box>
 
@@ -755,111 +748,58 @@ export default function ProductTable() {
         </Alert>
       </Snackbar>
 
-      {/* ✅ Tab Panels */}
+      {/* ✅ Combined Table */}
       {!sellerProduct.loading && !sellerProduct.error && (
-        <>
-          {/* Tab 0: Independent Products */}
-          <TabPanel value={activeTab} index={0}>
-            {myProducts.length === 0 ? (
-              <Paper sx={{ p: 5, textAlign: 'center', bgcolor: 'grey.50' }}>
-                <Typography variant="h6" color="text.secondary" gutterBottom>
-                  No products found
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                  Create your first product to start selling
-                </Typography>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => window.location.href = '/seller/add-product'}
-                  startIcon={<AddPhotoAlternateIcon />}
-                >
-                  Create Product
-                </Button>
-              </Paper>
-            ) : (
-              <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #e2e8f0', borderRadius: 2, overflowX: 'auto' }}>
-                <Table sx={{ minWidth: 1000 }} aria-label="my products table">
-                  <TableHead>
-                    <TableRow>
-                      <StyledTableCell />
-                      <StyledTableCell>Images</StyledTableCell>
-                      <StyledTableCell align="left">Title</StyledTableCell>
-                      <StyledTableCell align="left">Category</StyledTableCell>
-                      <StyledTableCell align="center">Variants</StyledTableCell>
-                      <StyledTableCell align="center">Stock</StyledTableCell>
-                      <StyledTableCell align="center">Actions</StyledTableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {myProducts.map((item: Product) => (
-                      <Row
-                        key={item._id}
-                        row={item}
-                        onEdit={handleEditClick}
-                        onDelete={handleDeleteClick}
-                        getCategoryName={getCategoryName}
-                        isCatalogOffer={false}
-                        onError={(msg) => { setSnackbarMessage(msg); setSnackbarSeverity('error'); setSnackbarOpen(true); }}
-                      />
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            )}
-          </TabPanel>
-
-          {/* Tab 1: Catalog Offers */}
-          <TabPanel value={activeTab} index={1}>
-            {catalogOffers.length === 0 ? (
-              <Paper sx={{ p: 5, textAlign: 'center', bgcolor: 'grey.50' }}>
-                <Typography variant="h6" color="text.secondary" gutterBottom>
-                  No catalog offers found
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                  List your offer on existing catalog products to start selling
-                </Typography>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => window.location.href = '/seller/add-product'}
-                  startIcon={<StoreIcon />}
-                >
-                  List Catalog Offer
-                </Button>
-              </Paper>
-            ) : (
-              <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #e2e8f0', borderRadius: 2, overflowX: 'auto' }}>
-                <Table sx={{ minWidth: 1000 }} aria-label="catalog offers table">
-                  <TableHead>
-                    <TableRow>
-                      <StyledTableCell />
-                      <StyledTableCell>Images</StyledTableCell>
-                      <StyledTableCell align="left">Title</StyledTableCell>
-                      <StyledTableCell align="left">Category</StyledTableCell>
-                      <StyledTableCell align="center">Variants</StyledTableCell>
-                      <StyledTableCell align="center">Stock</StyledTableCell>
-                      <StyledTableCell align="center">Actions</StyledTableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {catalogOffers.map((item: Product) => (
-                      <Row
-                        key={item._id}
-                        row={item}
-                        onEdit={handleEditClick}
-                        onDelete={handleDeleteClick}
-                        getCategoryName={getCategoryName}
-                        isCatalogOffer={true}
-                        onError={(msg) => { setSnackbarMessage(msg); setSnackbarSeverity('error'); setSnackbarOpen(true); }}
-                      />
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            )}
-          </TabPanel>
-        </>
+        <Box sx={{ pt: 2 }}>
+          {displayedProducts.length === 0 ? (
+            <Paper sx={{ p: 5, textAlign: 'center', bgcolor: 'grey.50' }}>
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                No products found
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                Try changing your filter or add a new product/offer
+              </Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => window.location.href = '/seller/add-product'}
+                startIcon={<AddPhotoAlternateIcon />}
+              >
+                Create Product
+              </Button>
+            </Paper>
+          ) : (
+            <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #e2e8f0', borderRadius: 2, overflowX: 'auto' }}>
+              <Table sx={{ minWidth: 1000 }} aria-label="products table">
+                <TableHead>
+                  <TableRow>
+                    <StyledTableCell />
+                    <StyledTableCell>Images</StyledTableCell>
+                    <StyledTableCell align="left">Title</StyledTableCell>
+                    <StyledTableCell align="left">Category</StyledTableCell>
+                    <StyledTableCell align="center">Status</StyledTableCell>
+                    <StyledTableCell align="center">Variants</StyledTableCell>
+                    <StyledTableCell align="center">Stock</StyledTableCell>
+                    <StyledTableCell align="center">Actions</StyledTableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {displayedProducts.map((item: Product) => (
+                    <Row
+                      key={item._id}
+                      row={item}
+                      onEdit={handleEditClick}
+                      onDelete={handleDeleteClick}
+                      getCategoryName={getCategoryName}
+                      isCatalogOffer={isCatalog(item)}
+                      onError={(msg) => { setSnackbarMessage(msg); setSnackbarSeverity('error'); setSnackbarOpen(true); }}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </Box>
       )}
 
       {/* ✅ Edit Dialog */}

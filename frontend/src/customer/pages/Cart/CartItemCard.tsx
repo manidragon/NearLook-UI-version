@@ -149,10 +149,45 @@ const CartItemCard: React.FC<CartItemProps> = ({ item }) => {
   const unitPrice = quantity > 0 ? lineTotal / quantity : lineTotal;
   const localLineTotal = unitPrice * localQuantity;
 
+  // ✅ Get stock from variant's offer or direct variant
+  const getStock = (): number | null => {
+    if (item.product?.variants && item.variantId && item.sellerId) {
+      const variant = item.product.variants.find((v: any) =>
+        v._id?.toString() === item.variantId?.toString()
+      );
+      if (variant) {
+        // 1. Check if it's a catalog offer
+        if (variant.offers && variant.offers.length > 0) {
+          const offer = variant.offers.find((o: any) => {
+            const offerSellerId = typeof o.seller === 'string'
+              ? o.seller
+              : o.seller?._id?.toString();
+            const itemSellerIdStr = typeof item.sellerId === 'string'
+              ? item.sellerId
+              : item.sellerId?._id?.toString();
+            return offerSellerId === itemSellerIdStr;
+          });
+          if (offer?.stock !== undefined) {
+            return offer.stock;
+          }
+        }
+        // 2. Check if it's an independent product (stock is directly on variant)
+        if (variant.stock !== undefined) {
+          return variant.stock;
+        }
+      }
+    }
+    return null;
+  };
+  const stock = getStock();
+
   const handleUpdateQuantity = (newQuantity: number) => {
     if (!newQuantity || newQuantity < 1) return;
-    const qty = Number(newQuantity);
+    let qty = Number(newQuantity);
     if (isNaN(qty)) return;
+    if (stock !== null && qty > stock) {
+      qty = stock;
+    }
     
     // Optimistic UI update immediately
     setLocalQuantity(qty);
@@ -186,27 +221,7 @@ const CartItemCard: React.FC<CartItemProps> = ({ item }) => {
   const sellerName = getSellerName(item);
   const productTitle = item.product?.title || 'Product title';
   const variantSpecs = getVariantSpecs(item);
-  // ✅ Get stock from variant's offer
-  const getStock = (): number | null => {
-    if (item.product?.variants && item.variantId && item.sellerId) {
-      const variant = item.product.variants.find((v: any) =>
-        v._id?.toString() === item.variantId?.toString()
-      );
-      if (variant?.offers) {
-        const offer = variant.offers.find((o: any) => {
-          const offerSellerId = typeof o.seller === 'string'
-            ? o.seller
-            : o.seller?._id?.toString();
-          return offerSellerId === item.sellerId;
-        });
-        if (offer?.stock !== undefined) {
-          return offer.stock;
-        }
-      }
-    }
-    return null;
-  };
-  const stock = getStock();
+
   return (
     <div className="item">
       {/* Product Image */}
@@ -259,7 +274,12 @@ const CartItemCard: React.FC<CartItemProps> = ({ item }) => {
             type="button"
             className="qtyInc"
             aria-label="Increase quantity"
+            disabled={stock !== null && localQuantity >= stock}
             onClick={() => handleUpdateQuantity(localQuantity + 1)}
+            style={{ 
+              opacity: (stock !== null && localQuantity >= stock) ? 0.5 : 1, 
+              cursor: (stock !== null && localQuantity >= stock) ? 'not-allowed' : 'pointer' 
+            }}
           >
             <AddIcon sx={{ fontSize: 16 }} />
           </button>
