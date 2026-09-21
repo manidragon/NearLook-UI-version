@@ -111,7 +111,7 @@ const CategorySheet = ({
               {levelTwoCategories.find(c => c._id === activeLevelTwoId)?.name}
             </h3>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-8">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' }} className="gap-y-4 gap-x-8">
               {activeLevelThreeCategories.length > 0 ? (
                 activeLevelThreeCategories.map((cat) => (
                   <div key={cat._id}>

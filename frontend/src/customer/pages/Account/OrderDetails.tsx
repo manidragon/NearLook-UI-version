@@ -26,6 +26,7 @@ import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
 import CallOutlinedIcon from '@mui/icons-material/CallOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
+import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import OrderStepper from './OrderStepper';
 import ReturnRequestForm from './ReturnRequestForm';
 import ReplacementRequestForm from './ReplacementRequestForm';
@@ -52,7 +53,12 @@ const getProductImage = (orderItem: any): string => {
   return "https://via.placeholder.com/120";
 };
 
-const getSellerName = (orderItem: any): string => {
+const getSellerName = (orderItem: any, order?: any): string => {
+  // Priority 1: Check if the top-level order has the seller populated
+  if (order?.seller && typeof order.seller === "object") {
+    return order.seller.businessDetails?.businessName || order.seller.sellerName || "Seller";
+  }
+  // Priority 2: Fallback to the product's creator/seller
   const seller = orderItem?.product?.seller;
   if (typeof seller === "object" && seller) {
     return seller.businessDetails?.businessName || seller.sellerName || "Seller";
@@ -60,7 +66,11 @@ const getSellerName = (orderItem: any): string => {
   return "Seller";
 };
 
-const getSellerId = (orderItem: any): string | null => {
+const getSellerId = (orderItem: any, order?: any): string | null => {
+  if (order?.seller) {
+    if (typeof order.seller === "object" && order.seller._id) return String(order.seller._id);
+    if (typeof order.seller === "string") return String(order.seller);
+  }
   const seller = orderItem?.product?.seller;
   if (typeof seller === "object" && seller?._id) return String(seller._id);
   if (typeof seller === "string") return seller;
@@ -164,6 +174,15 @@ const OrderDetails = () => {
     }
   }, [dispatch, orderId, orderItemId]);
 
+  const handleCopyOrderId = () => {
+    if (orderId) {
+      navigator.clipboard.writeText(orderId);
+      setSnackbarMsg('Order ID copied to clipboard!');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+    }
+  };
+
   useEffect(() => {
     if (window.location.hash === '#review-section') {
       setTimeout(() => {
@@ -183,11 +202,11 @@ const OrderDetails = () => {
 
   // Fetch seller reviews
   useEffect(() => {
-    const sellerId = getSellerId(item);
+    const sellerId = getSellerId(item, orders.currentOrder);
     if (sellerId) {
       dispatch(fetchSellerReviews({ sellerId }));
     }
-  }, [dispatch, item?.product?.seller]);
+  }, [dispatch, item?.product?.seller, orders.currentOrder]);
 
   // ─── Guards ───────────────────────────────
   if (orders.loading) {
@@ -628,7 +647,17 @@ const OrderDetails = () => {
                   {productTitle}
                 </Typography>
                 <Typography variant="caption" className="text-gray-500 block mb-1">
-                  Seller: {sellerName}
+                  Seller:{' '}
+                  <span 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const sellerId = getSellerId(item, orders.currentOrder);
+                      if (sellerId) navigate(`/seller-profile/${sellerId}`);
+                    }}
+                    className="text-[#FF5A00] font-medium cursor-pointer hover:underline"
+                  >
+                    {getSellerName(item, orders.currentOrder)}
+                  </span>
                 </Typography>
                 <div className="flex items-center gap-3 mt-1">
                   <Typography component="p" variant="h6" className="font-bold text-[18px]">₹{item?.sellingPrice}</Typography>
@@ -1010,8 +1039,11 @@ const OrderDetails = () => {
         </div>
       </div>
       {/* Order ID Footer */}
-      <div className="px-1 mt-6">
+      <div className="px-1 mt-6 flex items-center gap-2">
          <Typography variant="caption" className="text-gray-700 font-medium">Order #{orderId}</Typography>
+         <IconButton size="small" onClick={handleCopyOrderId} title="Copy Order ID">
+            <ContentCopyOutlinedIcon sx={{ fontSize: 16, color: '#6b7280' }} />
+         </IconButton>
       </div>
 
       {item && (

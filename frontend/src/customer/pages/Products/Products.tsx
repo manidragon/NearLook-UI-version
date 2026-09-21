@@ -275,7 +275,7 @@ useEffect(() => {
                 <Typography className="text-gray-500 font-medium text-sm animate-pulse">Loading products...</Typography>
               </Box>
             ) : productsToRender.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
+              <div className="flex flex-wrap gap-3 sm:gap-4 lg:gap-5 justify-center sm:justify-start">
                 {productsToRender.map((item: any) => (
                   <ProductCard key={item._id} item={item} categoryId={categoryId} />
                 ))}

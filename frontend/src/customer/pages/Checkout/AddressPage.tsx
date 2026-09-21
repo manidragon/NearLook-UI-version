@@ -364,7 +364,7 @@ if (result && typeof result === 'object' && 'success' in result && result.succes
         setSnackbarOpen(true);
     }
     
-    setSuccessOrderId(result.orders?.[0]?._id || "Placed successfully");
+    setSuccessOrderId(result.orders?.[0]?._id || result.orders?.[0] || "Placed successfully");
     setShowSuccessModal(true);
     return;
 }

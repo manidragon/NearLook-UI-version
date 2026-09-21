@@ -1626,45 +1626,57 @@ const ProductDetails = () => {
                                 />
                                 <div>
                                   <div className="flex items-center gap-2">
-                                    <span className="font-medium text-gray-800 hover:underline" onClick={(e) => handleNavigateToSeller(offer, e)}>
+                                    <span className="font-medium text-gray-800">
                                       {sellerName}
                                     </span>
-                                    {(() => {
-                                      const sellerReviews = offer.seller?._id ? sellerReviewState.reviewsBySeller[offer.seller._id] || [] : [];
-                                      const reviewCount = sellerReviews.length;
-                                      if (reviewCount === 0) return null;
-                                      const avg = sellerReviews.reduce((sum: number, item: any) => sum + (item.rating || 0), 0) / reviewCount;
-                                      return (
-                                        <div
-                                          className="flex items-center gap-1 cursor-pointer hover:bg-gray-100 rounded px-1 transition-colors"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setSelectedSellerReviews(sellerReviews);
-                                            setOpenSellerDrawer(true);
-                                          }}
-                                        >
-                                          <Rating value={avg} size="small" readOnly precision={0.5} />
-                                          <span className="text-[10px] text-gray-500">({reviewCount})</span>
-                                        </div>
-                                      );
-                                    })()}
                                   </div>
                                 </div>
                               </div>
 
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-3">
+                                <span className="text-gray-800 font-semibold">₹{variant.sellingPrice.toLocaleString()}</span>
                                 <button
-                                  className="flex items-center gap-1 text-gray-500 text-xs hover:text-orange-600 transition"
+                                  type="button"
+                                  className="text-gray-500 hover:text-orange-600 transition flex items-center"
+                                  title="View Seller Profile"
+                                  onClick={(e) => handleNavigateToSeller(offer, e)}
+                                >
+                                  <StoreIcon fontSize="small" />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="flex items-center text-gray-500 hover:text-orange-600 transition"
                                   onClick={() => setExpandedSellerId(isExpanded ? null : offer._id)}
                                 >
-                                  <span>{isExpanded ? "Hide details" : "View details"}</span>
-                                  <FiChevronDown className={`transition-transform duration-300 ${isExpanded ? "rotate-180" : "rotate-0"}`} size={14} />
+                                  <FiChevronDown className={`transition-transform duration-300 ${isExpanded ? "rotate-180" : "rotate-0"}`} size={18} />
                                 </button>
                               </div>
                             </div>
 
                             <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded ? "max-h-[500px] opacity-100 mt-3 pt-3 border-t" : "max-h-0 opacity-0"}`}>
                               <div className="text-gray-700 space-y-1.5 text-xs">
+                                {(() => {
+                                  const sellerReviews = offer.seller?._id ? sellerReviewState.reviewsBySeller[offer.seller._id] || [] : [];
+                                  const reviewCount = sellerReviews.length;
+                                  if (reviewCount === 0) return null;
+                                  const avg = sellerReviews.reduce((sum: number, item: any) => sum + (item.rating || 0), 0) / reviewCount;
+                                  return (
+                                    <div
+                                      className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 rounded p-1 transition-colors -ml-1 w-max"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedSellerReviews(sellerReviews);
+                                        setOpenSellerDrawer(true);
+                                      }}
+                                    >
+                                      <span className="font-medium">Rating:</span>
+                                      <div className="flex items-center">
+                                        <Rating value={avg} size="small" readOnly precision={0.5} />
+                                        <span className="text-[10px] text-gray-500 ml-1">({reviewCount})</span>
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
                                 <p>
                                   <span className="font-medium">Price:</span> ₹{variant.sellingPrice.toLocaleString()}
                                   {variant.mrpPrice > variant.sellingPrice && (

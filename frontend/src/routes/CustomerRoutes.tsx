@@ -26,8 +26,8 @@ const WriteReviews = React.lazy(() => import('../customer/pages/Review/WriteRevi
 const Wishlist = React.lazy(() => import('../customer/pages/Wishlist/Wishlist'))
 const SearchProducts = React.lazy(() => import('../customer/pages/Search/SearchProducts'))
 
-// Public seller profile page (customer-facing)
 const SellerProfile = React.lazy(() => import('../customer/pages/Seller/SellerProfile'))
+const AllSellers = React.lazy(() => import('../customer/pages/Seller/AllSellers'))
 const MapSearch = React.lazy(() => import('../customer/pages/MapSearch/MapSearch'))
 const MobileCategories = React.lazy(() => import('../customer/pages/MobileCategories/MobileCategories'))
 const TermsAndConditions = React.lazy(() => import('../customer/pages/Legal/TermsAndConditions'))
@@ -108,6 +108,7 @@ const CustomerRoutes = () => {
 
           {/* ✅ Public seller profile — navigated to from ProductDetails seller name click */}
           <Route path='/seller-profile/:sellerId' element={<SellerProfile />} />
+          <Route path='/all-sellers' element={<AllSellers />} />
 
           {/* ✅ Customer writes a seller review from OrderDetails */}
           <Route path='/account/seller-review/:sellerId' element={<ProtectedRoute><SellerReviewForm /></ProtectedRoute>} />

@@ -58,10 +58,10 @@ export default function FollowedSellerProductsSlider() {
 
   return (
     <div className="py-2 px-2">
-      <div className="slide-container">
+      <div className="slide-container flex-center-slick">
         <Slider {...settings}>
           {followedSellerProducts.map((item, index) => (
-            <div key={index} className="flex flex-col items-center justify-center p-2">
+            <div key={index} className="flex flex-col w-full items-center justify-center p-2">
               <ProductCard item={item} />
             </div>
           ))}

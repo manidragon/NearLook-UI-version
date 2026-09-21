@@ -9,6 +9,8 @@ import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import type { CartItem } from '../../../types/cartTypes';
 import { useAppDispatch } from '../../../redux/Store';
 import { deleteCartItem, updateCartItem } from '../../../redux/Customer/CartSlice';
+import { useNavigate } from 'react-router-dom';
+
 interface CartItemProps {
   item: CartItem;
 }
@@ -79,7 +81,14 @@ const getSellerName = (item: CartItem): string => {
     return name || 'Seller';
   }
   
-  return 'Seller';
+  return "Seller";
+};
+
+const getSellerId = (item: CartItem): string | null => {
+  const seller = item.product?.seller;
+  if (typeof seller === "object" && seller?._id) return String(seller._id);
+  if (typeof seller === "string") return seller;
+  return null;
 };
 const getVariantSpecs = (item: CartItem): { label: string; value: string }[] => {
   const specs: { label: string; value: string }[] = [];
@@ -133,9 +142,10 @@ const getVariantSpecs = (item: CartItem): { label: string; value: string }[] => 
 const CartItemCard: React.FC<CartItemProps> = ({ item }) => {
   const [localQuantity, setLocalQuantity] = React.useState(item.quantity || 1);
   const updateTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
-    // Only sync from props if we are NOT currently in the middle of a debounced update.
+    // Keep local state in sync with external changes, unless we are currently debouncing an update of a debounced update.
     // This prevents the UI from bouncing back to old values while the backend is still processing.
     if (!updateTimeoutRef.current) {
       setLocalQuantity(item.quantity || 1);
@@ -240,7 +250,17 @@ const CartItemCard: React.FC<CartItemProps> = ({ item }) => {
           <div>
             <p className="item__name line-clamp-1" title={productTitle}>{productTitle}</p>
             <p className="item__meta">
-              {variantSpecs.map(s => s.value).join(', ')} {variantSpecs.length > 0 && ' | '} Seller: {sellerName}
+              {variantSpecs.map(s => s.value).join(', ')} {variantSpecs.length > 0 && ' | '} Seller:{' '}
+              <span 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const sellerId = getSellerId(item);
+                  if (sellerId) navigate(`/seller-profile/${sellerId}`);
+                }}
+                className="text-[#FF5A00] font-medium cursor-pointer hover:underline"
+              >
+                {sellerName}
+              </span>
             </p>
           </div>
           <span className="badge" title="Unit price">

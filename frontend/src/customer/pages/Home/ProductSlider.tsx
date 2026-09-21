@@ -66,10 +66,10 @@ export default function ProductSlider({ products }: ProductSliderProps) {
 
   return (
     <div className="py-2 px-2">
-      <div className="slide-container">
+      <div className="slide-container flex-center-slick">
         <Slider {...settings}>
           {products.map((item, index) => (
-            <div key={index} className="flex flex-col items-center justify-center p-2">
+            <div key={index} className="flex flex-col w-full items-center justify-center p-2">
               <ProductCard item={item} isEager={index < 2} />
             </div>
           ))}

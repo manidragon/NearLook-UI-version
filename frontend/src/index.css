@@ -59,6 +59,12 @@ input, textarea {
   font-size: 0;
 }
 
+/* Utility to center react-slick items */
+.flex-center-slick .slick-slide > div {
+  display: flex;
+  justify-content: center;
+}
+
 .ptr { overflow: visible !important; }
 
 

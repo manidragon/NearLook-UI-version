@@ -168,7 +168,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId, i
           const baseUrl = `/product-details/${itemCategoryId}/${item.title}/${item._id}`;
           navigate(sellerId ? `${baseUrl}?sellerId=${sellerId}` : baseUrl);
         }}
-        className="group relative flex flex-col bg-white border border-gray-100 rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-orange-200 transition-all duration-300 h-full"
+        className="group relative flex flex-col bg-white border border-gray-100 rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-orange-200 transition-all duration-300 w-full max-w-[150px] sm:max-w-[220px] h-full"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -180,7 +180,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId, i
           </div>
         )}
 
-        <div className="relative w-full pt-[100%] sm:pt-[120%] bg-gray-50 flex-shrink-0 overflow-hidden">
+        <div className="relative w-full h-[150px] sm:h-[220px] bg-gray-50 flex-shrink-0 overflow-hidden">
           {productImages.length > 0 ? (
             productImages.map((image: string, index: number) => (
               <img
@@ -263,7 +263,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId, i
             </div>
 
             <div 
-              className="relative w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-gray-50 hover:bg-orange-50 transition-colors z-20 group/heart" 
+              className="relative flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-gray-50 hover:bg-orange-50 transition-colors z-20 group/heart" 
               title="Wishlist"
               onClick={(e) => {
                 e.preventDefault();

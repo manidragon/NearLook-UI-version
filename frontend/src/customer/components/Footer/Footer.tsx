@@ -51,9 +51,9 @@ const Footer = () => {
       <footer className="relative z-10">
         <div className="container mx-auto px-4 lg:px-8 pt-12 md:pt-16">
           {/* MAIN FOOTER */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 py-16">
+          <div className="flex flex-wrap gap-y-12 py-16 -mx-4">
             {/* CONTACT */}
-            <div className="flex flex-col space-y-6">
+            <div className="w-full sm:w-1/2 lg:w-1/4 px-4 flex flex-col space-y-6">
               <h2 className="text-lg font-bold text-white uppercase tracking-wider relative inline-block">
                 Contact Us
                 <span className="absolute -bottom-2 left-0 w-12 h-1 bg-gradient-to-r from-orange-500 to-transparent"></span>
@@ -88,7 +88,7 @@ const Footer = () => {
             </div>
 
             {/* DYNAMIC CATEGORIES */}
-            <div className="flex flex-col space-y-6">
+            <div className="w-full sm:w-1/2 lg:w-1/4 px-4 flex flex-col space-y-6">
               <h2 className="text-lg font-bold text-white uppercase tracking-wider relative inline-block">
                 Top Categories
                 <span className="absolute -bottom-2 left-0 w-12 h-1 bg-gradient-to-r from-orange-500 to-transparent"></span>
@@ -109,7 +109,7 @@ const Footer = () => {
             </div>
 
             {/* COMPANY LINKS */}
-            <div className="flex flex-col space-y-6">
+            <div className="w-full sm:w-1/2 lg:w-1/4 px-4 flex flex-col space-y-6">
               <h2 className="text-lg font-bold text-white uppercase tracking-wider relative inline-block">
                 Our Company
                 <span className="absolute -bottom-2 left-0 w-12 h-1 bg-gradient-to-r from-orange-500 to-transparent"></span>
@@ -144,7 +144,7 @@ const Footer = () => {
             </div>
 
             {/* BECOME A SELLER */}
-            <div className="flex flex-col space-y-6">
+            <div className="w-full sm:w-1/2 lg:w-1/4 px-4 flex flex-col space-y-6">
               <h2 className="text-lg font-bold text-white uppercase tracking-wider relative inline-block">
                 Become a Seller
                 <span className="absolute -bottom-2 left-0 w-12 h-1 bg-gradient-to-r from-orange-500 to-transparent"></span>

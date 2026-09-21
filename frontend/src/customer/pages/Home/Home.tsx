@@ -144,6 +144,12 @@ const Home = () => {
                             <section className="bg-white p-4 shadow-sm rounded-sm">
                                 <div className="flex justify-between items-center pb-4 border-b border-gray-100 mb-4">
                                     <h2 className='text-xl font-semibold text-gray-800'>Featured Local Sellers <StorefrontIcon className="text-primary-color" /></h2>
+                                    <button 
+                                      onClick={() => navigate('/all-sellers')}
+                                      className="text-sm font-medium text-orange-600 hover:text-orange-700 hover:underline transition-colors px-3 py-1 bg-orange-50 rounded-md"
+                                    >
+                                      View All Sellers
+                                    </button>
                                 </div>
                                 {(!sellers.sellers || sellers.sellers.length === 0) ? <FeaturedSellersSkeleton /> : (
                                     <Suspense fallback={<FeaturedSellersSkeleton />}>
