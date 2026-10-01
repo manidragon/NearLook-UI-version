@@ -262,6 +262,37 @@ export const createValidationSchema = (
                     otherwise: (schema) => schema.notRequired().default('0')
                   }),
 
+                // ✅ Low Stock Limit - only validate if seller added offer
+                lowStockLimit: Yup.string()
+                  .when('offers', {
+                    is: (offers: any[]) => {
+                      let currentSeller: string | null = null;
+                      try {
+                        const jwt = typeof window !== 'undefined' ? localStorage.getItem('jwt') : null;
+                        if (jwt) {
+                          const payload = JSON.parse(atob(jwt.split('.')[1]));
+                          currentSeller = payload._id || payload.userId || payload.id || payload.sellerId;
+                        }
+                      } catch (e) {
+                        console.warn('⚠️ Could not decode JWT in validation');
+                      }
+                      return offers?.some((o: any) =>
+                        o?.sellerId === currentSeller
+                      );
+                    },
+                    then: (schema) => schema
+                      .required("Low stock limit is required for your offer")
+                      .test("is-number", "Must be a valid number", (val) => {
+                        if (!val || String(val).trim() === '') return false;
+                        return !isNaN(Number(val));
+                      })
+                      .test("non-negative", "Limit cannot be negative", (val) => {
+                        if (!val || String(val).trim() === '') return false;
+                        return Number(val) >= 0;
+                      }),
+                    otherwise: (schema) => schema.notRequired().default('10')
+                  }),
+
                 // ✅ SKU - optional
                 sku: Yup.string()
                   .optional()

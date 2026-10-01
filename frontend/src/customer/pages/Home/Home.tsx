@@ -146,7 +146,7 @@ const Home = () => {
                                     <h2 className='text-xl font-semibold text-gray-800'>Featured Local Sellers <StorefrontIcon className="text-primary-color" /></h2>
                                     <button 
                                       onClick={() => navigate('/all-sellers')}
-                                      className="text-sm font-medium text-orange-600 hover:text-orange-700 hover:underline transition-colors px-3 py-1 bg-orange-50 rounded-md"
+                                      className="text-sm font-medium text-orange-700 hover:text-orange-800 hover:underline transition-colors px-3 py-1 bg-orange-50 rounded-md"
                                     >
                                       View All Sellers
                                     </button>

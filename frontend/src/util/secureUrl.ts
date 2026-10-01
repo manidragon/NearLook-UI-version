@@ -22,7 +22,7 @@ export const secureUrl = (url: string | undefined, width?: number): string => {
           }
       }
 
-      let transform = 'f_auto,q_auto';
+      let transform = 'f_avif,q_auto';
       if (width) transform += `,w_${width},c_limit`;
 
       // Check if transformation string is already there

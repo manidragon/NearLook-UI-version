@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "NearLook",
+  "description": "E-commerce platform for NearLook",
+  "contact": {
+    "email": "nearlookindia@gmail.com"
+  },
+  "resources": []
+}

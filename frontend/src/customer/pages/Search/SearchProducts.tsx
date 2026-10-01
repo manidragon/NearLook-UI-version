@@ -194,11 +194,9 @@ const SearchProducts = () => {
           {/* Search Results */}
           {products.searchProduct && products.searchProduct.length > 0 && hasSearched && !showSuggestions ? (
             <div className="min-h-[500px]">
-              <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-5">
+              <section className="flex flex-wrap gap-3 sm:gap-4 lg:gap-5 justify-center sm:justify-start">
                 {products.searchProduct.map((item: Product) => (
-                  <div key={item._id} className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-transparent transition-all duration-300 transform hover:-translate-y-1 relative group cursor-pointer overflow-hidden">
-                    <ProductCard item={item} />
-                  </div>
+                  <ProductCard key={item._id} item={item} />
                 ))}
               </section>
             </div>

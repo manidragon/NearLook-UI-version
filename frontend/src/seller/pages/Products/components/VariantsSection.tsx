@@ -953,6 +953,7 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                                         </Grid>
 
                                         {/* Stock - ALWAYS EDITABLE */}
+                                        {/* Stock - ALWAYS EDITABLE */}
                                         <Grid size={{ xs: 12, sm: 6 }}>
                                           <TextField
                                             size="small"
@@ -961,6 +962,22 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                                             value={String(offer.stock ?? '0')}
                                             onChange={(e) => {
                                               onOfferChange?.(activeColorTab, subIndex, offerIndex, 'stock', e.target.value);
+                                            }}
+                                            inputProps={{ min: 0 }}
+                                            fullWidth
+                                            disabled={false}
+                                          />
+                                        </Grid>
+
+                                        {/* Low Stock Limit - ALWAYS EDITABLE */}
+                                        <Grid size={{ xs: 12, sm: 6 }}>
+                                          <TextField
+                                            size="small"
+                                            type="number"
+                                            label="Low Stock Alert Limit"
+                                            value={String(offer.lowStockLimit ?? '10')}
+                                            onChange={(e) => {
+                                              onOfferChange?.(activeColorTab, subIndex, offerIndex, 'lowStockLimit', e.target.value);
                                             }}
                                             inputProps={{ min: 0 }}
                                             fullWidth

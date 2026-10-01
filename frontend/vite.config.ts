@@ -15,7 +15,7 @@ const asyncCssPlugin = () => ({
 });
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), asyncCssPlugin()],
   server: {
     host: '0.0.0.0',
     port: 5173,
@@ -25,7 +25,16 @@ export default defineConfig({
     sourcemap: false,
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
-      output: {}
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom', 'react-redux', '@reduxjs/toolkit'],
+          'vendor-mui-core': ['@mui/material', '@emotion/react', '@emotion/styled'],
+          'vendor-mui-icons': ['@mui/icons-material'],
+          'vendor-swiper': ['swiper', 'react-slick', 'slick-carousel'],
+          'vendor-motion': ['framer-motion'],
+          'vendor-utils': ['axios', 'dayjs', 'yup', 'formik']
+        }
+      }
     }
   },
   test: {

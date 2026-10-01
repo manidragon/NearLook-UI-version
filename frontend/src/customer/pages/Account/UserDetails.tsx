@@ -1,7 +1,11 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\customer\pages\Account\UserDetails.tsx
-import { Divider, Button, TextField, Box, Avatar, IconButton, Alert, Snackbar } from '@mui/material';
+import { Divider, Button, TextField, Box, Avatar, IconButton, Alert, Snackbar, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditIcon from "@mui/icons-material/Edit";
+import { api } from "../../../Config/Api";
+import { performLogout } from "../../../redux/Customer/AuthSlice";
 import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from "@mui/icons-material/Close";
 import PersonIcon from "@mui/icons-material/PersonOutline";
@@ -37,6 +41,8 @@ const UserDetails = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user.user) {
@@ -143,6 +149,28 @@ const UserDetails = () => {
 
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      setLoading(true);
+      await api.delete('/api/users/profile');
+      
+      // Logout and redirect
+      dispatch(performLogout());
+      localStorage.clear();
+      sessionStorage.clear();
+      setDeleteModalOpen(false);
+      navigate("/", { replace: true });
+      window.location.replace("/");
+    } catch (error: any) {
+      setSnackbarMessage(error?.response?.data?.message || 'Failed to delete account');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      setDeleteModalOpen(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getOptimizedImage = (url: string | null | undefined) => {
@@ -320,8 +348,52 @@ const UserDetails = () => {
               </div>
             )}
           </div>
+
+          {/* DANGER ZONE - Account Deletion */}
+          {!isEditing && (
+            <div className="mt-12 pt-6 border-t border-red-100">
+              <h2 className="text-[18px] font-bold text-red-600 mb-2">Danger Zone</h2>
+              <p className="text-gray-500 text-sm mb-4">
+                Deleting your account will permanently remove your personal information. This action cannot be undone.
+              </p>
+              <Button
+                variant="outlined"
+                color="error"
+                startIcon={<DeleteForeverIcon />}
+                onClick={() => setDeleteModalOpen(true)}
+                sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
+              >
+                Delete Account
+              </Button>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title" sx={{ color: 'error.main', fontWeight: 'bold' }}>
+          {"Delete Account?"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete your account? All your personal information will be permanently removed. This action cannot be reversed.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, pt: 0 }}>
+          <Button onClick={() => setDeleteModalOpen(false)} color="inherit" sx={{ textTransform: 'none', fontWeight: 600 }}>
+            Cancel
+          </Button>
+          <Button onClick={handleDeleteAccount} disabled={loading} color="error" variant="contained" autoFocus sx={{ textTransform: 'none', fontWeight: 600, boxShadow: 'none' }}>
+            {loading ? 'Deleting...' : 'Yes, Delete My Account'}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Snackbar sx={{ mb: { xs: 8, sm: 0 } }}
         open={snackbarOpen}

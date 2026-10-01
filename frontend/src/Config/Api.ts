@@ -1,7 +1,7 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\Config\Api.ts
 import axios from 'axios';
 
-export const API_URL = import.meta.env.VITE_API_URL || "https://api.nearlook.in";
+export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 export const DEPLOYED_URL = "https://nearlook.in";
 // change api
 

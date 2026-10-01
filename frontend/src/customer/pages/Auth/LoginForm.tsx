@@ -11,7 +11,7 @@ import GoogleIcon from '@mui/icons-material/Google';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import AppleIcon from '@mui/icons-material/Apple';
 import TwitterIcon from '@mui/icons-material/Twitter';
-import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
 import { SignInWithApple } from '@capacitor-community/apple-sign-in';
 
@@ -229,18 +229,20 @@ const LoginForm = () => {
           </div>
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
             <div className="flex-shrink-0">
-              <GoogleLogin
-                onSuccess={(credentialResponse) => {
-                  const decoded: any = jwtDecode(credentialResponse.credential!);
-                  formik.setFieldValue('email', decoded.email);
-                  dispatch(sendLoginSignupOtp({ email: decoded.email }));
-                  setTimer(30);
-                  setIsTimerActive(true);
-                }}
-                onError={() => {
-                  console.error('Google Login Failed');
-                }}
-              />
+              <GoogleOAuthProvider clientId="903968210580-qe4gosdi9acof4hutt3aeamro1bmj9a5.apps.googleusercontent.com">
+                <GoogleLogin
+                  onSuccess={(credentialResponse) => {
+                    const decoded: any = jwtDecode(credentialResponse.credential!);
+                    formik.setFieldValue('email', decoded.email);
+                    dispatch(sendLoginSignupOtp({ email: decoded.email }));
+                    setTimer(30);
+                    setIsTimerActive(true);
+                  }}
+                  onError={() => {
+                    console.error('Google Login Failed');
+                  }}
+                />
+              </GoogleOAuthProvider>
             </div>
             <button
               type="button"

@@ -317,6 +317,12 @@ const ProductDetails = () => {
               );
             }
 
+            // ✅ Filter out sellers with 0 stock
+            offersWithVariant = offersWithVariant.filter((offer: any) => {
+              const variant = offer.variants?.find((v: any) => v._id === selectedVariantId);
+              return variant && (variant.stock ?? 0) > 0;
+            });
+
             setSellerOffers(offersWithVariant);
 
             if (offersWithVariant.length > 0) {
@@ -381,7 +387,7 @@ const ProductDetails = () => {
                 deliveryChargePrice: offer.deliveryChargePrice,
                 freeDeliveryRadiusKM: offer.freeDeliveryRadiusKM,
               };
-            });
+            }).filter((offer: any) => (offer.variants[0].stock ?? 0) > 0);
 
             setSellerOffers(formattedOffers);
 
@@ -1538,11 +1544,17 @@ const ProductDetails = () => {
                               <button
                                 key={v._id}
                                 onClick={() => handleVariantSelect(v)}
-                                className={`p-3 text-center border rounded-xl transition-all min-w-[120px] ${isSelected ? "border-orange-600 border-2 bg-orange-50" : "border-gray-200 text-[#5c5c5c] hover:border-gray-400 bg-white"}`}
+                                disabled={!hasActiveOffer}
+                                className={`p-3 text-center border rounded-xl transition-all min-w-[120px] flex flex-col items-center justify-center ${!hasActiveOffer ? "opacity-60 cursor-not-allowed bg-gray-100 border-gray-300" : isSelected ? "border-orange-600 border-2 bg-orange-50" : "border-gray-200 text-[#5c5c5c] hover:border-gray-400 bg-white"}`}
                               >
                                 <div className={`text-sm ${isSelected ? 'font-bold text-[#c24100]' : 'font-medium text-[#5c5c5c]'}`}>
                                   {sizeLabel}
                                 </div>
+                                {!hasActiveOffer && (
+                                  <div className="text-[10px] text-red-500 mt-1 font-semibold">
+                                    Out of stock
+                                  </div>
+                                )}
                               </button>
                             );
                           })}
@@ -1597,17 +1609,25 @@ const ProductDetails = () => {
                   })()}
 
                   {/* SELLER INFO */}
-                  {sellerOffers.length > 0 && (
-                    <div className="my-8 text-sm space-y-3">
-                      <h3 className="font-semibold mb-2">Select Seller ({sellerOffers.length} offers)</h3>
-                      {sellerOffers.map((offer: any) => {
-                        const isSelected = selectedSellerOffer?._id === offer._id;
-                        const isExpanded = expandedSellerId === offer._id;
-                        const sellerName = offer.seller?.businessDetails?.businessName || offer.seller?.sellerName || 'Seller';
-                        const variant = offer.variants.find((v: any) => v._id === selectedVariantId);
-                        if (!variant) return null;
+                  {(() => {
+                    const validOffers = sellerOffers.filter((offer: any) => {
+                      const variant = offer.variants.find((v: any) => v._id === selectedVariantId);
+                      return variant && variant.stock > 0;
+                    });
 
-                        return (
+                    if (validOffers.length === 0) return null;
+
+                    return (
+                      <div className="my-8 text-sm space-y-3">
+                        <h3 className="font-semibold mb-2">Select Seller ({validOffers.length} offers)</h3>
+                        {validOffers.map((offer: any) => {
+                          const isSelected = selectedSellerOffer?._id === offer._id;
+                          const isExpanded = expandedSellerId === offer._id;
+                          const sellerName = offer.seller?.businessDetails?.businessName || offer.seller?.sellerName || 'Seller';
+                          const variant = offer.variants.find((v: any) => v._id === selectedVariantId);
+                          if (!variant) return null;
+
+                          return (
                           <div
                             key={offer._id}
                             className={`border rounded-lg p-3 transition-all duration-300 ease-out hover:shadow-md ${isSelected ? "border-orange-500 bg-orange-50 shadow-lg scale-[1.01]" : "border-gray-200 bg-white"}`}
@@ -1703,7 +1723,8 @@ const ProductDetails = () => {
                         );
                       })}
                     </div>
-                  )}
+                  );
+                })()}
 
                   {/* PRODUCT BENEFITS */}
                   <div className="mt-4 py-3">

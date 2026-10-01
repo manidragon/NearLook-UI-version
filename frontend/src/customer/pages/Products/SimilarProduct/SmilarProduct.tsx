@@ -17,9 +17,14 @@ const SmilarProduct = () => {
   const dispatch = useAppDispatch();
   const { categoryId } = useParams();
 
+  const category = products.product?.category;
+  const productCategoryId = typeof category === 'string' 
+    ? category 
+    : (category?.categoryId || category?._id);
+
   const trueCategoryId = (categoryId && categoryId !== 'undefined') 
     ? categoryId 
-    : (products.product?.category?.categoryId || products.product?.category?._id);
+    : productCategoryId;
 
   useEffect(() => {
     if (trueCategoryId) {

@@ -8,5 +8,6 @@ router.get('/profile', authMiddleware, userController.getUserProfileByJwt);
 router.get('/', authMiddleware, userController.getAllUsers);
 router.put('/profile', authMiddleware, userController.updateUserProfile);
 router.put('/profile/picture', authMiddleware, userController.updateProfilePicture);
+router.delete('/profile', authMiddleware, userController.deleteUserAccount);
 
 module.exports = router;

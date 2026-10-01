@@ -89,6 +89,7 @@ app.use(cors({
     'https://nearlook.in',
     'https://www.nearlook.in',
     'http://localhost:5173', // For local development
+    'http://localhost:4173', // For Vite preview
     'http://localhost:3000',
     'http://localhost',
     'https://localhost',

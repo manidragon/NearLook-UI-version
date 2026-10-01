@@ -19,6 +19,7 @@ interface OfferRow {
   mrpPrice: string;
   sellingPrice: string;
   stock: string;
+  lowStockLimit?: string;
   sku?: string;
   isActive: boolean;
 }
@@ -105,6 +106,7 @@ const normalizeVariants = (product: any, sellerId: string): ColorVariant[] => {
                   mrpPrice: o.mrpPrice != null ? String(o.mrpPrice) : "",
                   sellingPrice: o.sellingPrice != null ? String(o.sellingPrice) : "",
                   stock: o.stock != null ? String(o.stock) : "0",
+                  lowStockLimit: o.lowStockLimit != null ? String(o.lowStockLimit) : "10",
                   sku: o.sku || "",
                   isActive: o.isActive !== false,
                 })
@@ -133,6 +135,7 @@ const normalizeVariants = (product: any, sellerId: string): ColorVariant[] => {
                     mrpPrice: o.mrpPrice != null ? String(o.mrpPrice) : "",
                     sellingPrice: o.sellingPrice != null ? String(o.sellingPrice) : "",
                     stock: o.stock != null ? String(o.stock) : "0",
+                    lowStockLimit: o.lowStockLimit != null ? String(o.lowStockLimit) : "10",
                     sku: o.sku || "",
                     isActive: o.isActive !== false,
                   })
@@ -249,7 +252,7 @@ const StockRow: React.FC<{
           <>
             <Typography variant="body2" color="text.secondary">
               Stock:{" "}
-              <strong style={{ color: Number(localStock) < 5 ? "#ef4444" : "#16a34a" }}>
+              <strong style={{ color: Number(localStock) <= Number(offer?.lowStockLimit || 10) ? "#ef4444" : "#16a34a" }}>
                 {localStock}
               </strong>
             </Typography>
@@ -494,7 +497,8 @@ const Stock: React.FC = () => {
           const offer = sv.offers[0];
           if (!offer) return;
           const stock = Number(offer.stock);
-          if (stock <= 10) {
+          const limit = Number(offer.lowStockLimit || 10);
+          if (stock <= limit) {
             const specs = sv.specifications || {};
             const specLabel =
               [specs.storage, specs.ram].filter(Boolean).join(" • ") || "Variant";
@@ -559,6 +563,7 @@ const Stock: React.FC = () => {
             mrpPrice: Number(o.mrpPrice) || 0,
             sellingPrice: Number(o.sellingPrice) || 0,
             stock: Number(o.stock) || 0,
+            lowStockLimit: Number(o.lowStockLimit || 10),
             sku: o.sku?.trim() || undefined,
             isActive: o.isActive !== false,
           })),

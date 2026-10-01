@@ -91,7 +91,7 @@ const CategorySheet = ({
               {levelTwoCategories.map((cat) => (
                 <li key={cat._id}>
                   <button
-                    onMouseEnter={() => setHoveredLevelTwoId(cat._id)}
+                    onClick={() => setHoveredLevelTwoId(cat._id)}
                     className={`w-full text-left px-4 py-2.5 rounded-lg font-medium transition-all duration-200 ${
                       activeLevelTwoId === cat._id 
                         ? 'bg-white text-[#FF5A00] shadow-sm border border-orange-100' 

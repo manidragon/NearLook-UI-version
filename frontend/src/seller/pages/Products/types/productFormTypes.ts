@@ -36,6 +36,7 @@ export interface ProductOfferForm {
   mrpPrice: string;
   sellingPrice: string;
   stock: string;
+  lowStockLimit: string;
   sku?: string;
   isReturnable: boolean;
   returnTAT: string;
@@ -57,6 +58,7 @@ export interface ProductOfferPayload {
   mrpPrice: number;
   sellingPrice: number;
   stock: number;
+  lowStockLimit: number;
   sku?: string;
   isReturnable: boolean;
   returnTAT: string;
@@ -85,6 +87,7 @@ export interface UpdateProductSubVariantForm extends ProductSubVariantForm {
   mrpPrice?: string | number;
   sellingPrice?: string | number;
   stock?: string | number;
+  lowStockLimit?: string | number;
 }
 
 // ✅ Color variant form
@@ -151,6 +154,7 @@ export const defaultInitialValues: ProductFormValues = {
               mrpPrice: "",
               sellingPrice: "",
               stock: "0",
+              lowStockLimit: "10",
               sku: "",
               isReturnable: false,
               returnTAT: "7 Days",

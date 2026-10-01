@@ -524,8 +524,8 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
                   <ArrowBackIcon className="text-gray-700" />
                 </IconButton>
               ) : (
-                <IconButton aria-label="Open menu" onClick={toggleDrawer(true)} sx={{ p: 0, mr: 0.5 }}>
-                  <MenuIcon className="text-gray-700" />
+                <IconButton aria-label="Open Menu" onClick={toggleDrawer(true)} sx={{ p: 0, mr: 0.5 }}>
+                  <MenuIcon aria-hidden={true} className="text-gray-700" />
                 </IconButton>
               )
             )}
@@ -684,9 +684,18 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
           {levelOneCategories.map((category) => (
             <div key={category._id} className="flex-shrink-0">
               <div
-                onClick={() => { if (!isLarge) navigate("/mobile-categories", { state: { categoryId: category._id } }); }}
-                onMouseLeave={() => setShowSheet(false)}
-                onMouseEnter={() => { setSelectedCategory(category._id); setShowSheet(true); }}
+                onClick={() => {
+                  if (!isLarge) {
+                    navigate("/mobile-categories", { state: { categoryId: category._id } });
+                  } else {
+                    if (showSheet && selectedCategory === category._id) {
+                      setShowSheet(false);
+                    } else {
+                      setSelectedCategory(category._id);
+                      setShowSheet(true);
+                    }
+                  }
+                }}
                 className={`flex flex-col items-center gap-0.5 cursor-pointer min-w-max group relative transition-all duration-300 ${!isLarge && isScrolled ? 'pb-1' : 'pb-2'}`}
               >
                 {/* Flipkart Style Line-Art Category Icon */}
@@ -715,9 +724,15 @@ const Navbar: React.FC<NavbarProps> = ({ hideMobileNav = false }) => {
       </Drawer>
 
       {showSheet && selectedCategory && (
-        <div onMouseLeave={() => setShowSheet(false)} onMouseEnter={() => setShowSheet(true)} className="categorySheet absolute top-full left-10 right-10 xl:left-20 xl:right-20 z-[9999] hidden lg:block">
-          <CategorySheet setShowSheet={setShowSheet} selectedCategory={selectedCategory} />
-        </div>
+        <>
+          <div 
+            className="fixed inset-0 z-[9998] hidden lg:block" 
+            onClick={() => setShowSheet(false)}
+          />
+          <div className="categorySheet absolute top-full left-10 right-10 xl:left-20 xl:right-20 z-[9999] hidden lg:block">
+            <CategorySheet setShowSheet={setShowSheet} selectedCategory={selectedCategory} />
+          </div>
+        </>
       )}
     </Box>
     <div style={{ height: navHeight }} className="w-full shrink-0" aria-hidden="true" />

@@ -186,10 +186,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId, i
               <img
                 key={`${image}-${index}`}
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                src={secureUrl(image, 250)}
+                src={secureUrl(image, 165)}
                 alt={`${item.title} - ${index + 1}`}
-                width={250}
-                height={250}
+                width={165}
+                height={165}
                 loading={isEager ? "eager" : "lazy"}
                 fetchPriority={isEager ? "high" : "auto"}
                 style={{
@@ -205,8 +205,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId, i
               className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-multiply"
               src={PLACEHOLDER_IMAGE}
               alt="No image available"
-              width={250}
-              height={250}
+              width={165}
+              height={165}
               loading={isEager ? "eager" : "lazy"}
               fetchPriority={isEager ? "high" : "auto"}
             />

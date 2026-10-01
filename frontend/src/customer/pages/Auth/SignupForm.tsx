@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { sendLoginSignupOtp, signup } from '../../../redux/Customer/AuthSlice';
 import { useFormik } from 'formik';
 import { Alert, Box, Typography } from '@mui/material';
-import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
 import { handleNameChange } from "../../../utils/validationUtils";
 import { SignInWithApple } from '@capacitor-community/apple-sign-in';
@@ -229,19 +229,21 @@ const SignupForm = () => {
           </div>
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
             <div className="flex-shrink-0">
-              <GoogleLogin
-                onSuccess={(credentialResponse) => {
-                  const decoded: any = jwtDecode(credentialResponse.credential!);
-                  formik.setFieldValue('email', decoded.email);
-                  formik.setFieldValue('name', decoded.name || '');
-                  dispatch(sendLoginSignupOtp({ email: decoded.email }));
-                  setTimer(30);
-                  setIsTimerActive(true);
-                }}
-                onError={() => {
-                  console.error('Google Login Failed');
-                }}
-              />
+              <GoogleOAuthProvider clientId="903968210580-qe4gosdi9acof4hutt3aeamro1bmj9a5.apps.googleusercontent.com">
+                <GoogleLogin
+                  onSuccess={(credentialResponse) => {
+                    const decoded: any = jwtDecode(credentialResponse.credential!);
+                    formik.setFieldValue('email', decoded.email);
+                    formik.setFieldValue('name', decoded.name || '');
+                    dispatch(sendLoginSignupOtp({ email: decoded.email }));
+                    setTimer(30);
+                    setIsTimerActive(true);
+                  }}
+                  onError={() => {
+                    console.error('Google Login Failed');
+                  }}
+                />
+              </GoogleOAuthProvider>
             </div>
             <button
               type="button"

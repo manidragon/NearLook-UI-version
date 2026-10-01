@@ -613,6 +613,7 @@ class ProductService {
               if (offerUpdate.mrpPrice !== undefined) offerUpdates['variants.$[v].offers.$[o].mrpPrice'] = offerUpdate.mrpPrice;
               if (offerUpdate.sellingPrice !== undefined) offerUpdates['variants.$[v].offers.$[o].sellingPrice'] = offerUpdate.sellingPrice;
               if (offerUpdate.stock !== undefined) offerUpdates['variants.$[v].offers.$[o].stock'] = offerUpdate.stock;
+              if (offerUpdate.lowStockLimit !== undefined) offerUpdates['variants.$[v].offers.$[o].lowStockLimit'] = offerUpdate.lowStockLimit;
               if (offerUpdate.sku !== undefined) offerUpdates['variants.$[v].offers.$[o].sku'] = offerUpdate.sku;
               if (offerUpdate.isReturnable !== undefined) offerUpdates['variants.$[v].offers.$[o].isReturnable'] = offerUpdate.isReturnable;
               if (offerUpdate.returnTAT !== undefined) offerUpdates['variants.$[v].offers.$[o].returnTAT'] = offerUpdate.returnTAT;

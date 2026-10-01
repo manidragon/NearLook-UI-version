@@ -59,6 +59,16 @@ const updateUserProfile = async (req, res) => {
     }
 };
 
+const deleteUserAccount = async (req, res) => {
+    try {
+        await UserService.deleteUser(req.user._id);
+        return res.status(200).json({ message: 'User account deleted successfully' });
+    } catch (err) {
+        console.error('❌ deleteUserAccount - Error:', err);
+        handleErrors(err, res);
+    }
+};
+
 // ✅ Add update profile picture
 const updateProfilePicture = async (req, res) => {
      try {
@@ -96,5 +106,6 @@ module.exports = {
     getUserByEmail,
     getAllUsers,
     updateUserProfile,
-    updateProfilePicture
+    updateProfilePicture,
+    deleteUserAccount
 };

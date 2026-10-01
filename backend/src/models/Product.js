@@ -24,6 +24,12 @@ const offerSchema = new Schema({
     min: 0,
     default: 0
   },
+  lowStockLimit: {
+    type: Number,
+    required: true,
+    min: 0,
+    default: 10
+  },
   sku: {
     type: String,
     trim: true,

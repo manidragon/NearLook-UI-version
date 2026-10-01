@@ -37,6 +37,7 @@ const variantSchema = Yup.object({
         .lessThan(Yup.ref("mrpPrice"), "Selling price must be less than MRP"),
       
       stock: Yup.number().min(0, "Stock cannot be negative").default(0),
+      lowStockLimit: Yup.number().min(0, "Low stock limit cannot be negative").default(10),
       sku: Yup.string().optional().max(100, "SKU too long"),
       isActive: Yup.boolean().default(true)
     })
