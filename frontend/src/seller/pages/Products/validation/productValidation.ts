@@ -262,6 +262,37 @@ export const createValidationSchema = (
                     otherwise: (schema) => schema.notRequired().default('0')
                   }),
 
+                // ✅ Minimum Order Quantity (MOQ)
+                minimumOrderQuantity: Yup.string()
+                  .when('offers', {
+                    is: (offers: any[]) => {
+                      let currentSeller: string | null = null;
+                      try {
+                        const jwt = typeof window !== 'undefined' ? localStorage.getItem('jwt') : null;
+                        if (jwt) {
+                          const payload = JSON.parse(atob(jwt.split('.')[1]));
+                          currentSeller = payload._id || payload.userId || payload.id || payload.sellerId;
+                        }
+                      } catch (e) {
+                        console.warn('⚠️ Could not decode JWT in validation');
+                      }
+                      return offers?.some((o: any) =>
+                        o?.sellerId === currentSeller
+                      );
+                    },
+                    then: (schema) => schema
+                      .required("Minimum Order Quantity is required")
+                      .test("is-number", "Must be a valid number", (val) => {
+                        if (!val || String(val).trim() === '') return false;
+                        return !isNaN(Number(val));
+                      })
+                      .test("min-one", "MOQ must be at least 1", (val) => {
+                        if (!val || String(val).trim() === '') return false;
+                        return Number(val) >= 1;
+                      }),
+                    otherwise: (schema) => schema.notRequired().default('1')
+                  }),
+
                 // ✅ Low Stock Limit - only validate if seller added offer
                 lowStockLimit: Yup.string()
                   .when('offers', {

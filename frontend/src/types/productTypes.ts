@@ -28,6 +28,7 @@ export interface ProductOffer {
   isReplaceable?: boolean;
   replacementTAT?: string;
   sku?: string;
+  minimumOrderQuantity?: number;
   isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;

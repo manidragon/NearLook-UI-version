@@ -374,6 +374,7 @@ const ProductDetails = () => {
                     sellingPrice: offer.sellingPrice,
                     mrpPrice: offer.mrpPrice,
                     stock: offer.stock,
+                    minimumOrderQuantity: offer.minimumOrderQuantity || 1,
                   },
                 ],
                 minPrice: offer.sellingPrice,
@@ -521,6 +522,7 @@ const ProductDetails = () => {
           sellingPrice: activeOffer.sellingPrice,
           mrpPrice: activeOffer.mrpPrice,
           stock: activeOffer.stock,
+          minimumOrderQuantity: activeOffer.minimumOrderQuantity || 1,
           sku: activeOffer.sku,
           offerId: activeOffer._id,
           offerSeller: activeOffer.seller,
@@ -543,6 +545,7 @@ const ProductDetails = () => {
         sellingPrice: activeOffer.sellingPrice,
         mrpPrice: activeOffer.mrpPrice,
         stock: activeOffer.stock,
+        minimumOrderQuantity: activeOffer.minimumOrderQuantity || 1,
         sku: activeOffer.sku,
         offerId: activeOffer._id,
         offerSeller: activeOffer.seller,
@@ -551,6 +554,18 @@ const ProductDetails = () => {
     }
     return variant;
   }, [isCatalogProduct, selectedSellerOffer, product?.variants, selectedVariantId]);
+
+  const activeMinimumOrderQuantity = useMemo(() => {
+    if (selectedSellerOffer) {
+      const variant = selectedSellerOffer.variants?.find((v: any) => v._id === selectedVariantId);
+      if (variant?.minimumOrderQuantity) return variant.minimumOrderQuantity;
+    }
+    return currentVariant?.minimumOrderQuantity || 1;
+  }, [selectedSellerOffer, currentVariant, selectedVariantId]);
+
+  useEffect(() => {
+    setQuantity(activeMinimumOrderQuantity || 1);
+  }, [selectedSellerOffer?._id, selectedVariantId, activeMinimumOrderQuantity]);
 
   const colorsWithImages = useMemo(() => {
     const sourceProduct =
@@ -1342,7 +1357,7 @@ const ProductDetails = () => {
           <div className="bg-gray-50/50 rounded-xl overflow-hidden border border-gray-200 shadow-sm">
             <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200">
               <div className="flex flex-col divide-y divide-gray-200">
-                {Object.entries(currentVariant.specifications).filter((_, i) => i % 2 === 0).map(([key, value]) => (
+                {Object.entries(currentVariant.specifications).filter(([_, value]) => value !== null && value !== undefined && String(value).trim() !== '').filter((_, i) => i % 2 === 0).map(([key, value]) => (
                   <div className="flex justify-between items-start p-4 hover:bg-white transition-colors gap-2" key={key}>
                     <span className="text-gray-500 font-medium capitalize text-sm w-[70%] break-words">{key.replace(/_/g, ' ')}</span>
                     <span className="text-gray-900 font-semibold text-right text-sm w-[30%] break-words">{String(value)}</span>
@@ -1350,7 +1365,7 @@ const ProductDetails = () => {
                 ))}
               </div>
               <div className="flex flex-col divide-y divide-gray-200">
-                {Object.entries(currentVariant.specifications).filter((_, i) => i % 2 !== 0).map(([key, value]) => (
+                {Object.entries(currentVariant.specifications).filter(([_, value]) => value !== null && value !== undefined && String(value).trim() !== '').filter((_, i) => i % 2 !== 0).map(([key, value]) => (
                   <div className="flex justify-between items-start p-4 hover:bg-white transition-colors gap-2" key={key}>
                     <span className="text-gray-500 font-medium capitalize text-sm w-[70%] break-words">{key.replace(/_/g, ' ')}</span>
                     <span className="text-gray-900 font-semibold text-right text-sm w-[30%] break-words">{String(value)}</span>
@@ -1761,15 +1776,27 @@ const ProductDetails = () => {
 
                   {/* QUANTITY + ADD TO CART */}
                   <div className="flex flex-wrap items-center gap-3 py-4 w-full">
+                    {activeMinimumOrderQuantity > 1 && (
+                      <div className="w-full mb-1">
+                        <span className="text-sm text-[#FF5A00] bg-[#FFF0E6] px-2 py-1 rounded-full font-medium">
+                          Minimum Order: {activeMinimumOrderQuantity} units
+                        </span>
+                      </div>
+                    )}
                     <div className="flex items-center justify-between px-3 h-[48px] w-[120px] rounded-[18px] bg-[#f0f3f8] border border-[#e2e8f0] text-[#1e293b]">
-                      <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="w-8 h-8 flex items-center justify-center hover:bg-[#e2e8f0] rounded-full transition-colors text-lg font-medium">&minus;</button>
+                      <button 
+                        onClick={() => setQuantity(q => Math.max(activeMinimumOrderQuantity || 1, q - 1))} 
+                        className="w-8 h-8 flex items-center justify-center hover:bg-[#e2e8f0] rounded-full transition-colors text-lg font-medium"
+                        disabled={quantity <= (activeMinimumOrderQuantity || 1)}
+                        style={{ opacity: quantity <= (activeMinimumOrderQuantity || 1) ? 0.5 : 1, cursor: quantity <= (activeMinimumOrderQuantity || 1) ? 'not-allowed' : 'pointer' }}
+                      >&minus;</button>
                       <span className="text-base font-bold select-none">{quantity}</span>
                       <button 
                         onClick={() => setQuantity(q => {
                           const activeStock = selectedSellerOffer ?
                             selectedSellerOffer.variants.find((v: any) => v._id === selectedVariantId)?.stock :
                             currentVariant?.stock || 0;
-                          return Math.min(q + 1, Math.max(1, activeStock || 1));
+                          return Math.min(q + 1, Math.max(activeMinimumOrderQuantity || 1, activeStock || 1));
                         })} 
                         className="w-8 h-8 flex items-center justify-center hover:bg-[#e2e8f0] rounded-full transition-colors text-lg font-medium"
                       >
@@ -1811,13 +1838,13 @@ const ProductDetails = () => {
                             <h4 className="text-lg font-bold text-gray-900">Specifications</h4>
                           </div>
                           <div className="flex flex-col gap-2.5">
-                            {currentVariant?.specifications && Object.entries(currentVariant.specifications).map(([key, value]) => (
+                            {currentVariant?.specifications && Object.entries(currentVariant.specifications).filter(([_, value]) => value !== null && value !== undefined && String(value).trim() !== '').map(([key, value]) => (
                               <div className="flex justify-between items-start bg-gray-50/50 border border-gray-100 rounded-xl px-4 py-3 hover:bg-orange-50/30 transition-colors gap-2" key={key}>
                                 <span className="text-gray-500 font-medium text-sm w-[70%] break-words">{key.replace(/_/g, ' ')}</span>
                                 <span className="text-gray-900 font-bold text-sm text-right w-[30%] break-words">{String(value)}</span>
                               </div>
                             ))}
-                            {product?.highlights && Object.entries(product.highlights).map(([key, value]) => (
+                            {product?.highlights && Object.entries(product.highlights).filter(([_, value]) => value !== null && value !== undefined && String(value).trim() !== '').map(([key, value]) => (
                               <div className="flex justify-between items-start bg-gray-50/50 border border-gray-100 rounded-xl px-4 py-3 hover:bg-orange-50/30 transition-colors gap-2" key={`hl-${key}`}>
                                 <span className="text-gray-500 font-medium text-sm w-[70%] break-words">{key.replace(/_/g, ' ')}</span>
                                 <span className="text-gray-900 font-bold text-sm text-right w-[30%] break-words">{String(value)}</span>
@@ -1841,32 +1868,38 @@ const ProductDetails = () => {
                         <h3 className={`font-bold text-base py-1 ${discriptionOpen ? 'text-orange-600' : 'text-gray-800'}`}>Description</h3>
                       </AccordionSummary>
                       <AccordionDetails className="bg-gray-50/30 p-4">
-                        <div className="w-full p-4 rounded-xl text-sm text-gray-700 whitespace-pre-line bg-white border border-gray-100 shadow-sm leading-relaxed">
-                          {product?.description || "No description available."}
+                        <div className="w-full p-4 rounded-xl text-sm text-gray-700 bg-white border border-gray-100 shadow-sm leading-relaxed">
+                          {product?.description ? (
+                            <div className="rich-text-description text-gray-700 text-sm md:text-base leading-relaxed break-words" dangerouslySetInnerHTML={{ __html: product.description.replace(/&nbsp;/g, ' ') }} />
+                          ) : (
+                            "No description available."
+                          )}
                         </div>
                       </AccordionDetails>
                     </Accordion>
 
-                    <Accordion
-                      expanded={reviewsOpen}
-                      onChange={() => setreviewsOpen(!reviewsOpen)}
-                      elevation={0}
-                      className="!bg-white !rounded-xl !border !border-gray-200 !shadow-sm overflow-hidden before:!hidden transition-all duration-300"
-                    >
-                      <AccordionSummary 
-                        expandIcon={reviewsOpen ? <FiMinus className="text-orange-500 text-xl" /> : <FiPlus className="text-gray-500 text-xl" />}
-                        className="hover:bg-orange-50/30 transition-colors data-[expanded=true]:border-b data-[expanded=true]:border-gray-100"
+                    {(review?.reviews?.length || 0) > 0 && (
+                      <Accordion
+                        expanded={reviewsOpen}
+                        onChange={() => setreviewsOpen(!reviewsOpen)}
+                        elevation={0}
+                        className="!bg-white !rounded-xl !border !border-gray-200 !shadow-sm overflow-hidden before:!hidden transition-all duration-300"
                       >
-                        <h3 className={`font-bold text-base py-1 ${reviewsOpen ? 'text-orange-600' : 'text-gray-800'}`}>Reviews</h3>
-                      </AccordionSummary>
-                      <AccordionDetails className="bg-gray-50/30 !p-2 sm:!p-4 overflow-hidden box-border">
-                        <div className="rounded-xl bg-white sm:border sm:border-gray-100 sm:shadow-sm overflow-hidden box-border p-2 sm:p-4">
-                          <React.Suspense fallback={<div>Loading Reviews...</div>}>
-                            <ProductReviewsTab review={review} productId={productId} />
-                          </React.Suspense>
-                        </div>
-                      </AccordionDetails>
-                    </Accordion>
+                        <AccordionSummary 
+                          expandIcon={reviewsOpen ? <FiMinus className="text-orange-500 text-xl" /> : <FiPlus className="text-gray-500 text-xl" />}
+                          className="hover:bg-orange-50/30 transition-colors data-[expanded=true]:border-b data-[expanded=true]:border-gray-100"
+                        >
+                          <h3 className={`font-bold text-base py-1 ${reviewsOpen ? 'text-orange-600' : 'text-gray-800'}`}>Reviews</h3>
+                        </AccordionSummary>
+                        <AccordionDetails className="bg-gray-50/30 !p-2 sm:!p-4 overflow-hidden box-border">
+                          <div className="rounded-xl bg-white sm:border sm:border-gray-100 sm:shadow-sm overflow-hidden box-border p-2 sm:p-4">
+                            <React.Suspense fallback={<div>Loading Reviews...</div>}>
+                              <ProductReviewsTab review={review} productId={productId} />
+                            </React.Suspense>
+                          </div>
+                        </AccordionDetails>
+                      </Accordion>
+                    )}
                   </div>
                 )}
 
@@ -1893,15 +1926,19 @@ const ProductDetails = () => {
                       />
                       <label htmlFor="tab-1">Product Details</label>
 
-                      <input
-                        type="radio"
-                        id="tab-2"
-                        name="tab-radio"
-                        value="2"
-                        checked={activeTab === 2}
-                        onChange={() => setActiveTab(2)}
-                      />
-                      <label htmlFor="tab-2">Reviews ({review?.reviews?.length || 0})</label>
+                      {(review?.reviews?.length || 0) > 0 && (
+                        <>
+                          <input
+                            type="radio"
+                            id="tab-2"
+                            name="tab-radio"
+                            value="2"
+                            checked={activeTab === 2}
+                            onChange={() => setActiveTab(2)}
+                          />
+                          <label htmlFor="tab-2">Reviews ({review?.reviews?.length || 0})</label>
+                        </>
+                      )}
 
 
                     </div>
@@ -1915,8 +1952,12 @@ const ProductDetails = () => {
                             </div>
                             <h4 className="text-xl font-bold text-[#1e293b]">Product Overview</h4>
                           </div>
-                          <div className="text-[15px] leading-relaxed text-[#475569] whitespace-pre-line">
-                            {product?.description || "No description available for this product."}
+                          <div className="text-[15px] leading-relaxed text-[#475569]">
+                            {product?.description ? (
+                              <div className="rich-text-description text-gray-700 text-sm md:text-base leading-relaxed break-words" dangerouslySetInnerHTML={{ __html: product.description.replace(/&nbsp;/g, ' ') }} />
+                            ) : (
+                              "No description available for this product."
+                            )}
                           </div>
                         </div>
                       </div>
@@ -1930,13 +1971,13 @@ const ProductDetails = () => {
                             <h4 className="text-lg font-bold text-[#1e293b]">Specifications</h4>
                           </div>
                           <div className="flex flex-col gap-2.5">
-                            {currentVariant?.specifications && Object.entries(currentVariant.specifications).map(([key, value]) => (
+                            {currentVariant?.specifications && Object.entries(currentVariant.specifications).filter(([_, value]) => value !== null && value !== undefined && String(value).trim() !== '').map(([key, value]) => (
                               <div className="flex justify-between items-start bg-white/40 border border-[#cbd5e1] rounded-[16px] px-5 py-3 gap-2" key={key}>
                                 <span className="text-[#64748b] text-sm w-[70%] break-words">{key.replace(/_/g, ' ')}</span>
                                 <span className="text-[#0f172a] font-bold text-sm text-right w-[30%] break-words">{String(value)}</span>
                               </div>
                             ))}
-                            {product?.highlights && Object.entries(product.highlights).map(([key, value]) => (
+                            {product?.highlights && Object.entries(product.highlights).filter(([_, value]) => value !== null && value !== undefined && String(value).trim() !== '').map(([key, value]) => (
                               <div className="flex justify-between items-start bg-white/40 border border-[#cbd5e1] rounded-[16px] px-5 py-3 gap-2" key={`hl-${key}`}>
                                 <span className="text-[#64748b] text-sm w-[70%] break-words">{key.replace(/_/g, ' ')}</span>
                                 <span className="text-[#0f172a] font-bold text-sm text-right w-[30%] break-words">{String(value)}</span>
@@ -1947,7 +1988,7 @@ const ProductDetails = () => {
                       </div>
                     )}
 
-                    {activeTab === 2 && (
+                    {activeTab === 2 && (review?.reviews?.length || 0) > 0 && (
                       <div className="w-full py-5 rounded-md">
                         <React.Suspense fallback={<div>Loading Reviews...</div>}>
                           <ProductReviewsTab review={review} productId={productId} />

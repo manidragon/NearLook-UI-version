@@ -36,6 +36,7 @@ export interface ProductOfferForm {
   mrpPrice: string;
   sellingPrice: string;
   stock: string;
+  minimumOrderQuantity: string;
   lowStockLimit: string;
   sku?: string;
   isReturnable: boolean;
@@ -58,6 +59,7 @@ export interface ProductOfferPayload {
   mrpPrice: number;
   sellingPrice: number;
   stock: number;
+  minimumOrderQuantity: number;
   lowStockLimit: number;
   sku?: string;
   isReturnable: boolean;
@@ -154,6 +156,7 @@ export const defaultInitialValues: ProductFormValues = {
               mrpPrice: "",
               sellingPrice: "",
               stock: "0",
+              minimumOrderQuantity: "1",
               lowStockLimit: "10",
               sku: "",
               isReturnable: false,

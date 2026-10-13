@@ -174,7 +174,7 @@ const CartItemCard: React.FC<CartItemProps> = ({ item }) => {
               : o.seller?._id?.toString();
             const itemSellerIdStr = typeof item.sellerId === 'string'
               ? item.sellerId
-              : item.sellerId?._id?.toString();
+              : (item.sellerId as any)?._id?.toString();
             return offerSellerId === itemSellerIdStr;
           });
           if (offer?.stock !== undefined) {
@@ -191,8 +191,29 @@ const CartItemCard: React.FC<CartItemProps> = ({ item }) => {
   };
   const stock = getStock();
 
+  // ✅ Get MOQ from variant's offer
+  const getMoq = (): number => {
+    if (item.product?.variants && item.variantId && item.sellerId) {
+      const variant = item.product.variants.find((v: any) =>
+        v._id?.toString() === item.variantId?.toString()
+      );
+      if (variant && variant.offers && variant.offers.length > 0) {
+        const offer = variant.offers.find((o: any) => {
+          const offerSellerId = typeof o.seller === 'string' ? o.seller : o.seller?._id?.toString();
+          const itemSellerIdStr = typeof item.sellerId === 'string' ? item.sellerId : (item.sellerId as any)?._id?.toString();
+          return offerSellerId === itemSellerIdStr;
+        });
+        if (offer?.minimumOrderQuantity !== undefined) {
+          return Number(offer.minimumOrderQuantity) || 1;
+        }
+      }
+    }
+    return 1;
+  };
+  const moq = getMoq();
+
   const handleUpdateQuantity = (newQuantity: number) => {
-    if (!newQuantity || newQuantity < 1) return;
+    if (!newQuantity || newQuantity < moq) return;
     let qty = Number(newQuantity);
     if (isNaN(qty)) return;
     if (stock !== null && qty > stock) {
@@ -249,6 +270,11 @@ const CartItemCard: React.FC<CartItemProps> = ({ item }) => {
         <div className="item__title">
           <div>
             <p className="item__name line-clamp-1" title={productTitle}>{productTitle}</p>
+            {moq > 1 && (
+              <span className="text-xs text-[#FF5A00] bg-[#FFF0E6] px-2 py-0.5 rounded-full inline-block mt-1">
+                Minimum Order: {moq} units
+              </span>
+            )}
             <p className="item__meta">
               {variantSpecs.map(s => s.value).join(', ')} {variantSpecs.length > 0 && ' | '} Seller:{' '}
               <span 
@@ -279,9 +305,9 @@ const CartItemCard: React.FC<CartItemProps> = ({ item }) => {
             type="button"
             className="qtyDec"
             aria-label="Decrease quantity"
-            disabled={localQuantity <= 1}
+            disabled={localQuantity <= moq}
             onClick={() => handleUpdateQuantity(localQuantity - 1)}
-            style={{ opacity: localQuantity <= 1 ? 0.5 : 1, cursor: localQuantity <= 1 ? 'not-allowed' : 'pointer' }}
+            style={{ opacity: localQuantity <= moq ? 0.5 : 1, cursor: localQuantity <= moq ? 'not-allowed' : 'pointer' }}
           >
             <RemoveIcon sx={{ fontSize: 16 }} />
           </button>

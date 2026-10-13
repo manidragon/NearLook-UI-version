@@ -1,6 +1,7 @@
 // D:\Mani\Code with Zosh\Backup\source code\frontend\src\seller\pages\Products\UpdateProductForm.tsx
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { QuillWrapper } from './components/QuillWrapper';
 import { TextField, Button, MenuItem, Select, InputLabel, FormControl, FormHelperText, Grid, IconButton, Snackbar, Alert, Typography, Paper, Box, Tabs, Tab, Chip, Autocomplete, Divider, Switch, FormControlLabel, Tooltip, Accordion, AccordionSummary, AccordionDetails, Checkbox } from '@mui/material';
 import "tailwindcss/tailwind.css";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
@@ -152,6 +153,7 @@ return {
                         mrpPrice: offer.mrpPrice !== undefined && offer.mrpPrice !== null ? String(offer.mrpPrice) : '',
                         sellingPrice: offer.sellingPrice !== undefined && offer.sellingPrice !== null ? String(offer.sellingPrice) : '',
                         stock: offer.stock !== undefined && offer.stock !== null ? String(offer.stock) : '0',
+                        minimumOrderQuantity: offer.minimumOrderQuantity !== undefined && offer.minimumOrderQuantity !== null ? String(offer.minimumOrderQuantity) : '1',
                         lowStockLimit: offer.lowStockLimit !== undefined && offer.lowStockLimit !== null ? String(offer.lowStockLimit) : '10',
                         sku: offer.sku || '',
                         isReturnable: Boolean(offer.isReturnable),
@@ -201,6 +203,7 @@ return {
                     mrpPrice: offer.mrpPrice !== undefined && offer.mrpPrice !== null ? String(offer.mrpPrice) : '',
                     sellingPrice: offer.sellingPrice !== undefined && offer.sellingPrice !== null ? String(offer.sellingPrice) : '',
                     stock: offer.stock !== undefined && offer.stock !== null ? String(offer.stock) : '0',
+                    minimumOrderQuantity: offer.minimumOrderQuantity !== undefined && offer.minimumOrderQuantity !== null ? String(offer.minimumOrderQuantity) : '1',
                     lowStockLimit: offer.lowStockLimit !== undefined && offer.lowStockLimit !== null ? String(offer.lowStockLimit) : '10',
                     sku: offer.sku || '',
                     isReturnable: Boolean(offer.isReturnable),
@@ -231,6 +234,7 @@ return {
                 mrpPrice: '',
                 sellingPrice: '',
                 stock: '0',
+                minimumOrderQuantity: '1',
                 lowStockLimit: '10',
                 sku: '',
                 isReturnable: false,
@@ -521,6 +525,7 @@ const formVariants = useMemo(() => {
                     mrpPrice: Number(offer.mrpPrice) || 0,
                     sellingPrice: Number(offer.sellingPrice) || 0,
                     stock: Number(offer.stock) || 0,
+                    minimumOrderQuantity: Number(offer.minimumOrderQuantity || 1),
                     lowStockLimit: Number(offer.lowStockLimit || 10),
                     sku: offer.sku?.trim() || undefined,
                     isReturnable: Boolean(offer.isReturnable),
@@ -596,7 +601,7 @@ const formVariants = useMemo(() => {
     const currentSeller = getCurrentSellerFromJWT();
     const newColorVariant: ProductVariantForm = {
       color: '', images: [], highlights: {},
-      subVariants: [{ specifications: {}, offers: [{ sellerId: currentSeller?._id || '', mrpPrice: '', sellingPrice: '', stock: '0', lowStockLimit: '10', sku: '', isReturnable: false, returnTAT: '7 Days', isReplaceable: false, replacementTAT: '7 Days', hasDeliveryCharge: false, deliveryChargePrice: '0', freeDeliveryRadiusKM: '0', isActive: true }], isActive: true }],
+      subVariants: [{ specifications: {}, offers: [{ sellerId: currentSeller?._id || '', mrpPrice: '', sellingPrice: '', stock: '0', minimumOrderQuantity: '1', lowStockLimit: '10', sku: '', isReturnable: false, returnTAT: '7 Days', isReplaceable: false, replacementTAT: '7 Days', hasDeliveryCharge: false, deliveryChargePrice: '0', freeDeliveryRadiusKM: '0', isActive: true }], isActive: true }],
       isActive: true
     };
     formik.setFieldValue('variants', [...formik.values.variants, newColorVariant]);
@@ -606,7 +611,7 @@ const formVariants = useMemo(() => {
 
   const handleRemoveColorVariant = useCallback((index: number) => {
     if (formik.values.variants.length <= 1) {
-      formik.setFieldValue('variants', [{ color: '', images: [], highlights: {}, subVariants: [{ specifications: {}, offers: [{ sellerId: '', mrpPrice: '', sellingPrice: '', stock: '0', lowStockLimit: '10', sku: '', isReturnable: false, returnTAT: '7 Days', isReplaceable: false, replacementTAT: '7 Days', hasDeliveryCharge: false, deliveryChargePrice: '0', freeDeliveryRadiusKM: '0', isActive: true }], isActive: true }], isActive: true }]);
+      formik.setFieldValue('variants', [{ color: '', images: [], highlights: {}, subVariants: [{ specifications: {}, offers: [{ sellerId: '', mrpPrice: '', sellingPrice: '', stock: '0', minimumOrderQuantity: '1', lowStockLimit: '10', sku: '', isReturnable: false, returnTAT: '7 Days', isReplaceable: false, replacementTAT: '7 Days', hasDeliveryCharge: false, deliveryChargePrice: '0', freeDeliveryRadiusKM: '0', isActive: true }], isActive: true }], isActive: true }]);
       setActiveColorTab(0); setExpandedSubVariant(0); return;
     }
     const newVariants = formik.values.variants.filter((_, i) => i !== index);
@@ -623,7 +628,7 @@ const formVariants = useMemo(() => {
   const handleAddSubVariant = useCallback((colorIndex: number) => {
     const currentSeller = getCurrentSellerFromJWT();
     const newVariants = [...formik.values.variants];
-    newVariants[colorIndex].subVariants.push({ specifications: {}, offers: [{ sellerId: currentSeller?._id || '', mrpPrice: '', sellingPrice: '', stock: '0', lowStockLimit: '10', sku: '', isReturnable: false, returnTAT: '7 Days', isReplaceable: false, replacementTAT: '7 Days', hasDeliveryCharge: false, deliveryChargePrice: '', freeDeliveryRadiusKM: '', isActive: true }], isActive: true });
+    newVariants[colorIndex].subVariants.push({ specifications: {}, offers: [{ sellerId: currentSeller?._id || '', mrpPrice: '', sellingPrice: '', stock: '0', minimumOrderQuantity: '1', lowStockLimit: '10', sku: '', isReturnable: false, returnTAT: '7 Days', isReplaceable: false, replacementTAT: '7 Days', hasDeliveryCharge: false, deliveryChargePrice: '', freeDeliveryRadiusKM: '', isActive: true }], isActive: true });
     formik.setFieldValue('variants', newVariants);
     setExpandedSubVariant(newVariants[colorIndex].subVariants.length - 1);
   }, [formik.values.variants, formik]);
@@ -653,7 +658,7 @@ const formVariants = useMemo(() => {
   const handleAddOffer = useCallback((colorIndex: number, subVariantIndex: number) => {
     const currentSeller = getCurrentSellerFromJWT();
     const newVariants = [...formik.values.variants];
-    newVariants[colorIndex].subVariants[subVariantIndex].offers.push({ sellerId: currentSeller?._id || '', mrpPrice: '', sellingPrice: '', stock: '0', lowStockLimit: '10', sku: '', isActive: true, isReturnable: false, returnTAT: '7 Days', isReplaceable: false, replacementTAT: '7 Days', hasDeliveryCharge: false, deliveryChargePrice: '0', freeDeliveryRadiusKM: '0' });
+    newVariants[colorIndex].subVariants[subVariantIndex].offers.push({ sellerId: currentSeller?._id || '', mrpPrice: '', sellingPrice: '', stock: '0', minimumOrderQuantity: '1', lowStockLimit: '10', sku: '', isActive: true, isReturnable: false, returnTAT: '7 Days', isReplaceable: false, replacementTAT: '7 Days', hasDeliveryCharge: false, deliveryChargePrice: '0', freeDeliveryRadiusKM: '0' });
     formik.setFieldValue('variants', newVariants);
   }, [formik.values.variants, formik]);
 
@@ -911,6 +916,9 @@ const formVariants = useMemo(() => {
                                               <TextField fullWidth label="Stock Quantity" type="number" value={String(offer.stock ?? '0')} onChange={(e) => isCurrentSellerOffer && handleOfferChange(activeColorTab, subIndex, offerIndex, 'stock', e.target.value)} InputProps={{ inputProps: { min: 0 }, readOnly: !isCurrentSellerOffer }} />
                                             </Grid>
                                             <Grid size={{ xs: 12, sm: 6 }}>
+                                              <TextField fullWidth label="Minimum Order Qty (MOQ)" type="number" value={String(offer.minimumOrderQuantity ?? '1')} onChange={(e) => isCurrentSellerOffer && handleOfferChange(activeColorTab, subIndex, offerIndex, 'minimumOrderQuantity', e.target.value)} InputProps={{ inputProps: { min: 1 }, readOnly: !isCurrentSellerOffer }} />
+                                            </Grid>
+                                            <Grid size={{ xs: 12, sm: 6 }}>
                                               <TextField fullWidth label="Low Stock Alert Limit" type="number" value={String(offer.lowStockLimit ?? '10')} onChange={(e) => isCurrentSellerOffer && handleOfferChange(activeColorTab, subIndex, offerIndex, 'lowStockLimit', e.target.value)} InputProps={{ inputProps: { min: 0 }, readOnly: !isCurrentSellerOffer }} />
                                             </Grid>
                                             <Grid size={{ xs: 12, sm: 6 }}>
@@ -1031,7 +1039,23 @@ const formVariants = useMemo(() => {
                     <TextField fullWidth label="Product Title" variant="outlined" value={formik.values.title} onChange={(e) => formik.setFieldValue('title', e.target.value)} onBlur={formik.handleBlur} error={formik.touched.title && Boolean(formik.errors.title)} helperText={formik.touched.title && formik.errors.title ? String(formik.errors.title) : ""} required disabled={!isProductOwner} sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
                   </Grid>
                   <Grid size={{ xs: 12 }}>
-                    <TextField multiline rows={4} fullWidth label="Description" variant="outlined" value={formik.values.description} onChange={(e) => formik.setFieldValue('description', e.target.value)} onBlur={formik.handleBlur} error={formik.touched.description && Boolean(formik.errors.description)} helperText={formik.touched.description && formik.errors.description ? String(formik.errors.description) : ""} required disabled={!isProductOwner} sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
+                    <Box sx={{ '.ql-editor': { minHeight: '150px' } }}>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Description *</Typography>
+                      {isProductOwner ? (
+                        <QuillWrapper
+                          value={formik.values.description}
+                          onChange={(content) => formik.setFieldValue('description', content)}
+                          onBlur={() => formik.setFieldTouched('description', true)}
+                        />
+                      ) : (
+                        <Box sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: 1, bgcolor: '#f5f5f5', color: 'text.secondary' }}>
+                           <div dangerouslySetInnerHTML={{ __html: formik.values.description }} />
+                        </Box>
+                      )}
+                      {formik.touched.description && formik.errors.description && (
+                        <Typography color="error" variant="caption">{String(formik.errors.description)}</Typography>
+                      )}
+                    </Box>
                   </Grid>
                 </Grid>
               </Paper>

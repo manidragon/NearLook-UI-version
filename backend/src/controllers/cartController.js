@@ -181,6 +181,14 @@ async addItemToCart(req, res) {
       });
     }
 
+    // ✅ Enforce Minimum Order Quantity (MOQ)
+    const minQty = targetOffer.minimumOrderQuantity || 1;
+    if (quantity < minQty) {
+      return res.status(400).json({ 
+        error: `Minimum order quantity for this offer is ${minQty}` 
+      });
+    }
+
     // ✅ Use offer prices (NOT product-level prices) - prices are PER UNIT
     const unitMrpPrice = targetOffer.mrpPrice;
     const unitSellingPrice = targetOffer.sellingPrice;

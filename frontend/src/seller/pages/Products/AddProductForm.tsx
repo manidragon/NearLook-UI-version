@@ -193,6 +193,7 @@ const AddProductForm: React.FC<{
                   mrpPrice: Number(offer.mrpPrice),
                   sellingPrice: Number(offer.sellingPrice),
                   stock: Number(offer.stock),
+                  minimumOrderQuantity: Number(offer.minimumOrderQuantity || 1),
                   lowStockLimit: Number(offer.lowStockLimit || 10),
                   sku: offer.sku?.trim() || undefined,
                   isReturnable: Boolean(offer.isReturnable),
@@ -625,6 +626,7 @@ const AddProductForm: React.FC<{
               mrpPrice: '',
               sellingPrice: '',
               stock: '0',
+              minimumOrderQuantity: '1',
               lowStockLimit: '10',
               sku: '',
               isReturnable: false,
@@ -707,7 +709,8 @@ const AddProductForm: React.FC<{
           hasDeliveryCharge: false,
           deliveryChargePrice: '0',
           freeDeliveryRadiusKM: '0',
-          isActive: true
+          isActive: true,
+          minimumOrderQuantity: '1'
         }
       ],
       isActive: true,
@@ -772,6 +775,7 @@ const AddProductForm: React.FC<{
       mrpPrice: '',
       sellingPrice: '',
       stock: '0',
+      minimumOrderQuantity: '1',
       lowStockLimit: '10',
       sku: '',
       isReturnable: false,

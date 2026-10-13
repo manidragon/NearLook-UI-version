@@ -516,9 +516,18 @@ export default function SellerDetails() {
                   {selectedProduct.description && (
                     <Box sx={{ mt: 2 }}>
                       <Typography variant="subtitle2" fontWeight={700} gutterBottom sx={{ color: '#FF5A00' }}>Description</Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-                        {selectedProduct.description?.length > 300 ? selectedProduct.description.slice(0, 300) + '…' : selectedProduct.description}
-                      </Typography>
+                      <Box 
+                        sx={{ 
+                          lineHeight: 1.7, 
+                          maxHeight: 150, 
+                          overflowY: 'auto',
+                          fontSize: '0.875rem',
+                          color: 'text.secondary',
+                          '& ul': { paddingLeft: 3, margin: 0, listStyleType: 'disc' },
+                          '& ol': { paddingLeft: 3, margin: 0, listStyleType: 'decimal' },
+                        }}
+                        dangerouslySetInnerHTML={{ __html: selectedProduct.description.replace(/&nbsp;/g, ' ') }}
+                      />
                     </Box>
                   )}
 
@@ -571,6 +580,12 @@ export default function SellerDetails() {
                                   <Typography variant="caption" color="text.secondary">Stock</Typography>
                                   <Typography variant="body2" fontWeight={600} color={offer.stock > 0 ? '#374151' : '#ef4444'}>
                                     {offer.stock !== undefined ? offer.stock : 'N/A'}
+                                  </Typography>
+                                </Box>
+                                <Box>
+                                  <Typography variant="caption" color="text.secondary">MOQ</Typography>
+                                  <Typography variant="body2" fontWeight={600} color="#374151">
+                                    {offer.minimumOrderQuantity || 1}
                                   </Typography>
                                 </Box>
                                 {offer.sku && (

@@ -2,6 +2,8 @@
 import React, { useMemo } from 'react';
 import { Grid, Paper, Typography, Alert, Chip, Divider, Box, FormControl, InputLabel, Select, MenuItem, FormHelperText, FormControlLabel, Checkbox, Autocomplete } from '@mui/material';
 import { FastTextField as TextField } from './FastTextField';
+import { FastAutocomplete } from './FastAutocomplete';
+import { QuillWrapper } from './QuillWrapper';
 import LockIcon from '@mui/icons-material/Lock';
 import EditIcon from '@mui/icons-material/Edit';
 import StyleIcon from '@mui/icons-material/Style';
@@ -115,35 +117,22 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
         const options: string[] = [...(attr.options || [])].sort((a, b) => a.localeCompare(b));
 
         return (
-          <Autocomplete
-            freeSolo
+          <FastAutocomplete
             options={options}
             value={rawValue}
             disabled={disabled}
-            onChange={(_event, newValue) => {
-              onChange(newValue || '');
-            }}
-            onInputChange={(_event, newInputValue, reason) => {
-              if (reason === 'input') {
-                onChange(newInputValue);
-              }
-            }}
-            renderInput={(params) => (
-              <TextField 
-                {...params} 
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    {label}
-                    {disabled && (
-                      <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                        <Lock style={{ fontSize: '14px', color: '#9e9e9e' }} />
-                      </span>
-                    )}
-                  </Box>
-                }
-                placeholder={`Select or type ${attr.label}`} 
-              />
-            )}
+            onChange={onChange}
+            label={
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                {label}
+                {disabled && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                    <Lock style={{ fontSize: '14px', color: '#9e9e9e' }} />
+                  </span>
+                )}
+              </Box>
+            }
+            placeholder={`Select or type ${attr.label}`}
           />
         );
       }
@@ -321,42 +310,26 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
 
             {/* Description Field */}
             <Grid size={{ xs: 12 }}>
-              <TextField
-                multiline
-                rows={4}
-                fullWidth
-                id="description"
-                name="description"
-                label="Description"
-                value={formik.values.description}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.description && Boolean(formik.errors.description)}
-                helperText={
-                  formik.touched.description && formik.errors.description
-                    ? String(formik.errors.description)
-                    : isCatalogMode && !isOwner
-                      ? "ℹ️ Inherited from catalog (read-only)"
-                      : isCatalogMode && isOwner
-                        ? "ℹ️ Editable: Changes affect all sellers"
-                        : ""
-                }
-                required={!isCatalogMode}
-                disabled={isFieldDisabled('description')}
-                InputProps={{
-                  endAdornment: isCatalogMode && !isOwner && (
-                    <Chip label="Read-Only" size="small" color="info" icon={<LockIcon fontSize="small" />} sx={{ position: 'absolute', top: 12, right: 12 }} />
-                  )
-                }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    transition: 'all 0.2s',
-                    '&:hover:not(.Mui-disabled)': { boxShadow: '0 4px 12px rgba(0,0,0,0.05)' },
-                    '&.Mui-focused': { boxShadow: '0 0 0 2px rgba(25, 118, 210, 0.2)' }
-                  }
-                }}
-              />
+              <Box sx={{ '.ql-editor': { minHeight: '150px' } }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  Description *
+                  {isCatalogMode && !isOwner && <Chip label="Read-Only" size="small" color="info" icon={<LockIcon fontSize="small" />} />}
+                </Typography>
+                {!isFieldDisabled('description') ? (
+                  <QuillWrapper
+                    value={formik.values.description}
+                    onChange={(content) => formik.setFieldValue('description', content)}
+                    onBlur={() => formik.setFieldTouched('description', true)}
+                  />
+                ) : (
+                  <Box sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: 1, bgcolor: '#f5f5f5', color: 'text.secondary' }}>
+                    <div dangerouslySetInnerHTML={{ __html: formik.values.description }} />
+                  </Box>
+                )}
+                {formik.touched.description && formik.errors.description && (
+                  <Typography color="error" variant="caption">{String(formik.errors.description)}</Typography>
+                )}
+              </Box>
             </Grid>
           </Grid>
         </Paper>

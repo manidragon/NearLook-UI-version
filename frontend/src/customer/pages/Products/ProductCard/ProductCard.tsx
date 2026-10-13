@@ -165,10 +165,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId, i
       <div
         onClick={() => {
           const itemCategoryId = categoryId || (typeof item.category === 'object' ? (item.category?.categoryId || item.category?._id) : item.category) || 'all';
-          const baseUrl = `/product-details/${itemCategoryId}/${item.title}/${item._id}`;
+          const baseUrl = `/product-details/${itemCategoryId}/${encodeURIComponent(item.title)}/${item._id}`;
           navigate(sellerId ? `${baseUrl}?sellerId=${sellerId}` : baseUrl);
         }}
-        className="group relative flex flex-col bg-white border border-gray-100 rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-orange-200 transition-all duration-300 w-full max-w-[150px] sm:max-w-[220px] h-full"
+        className="group relative flex flex-col bg-white border border-gray-100 rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-orange-200 transition-all duration-300 w-full max-w-[160px] sm:max-w-[260px] h-full"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -180,13 +180,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId, i
           </div>
         )}
 
-        <div className="relative w-full h-[150px] sm:h-[220px] bg-gray-50 flex-shrink-0 overflow-hidden">
+        <div className="relative w-full h-[160px] sm:h-[260px] bg-white flex-shrink-0 overflow-hidden p-2">
           {productImages.length > 0 ? (
             productImages.map((image: string, index: number) => (
               <img
                 key={`${image}-${index}`}
-                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                src={secureUrl(image, 165)}
+                className="absolute inset-0 w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-700 ease-out bg-white"
+                src={secureUrl(image, 400)}
                 alt={`${item.title} - ${index + 1}`}
                 width={165}
                 height={165}
@@ -202,7 +202,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, categoryId, sellerId, i
           ) : (
             <img
               key="placeholder"
-              className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-multiply"
+              className="absolute inset-0 w-full h-full object-contain opacity-30 mix-blend-multiply p-2"
               src={PLACEHOLDER_IMAGE}
               alt="No image available"
               width={165}

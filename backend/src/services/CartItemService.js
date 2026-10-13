@@ -15,6 +15,20 @@ class CartItemService {
 
     const newQuantity = cartItemData.quantity;
 
+    // ✅ Enforce MOQ
+    if (cartItem.product && cartItem.product.variants) {
+      const variant = cartItem.product.variants.find(v => v._id.toString() === cartItem.variantId?.toString());
+      if (variant && variant.offers) {
+        const offer = variant.offers.find(o => o._id.toString() === cartItem.offerId?.toString());
+        if (offer) {
+          const minQty = offer.minimumOrderQuantity || 1;
+          if (newQuantity < minQty) {
+            throw new CartItemError(`Minimum order quantity for this offer is ${minQty}`);
+          }
+        }
+      }
+    }
+
     // ✅ FIX: Calculate unit prices from existing TOTAL prices
     // cartItem.mrpPrice and cartItem.sellingPrice are TOTALS (unit * old quantity)
     const oldQuantity = cartItem.quantity || 1;

@@ -116,16 +116,19 @@ interface VariantsSectionProps {
 const FastAutocomplete = ({ options, value, disabled, onChange, label, required, placeholder }: any) => {
   const [localValue, setLocalValue] = React.useState(value || '');
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isFocused = React.useRef(false);
 
   React.useEffect(() => {
-    setLocalValue(value || '');
+    if (!isFocused.current) {
+      setLocalValue(value || '');
+    }
   }, [value]);
 
   const triggerChange = (val: string) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
       onChange(val);
-    }, 350);
+    }, 1000);
   };
 
   return (
@@ -147,6 +150,7 @@ const FastAutocomplete = ({ options, value, disabled, onChange, label, required,
         }
       }}
       onBlur={() => {
+        isFocused.current = false;
         if (timeoutRef.current) {
           clearTimeout(timeoutRef.current);
           onChange(localValue);
@@ -159,6 +163,18 @@ const FastAutocomplete = ({ options, value, disabled, onChange, label, required,
           placeholder={placeholder} 
           required={required}
           InputLabelProps={{ required: false }}
+          onFocus={(e: any) => {
+            isFocused.current = true;
+            if (params.inputProps?.onFocus) params.inputProps.onFocus(e);
+          }}
+          onBlur={(e: any) => {
+            isFocused.current = false;
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+              onChange(localValue);
+            }
+            if (params.inputProps?.onBlur) params.inputProps.onBlur(e);
+          }}
         />
       )}
     />
@@ -953,7 +969,6 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                                         </Grid>
 
                                         {/* Stock - ALWAYS EDITABLE */}
-                                        {/* Stock - ALWAYS EDITABLE */}
                                         <Grid size={{ xs: 12, sm: 6 }}>
                                           <TextField
                                             size="small"
@@ -966,6 +981,24 @@ export const VariantsSection: React.FC<VariantsSectionProps> = React.memo(({
                                             inputProps={{ min: 0 }}
                                             fullWidth
                                             disabled={false}
+                                          />
+                                        </Grid>
+
+                                        {/* Minimum Order Quantity - ALWAYS EDITABLE */}
+                                        <Grid size={{ xs: 12, sm: 6 }}>
+                                          <TextField
+                                            size="small"
+                                            type="number"
+                                            label="Minimum Order Qty (MOQ)"
+                                            value={String(offer.minimumOrderQuantity ?? '1')}
+                                            onChange={(e) => {
+                                              onOfferChange?.(activeColorTab, subIndex, offerIndex, 'minimumOrderQuantity', e.target.value);
+                                            }}
+                                            inputProps={{ min: 1 }}
+                                            fullWidth
+                                            disabled={false}
+                                            error={Boolean(getFormikError(formik, `variants.${activeColorTab}.subVariants.${subIndex}.offers.${offerIndex}.minimumOrderQuantity`))}
+                                            helperText={getFormikError(formik, `variants.${activeColorTab}.subVariants.${subIndex}.offers.${offerIndex}.minimumOrderQuantity`) || ''}
                                           />
                                         </Grid>
 

@@ -40,7 +40,9 @@ const UsersList = () => {
                 gap={2}
                 mb={4}
             >
-                <Typography variant="h4" fontWeight="bold" sx={{ color: '#111827' }}>Users Management</Typography>
+                <Typography variant="h4" fontWeight="bold" sx={{ color: '#111827' }}>
+                    Users Management <Typography component="span" variant="h5" color="text.secondary" fontWeight="normal">({users.length})</Typography>
+                </Typography>
                 
                 {/* Search Bar */}
                 <Box 

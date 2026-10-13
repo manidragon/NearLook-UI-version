@@ -20,6 +20,7 @@ import { usePushNotifications } from './hooks/usePushNotifications';
 import { useHardwareBackButton } from './hooks/useHardwareBackButton';
 import { useExternalLinks } from './hooks/useExternalLinks';
 import PullToRefresh from 'react-simple-pull-to-refresh';
+import TopProgressBar from './components/TopProgressBar';
 
 const AdminDashboard = lazy(() => import('./admin/pages/Dashboard/Dashboard'));
 const CustomerRoutes = lazy(() => import('./routes/CustomerRoutes'));
@@ -147,6 +148,7 @@ function App() {
         <div className="fixed inset-0 -z-[100] w-full h-full bg-white [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#FF5A00_100%)]" />
 
         <ScrollToTop />
+        <TopProgressBar />
         <PullToRefresh onRefresh={handleRefresh} pullingContent={''} >
           <div style={{ minHeight: '100vh' }}>
             <Suspense fallback={

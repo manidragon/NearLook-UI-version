@@ -13,6 +13,7 @@ const Order = () => {
   const auth = useAppSelector(state => state.auth);
   const orders = useAppSelector(state => state.orders);
   const [tabValue, setTabValue] = useState(0);
+  const [localLoading, setLocalLoading] = useState(true);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -21,7 +22,12 @@ const Order = () => {
   useEffect(() => {
     const jwt = localStorage.getItem("jwt");
     if (jwt) {
-      dispatch(fetchUserOrderHistory(jwt));
+      setLocalLoading(true);
+      dispatch(fetchUserOrderHistory(jwt)).finally(() => {
+        setLocalLoading(false);
+      });
+    } else {
+      setLocalLoading(false);
     }
   }, [auth.jwt, dispatch]);
 
@@ -61,7 +67,7 @@ const Order = () => {
   };
 
   // ✅ FIX 4: Loading state
-  if (orders.loading) {
+  if (localLoading) {
     return (
       <Box sx={{ textAlign: 'center', py: 10 }}>
         <CustomLoader />

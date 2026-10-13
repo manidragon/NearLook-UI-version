@@ -102,7 +102,7 @@ const WishlistProductCard: React.FC<ProductCardProps> = ({ item }) => {
       <div
         onClick={() => {
           const categoryId = typeof item.category === 'object' && item.category !== null ? item.category.categoryId : item.category;
-          navigate(`/product-details/${categoryId || 'all'}/${item.title}/${item._id}`);
+          navigate(`/product-details/${categoryId || 'all'}/${encodeURIComponent(item.title)}/${item._id}`);
         }}
         className="product-card cursor-pointer relative group"
         onMouseEnter={() => setIsHovered(true)}

@@ -50,7 +50,7 @@ export const fetchUserCart = createAsyncThunk<Cart, string>(
       });
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || "Failed to fetch user cart");
+      return rejectWithValue(error.response?.data?.error || error.response?.data?.message || "Failed to fetch user cart");
     }
   }
 );
@@ -80,7 +80,7 @@ export const addItemToCart = createAsyncThunk<
     
     return freshCart;
   } catch (error: any) {
-    return rejectWithValue(error.response?.data?.message || "Failed to add item to cart");
+    return rejectWithValue(error.response?.data?.error || error.response?.data?.message || "Failed to add item to cart");
   }
 });
 
@@ -95,7 +95,7 @@ export const deleteCartItem = createAsyncThunk<
     return { cartItemId };
   } catch (error: any) {
     return rejectWithValue(
-      error.response?.data?.message || "Failed to delete cart item"
+      error.response?.data?.error || error.response?.data?.message || "Failed to delete cart item"
     );
   }
 });
@@ -122,7 +122,7 @@ export const updateCartItem = createAsyncThunk<
       return response.data.updatedCartItem || response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to update cart item"
+        error.response?.data?.error || error.response?.data?.message || "Failed to update cart item"
       );
     }
   }

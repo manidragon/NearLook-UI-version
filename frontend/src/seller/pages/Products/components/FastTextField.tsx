@@ -5,9 +5,12 @@ import type { TextFieldProps } from '@mui/material';
 export const FastTextField: React.FC<TextFieldProps> = (props) => {
   const [localValue, setLocalValue] = useState(props.value ?? '');
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isFocused = useRef(false);
 
   useEffect(() => {
-    setLocalValue(props.value ?? '');
+    if (!isFocused.current) {
+      setLocalValue(props.value ?? '');
+    }
   }, [props.value]);
 
   const debouncedOnChange = (name: string, value: string) => {
@@ -20,7 +23,7 @@ export const FastTextField: React.FC<TextFieldProps> = (props) => {
           target: { name, value }
         } as any);
       }
-    }, 300);
+    }, 1000);
   };
 
   const flushDebounce = () => {
@@ -38,7 +41,15 @@ export const FastTextField: React.FC<TextFieldProps> = (props) => {
     debouncedOnChange(name, val);
   };
 
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    isFocused.current = true;
+    if (props.onFocus) {
+      props.onFocus(e);
+    }
+  };
+
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    isFocused.current = false;
     flushDebounce();
     if (props.onChange) {
       props.onChange(e); // Ensure final value is synced on blur
@@ -48,7 +59,7 @@ export const FastTextField: React.FC<TextFieldProps> = (props) => {
     }
   };
 
-  return <TextField {...props} value={localValue} onChange={handleChange} onBlur={handleBlur} />;
+  return <TextField {...props} value={localValue} onChange={handleChange} onBlur={handleBlur} onFocus={handleFocus} />;
 };
 
 

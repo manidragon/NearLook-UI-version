@@ -18,6 +18,12 @@ const offerSchema = new Schema({
     required: true,
     min: 0
   },
+  minimumOrderQuantity: {
+    type: Number,
+    required: true,
+    min: 1,
+    default: 1
+  },
   stock: {
     type: Number,
     required: true,

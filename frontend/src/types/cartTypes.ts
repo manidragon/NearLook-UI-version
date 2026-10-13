@@ -34,8 +34,12 @@ export interface CartItem {
         hasDeliveryCharge?: boolean;
         deliveryChargePrice?: number;
         freeDeliveryRadiusKM?: number;
+        minimumOrderQuantity?: number;
       }>;
       isActive: boolean;
+      mrpPrice?: number;
+      sellingPrice?: number;
+      stock?: number;
     }>;
   };
   variantId?: string;  // ✅ Track which variant

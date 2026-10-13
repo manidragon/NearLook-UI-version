@@ -50,7 +50,10 @@ const Approvals = () => {
       filtered.sort((a: any, b: any) => {
         if (a.approvalStatus === 'PENDING' && b.approvalStatus !== 'PENDING') return -1;
         if (a.approvalStatus !== 'PENDING' && b.approvalStatus === 'PENDING') return 1;
-        return 0;
+        const dateA = new Date(a.createdAt || 0).getTime();
+        const dateB = new Date(b.createdAt || 0).getTime();
+        if (dateA !== dateB) return dateB - dateA;
+        return (b._id || '').localeCompare(a._id || '');
       });
       setProducts(filtered);
     } catch (error) {
@@ -70,7 +73,10 @@ const Approvals = () => {
       filtered.sort((a: any, b: any) => {
         if (a.offer.approvalStatus === 'PENDING' && b.offer.approvalStatus !== 'PENDING') return -1;
         if (a.offer.approvalStatus !== 'PENDING' && b.offer.approvalStatus === 'PENDING') return 1;
-        return 0;
+        const dateA = new Date(a.offer?.createdAt || a.createdAt || 0).getTime();
+        const dateB = new Date(b.offer?.createdAt || b.createdAt || 0).getTime();
+        if (dateA !== dateB) return dateB - dateA;
+        return (b.offer?._id || b._id || '').localeCompare(a.offer?._id || a._id || '');
       });
       setOffers(filtered);
     } catch (error) {
@@ -276,7 +282,18 @@ const Approvals = () => {
           {selectedItem && itemType === 'product' && (
             <Box>
               <Typography variant="h6">{selectedItem.title}</Typography>
-              <Typography variant="body2" color="text.secondary" mb={2}>{selectedItem.description}</Typography>
+              <Box 
+                mb={2} 
+                sx={{ 
+                  color: 'text.secondary',
+                  fontSize: '0.875rem',
+                  '& ul': { paddingLeft: 3, listStyleType: 'disc', my: 1 },
+                  '& ol': { paddingLeft: 3, listStyleType: 'decimal', my: 1 },
+                  '& li': { mb: 0.5 },
+                  wordBreak: 'break-word'
+                }}
+                dangerouslySetInnerHTML={{ __html: (selectedItem.description || '').replace(/&nbsp;/g, ' ') }} 
+              />
               <Typography><strong>Seller:</strong> {selectedItem.seller?.businessDetails?.businessName}</Typography>
               <Typography><strong>Category:</strong> {selectedItem.category?.name}</Typography>
               <Typography><strong>Status:</strong> {selectedItem.approvalStatus}</Typography>
@@ -342,6 +359,7 @@ const Approvals = () => {
               <Typography mt={2}><strong>Selling Price:</strong> ₹{selectedItem.offer.sellingPrice}</Typography>
               <Typography><strong>MRP:</strong> ₹{selectedItem.offer.mrpPrice}</Typography>
               <Typography><strong>Stock:</strong> {selectedItem.offer.stock}</Typography>
+              <Typography><strong>Minimum Order Qty (MOQ):</strong> {selectedItem.offer.minimumOrderQuantity || 1}</Typography>
               
               <Typography mt={2}><strong>Returnable:</strong> {selectedItem.offer.isReturnable ? `Yes (${selectedItem.offer.returnTAT})` : 'No'}</Typography>
               <Typography><strong>Replaceable:</strong> {selectedItem.offer.isReplaceable ? `Yes (${selectedItem.offer.replacementTAT})` : 'No'}</Typography>
@@ -351,10 +369,10 @@ const Approvals = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDetailsModalOpen(false)}>Close</Button>
-          {((itemType === 'product' && selectedItem?.approvalStatus !== 'APPROVED') || (itemType === 'offer')) && (
+          {((itemType === 'product' && selectedItem?.approvalStatus !== 'APPROVED') || (itemType === 'offer' && selectedItem?.offer?.approvalStatus !== 'APPROVED')) && (
             <Button color="success" variant="contained" onClick={() => { setDetailsModalOpen(false); handleApprove(selectedItem, itemType); }}>Approve</Button>
           )}
-          {((itemType === 'product' && selectedItem?.approvalStatus !== 'REJECTED') || (itemType === 'offer')) && (
+          {((itemType === 'product' && selectedItem?.approvalStatus !== 'REJECTED') || (itemType === 'offer' && selectedItem?.offer?.approvalStatus !== 'REJECTED')) && (
             <Button color="error" variant="contained" onClick={() => { setDetailsModalOpen(false); openRejectModal(selectedItem, itemType); }}>Reject</Button>
           )}
         </DialogActions>
